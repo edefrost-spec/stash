@@ -3,12 +3,12 @@
 
 const CONFIG = {
   // Your Supabase project URL (from Project Settings > API)
-  SUPABASE_URL: 'https://YOUR_PROJECT_ID.supabase.co',
+  SUPABASE_URL: 'https://eacfqyvrsvgrstjbeyeh.supabase.co',
 
   // Your Supabase anon/public key (from Project Settings > API)
-  SUPABASE_ANON_KEY: 'YOUR_SUPABASE_ANON_KEY',
+  SUPABASE_ANON_KEY: 'sb_publishable_0I38gztcpNZxS0Vg8lL-Bw_6Ya2tjYx',
 
   // Your user ID from Supabase (Authentication > Users)
   // For multi-user mode, this can be removed and auth will be required
-  USER_ID: 'YOUR_USER_ID',
+  USER_ID: '93dfdbc7-8d8f-4b97-8014-7e4e85e7b2e7',
 };
