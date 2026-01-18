@@ -6,7 +6,7 @@ const CONFIG = {
   SUPABASE_URL: 'https://eacfqyvrsvgrstjbeyeh.supabase.co',
 
   // Your Supabase anon/public key (from Project Settings > API)
-  SUPABASE_ANON_KEY: 'sb_publishable_0I38gztcpNZxS0Vg8lL-Bw_6Ya2tjYx',
+  SUPABASE_ANON_KEY: 'sb_secret_fOT5TwrxRWptVF3mGEHKtg_I43_-1Ak',
 
   // Your web app URL (after deploying to Vercel/Netlify)
   WEB_APP_URL: 'https://stash-steel.vercel.app',
