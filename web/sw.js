@@ -39,6 +39,10 @@ self.addEventListener('fetch', (event) => {
   // Skip API requests (let them go to network)
   if (event.request.url.includes('supabase.co')) return;
 
+  // ✅ Skip non-http(s) requests (chrome-extension:, data:, etc.)
+  const url = new URL(event.request.url);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
