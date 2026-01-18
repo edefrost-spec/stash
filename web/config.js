@@ -6,7 +6,7 @@ const CONFIG = {
   SUPABASE_URL: 'https://eacfqyvrsvgrstjbeyeh.supabase.co',
 
   // Your Supabase anon/public key (from Project Settings > API)
-  SUPABASE_ANON_KEY: 'sb_secret_fOT5TwrxRWptVF3mGEHKtg_I43_-1Ak',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhY2ZxeXZyc3ZncnN0amJleWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1NzYyNDMsImV4cCI6MjA4NDE1MjI0M30.cltDGHh-OCZ2gxO3edcVIvCY3hXdTf4PAAZWESGE4CQ',
 
   // Your user ID from Supabase (Authentication > Users)
   // For multi-user mode, this can be removed and auth will be required
