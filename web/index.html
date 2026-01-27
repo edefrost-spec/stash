@@ -196,6 +196,18 @@
                 <option value="created_at.asc">Oldest first</option>
                 <option value="title.asc">Title A-Z</option>
               </select>
+              <div class="view-toggle-group">
+                <button type="button" class="btn secondary view-toggle" id="toggle-annotations-btn" aria-pressed="false">
+                  Show notes + tags
+                </button>
+                <button type="button" class="btn secondary view-toggle" id="toggle-moodboard-btn" aria-pressed="false">
+                  Mood board
+                </button>
+              </div>
+              <div class="color-filter hidden" id="color-filter">
+                <span class="color-filter-label">Filter by color</span>
+                <div class="color-swatches" id="color-swatches"></div>
+              </div>
             </div>
           </div>
 

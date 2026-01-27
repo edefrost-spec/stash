@@ -14,6 +14,30 @@ class StashApp {
     this.currentFolderId = null;
     this.currentTagId = null;
 
+    // Card display preferences
+    this.showAnnotations = false;
+    this.isMoodBoard = false;
+    this.colorFilter = 'all';
+
+    // Card metadata maps
+    this.saveTagMap = {};
+    this.saveColorMap = {};
+    this.imageColorCache = this.loadImageColorCache();
+    this.colorDataInFlight = false;
+
+    this.colorBuckets = [
+      { key: 'all', label: 'All', swatch: '#111827' },
+      { key: 'red', label: 'Red', swatch: '#ef4444' },
+      { key: 'orange', label: 'Orange', swatch: '#f97316' },
+      { key: 'yellow', label: 'Yellow', swatch: '#facc15' },
+      { key: 'green', label: 'Green', swatch: '#22c55e' },
+      { key: 'teal', label: 'Teal', swatch: '#14b8a6' },
+      { key: 'blue', label: 'Blue', swatch: '#3b82f6' },
+      { key: 'purple', label: 'Purple', swatch: '#8b5cf6' },
+      { key: 'pink', label: 'Pink', swatch: '#ec4899' },
+      { key: 'neutral', label: 'Neutral', swatch: '#9ca3af' },
+    ];
+
     // Audio player state
     this.audio = null;
     this.isPlaying = false;
@@ -33,6 +57,7 @@ class StashApp {
 
     // Load theme preference
     this.loadTheme();
+    this.loadCardPreferences();
 
     // Skip auth - go straight to main screen
     this.showMainScreen();
@@ -72,6 +97,138 @@ class StashApp {
     }
   }
 
+  loadCardPreferences() {
+    this.showAnnotations = localStorage.getItem('stash-show-annotations') === 'true';
+    this.isMoodBoard = localStorage.getItem('stash-mood-board') === 'true';
+    this.colorFilter = localStorage.getItem('stash-color-filter') || 'all';
+    document.body.classList.toggle('show-annotations', this.showAnnotations);
+    this.updateAnnotationsToggleUI();
+    this.updateMoodBoardToggleUI();
+    this.updateColorFilterVisibility();
+  }
+
+  updateAnnotationsToggleUI() {
+    const btn = document.getElementById('toggle-annotations-btn');
+    if (!btn) return;
+    btn.setAttribute('aria-pressed', this.showAnnotations ? 'true' : 'false');
+    btn.textContent = this.showAnnotations ? 'Hide notes + tags' : 'Show notes + tags';
+  }
+
+  updateMoodBoardToggleUI() {
+    const btn = document.getElementById('toggle-moodboard-btn');
+    if (!btn) return;
+    btn.setAttribute('aria-pressed', this.isMoodBoard ? 'true' : 'false');
+    btn.textContent = this.isMoodBoard ? 'Standard view' : 'Mood board';
+  }
+
+  updateColorFilterVisibility() {
+    const filter = document.getElementById('color-filter');
+    if (!filter) return;
+    const viewAllows = !['weekly', 'stats', 'kindle'].includes(this.currentView);
+    if (this.isMoodBoard && viewAllows) {
+      filter.classList.remove('hidden');
+    } else {
+      filter.classList.add('hidden');
+    }
+  }
+
+  toggleAnnotations() {
+    this.showAnnotations = !this.showAnnotations;
+    localStorage.setItem('stash-show-annotations', this.showAnnotations);
+    document.body.classList.toggle('show-annotations', this.showAnnotations);
+    this.updateAnnotationsToggleUI();
+  }
+
+  toggleMoodBoard() {
+    this.isMoodBoard = !this.isMoodBoard;
+    localStorage.setItem('stash-mood-board', this.isMoodBoard);
+    this.updateMoodBoardToggleUI();
+    this.updateColorFilterVisibility();
+    if (!this.isMoodBoard) {
+      this.colorFilter = 'all';
+      localStorage.setItem('stash-color-filter', this.colorFilter);
+    }
+    const viewAllows = !['weekly', 'stats', 'kindle'].includes(this.currentView);
+    if (viewAllows) {
+      this.renderSaves();
+      if (this.isMoodBoard) {
+        this.prepareColorData();
+      }
+    }
+  }
+
+  setColorFilter(key) {
+    if (!key || key === this.colorFilter) return;
+    this.colorFilter = key;
+    localStorage.setItem('stash-color-filter', this.colorFilter);
+    this.renderColorFilters();
+    const viewAllows = !['weekly', 'stats', 'kindle'].includes(this.currentView);
+    if (viewAllows) {
+      this.renderSaves();
+    }
+  }
+
+  renderColorFilters() {
+    const container = document.getElementById('color-swatches');
+    if (!container) return;
+    if (!this.isMoodBoard) {
+      container.innerHTML = '';
+      return;
+    }
+
+    const counts = this.getColorCounts();
+    const items = this.colorBuckets.filter(bucket => bucket.key === 'all' || (counts[bucket.key] || 0) > 0);
+
+    container.innerHTML = items.map(bucket => {
+      if (bucket.key === 'all') {
+        return `
+          <button type="button" class="color-pill${this.colorFilter === 'all' ? ' active' : ''}" data-color-key="all">
+            All (${this.saves.length})
+          </button>
+        `;
+      }
+
+      const count = counts[bucket.key] || 0;
+      return `
+        <button type="button" class="color-swatch${this.colorFilter === bucket.key ? ' active' : ''}"
+          data-color-key="${bucket.key}"
+          style="--swatch: ${bucket.swatch}"
+          title="${bucket.label} (${count})">
+        </button>
+      `;
+    }).join('');
+  }
+
+  getColorCounts() {
+    const counts = {};
+    this.saves.forEach(save => {
+      const bucket = this.getSaveColorBucket(save);
+      if (!bucket) return;
+      counts[bucket] = (counts[bucket] || 0) + 1;
+    });
+    return counts;
+  }
+
+  getSaveColorBucket(save) {
+    if (!save) return null;
+    const entry = this.saveColorMap[save.id];
+    if (entry?.bucket) return entry.bucket;
+    if (!save.image_url) return 'neutral';
+    return null;
+  }
+
+  loadImageColorCache() {
+    try {
+      return JSON.parse(localStorage.getItem('stash-image-colors') || '{}');
+    } catch (e) {
+      return {};
+    }
+  }
+
+  saveImageColorCache() {
+    localStorage.setItem('stash-image-colors', JSON.stringify(this.imageColorCache));
+  }
+
   bindEvents() {
     // Auth form
     document.getElementById('auth-form').addEventListener('submit', (e) => {
@@ -109,6 +266,24 @@ class StashApp {
     document.getElementById('sort-select').addEventListener('change', (e) => {
       this.loadSaves();
     });
+
+    // Card display toggles
+    document.getElementById('toggle-annotations-btn').addEventListener('click', () => {
+      this.toggleAnnotations();
+    });
+
+    document.getElementById('toggle-moodboard-btn').addEventListener('click', () => {
+      this.toggleMoodBoard();
+    });
+
+    const colorSwatches = document.getElementById('color-swatches');
+    if (colorSwatches) {
+      colorSwatches.addEventListener('click', (e) => {
+        const target = e.target.closest('[data-color-key]');
+        if (!target) return;
+        this.setColorFilter(target.dataset.colorKey);
+      });
+    }
 
     // Reading pane
     document.getElementById('close-reading-btn').addEventListener('click', () => {
@@ -428,6 +603,8 @@ class StashApp {
 
     this.saves = data || [];
 
+    await this.loadSaveTagMapForSaves(this.saves);
+
     if (this.saves.length === 0) {
       empty.classList.remove('hidden');
     } else {
@@ -443,40 +620,19 @@ class StashApp {
 
   renderSaves() {
     const container = document.getElementById('saves-container');
+    if (!container) return;
 
-    container.innerHTML = this.saves.map(save => {
-      const isHighlight = !!save.highlight;
-      const date = new Date(save.created_at).toLocaleDateString();
+    const viewAllows = !['weekly', 'stats', 'kindle'].includes(this.currentView);
+    const useMoodBoard = this.isMoodBoard && viewAllows;
+    const savesToRender = this.filterSavesForDisplay(this.saves, useMoodBoard);
 
-      if (isHighlight) {
-        return `
-          <div class="save-card highlight" data-id="${save.id}">
-            <div class="save-card-content">
-              <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
-              <div class="save-card-highlight">"${this.escapeHtml(save.highlight)}"</div>
-              <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
-              <div class="save-card-meta">
-                <span class="save-card-date">${date}</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }
+    container.classList.toggle('mood-board', useMoodBoard);
+    container.innerHTML = savesToRender.map(save => this.renderSaveCard(save, { moodBoard: useMoodBoard })).join('');
 
-      return `
-        <div class="save-card" data-id="${save.id}">
-          ${save.image_url ? `<img class="save-card-image" src="${save.image_url}" alt="" onerror="this.style.display='none'">` : ''}
-          <div class="save-card-content">
-            <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
-            <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
-            <div class="save-card-excerpt">${this.escapeHtml(save.excerpt || '')}</div>
-            <div class="save-card-meta">
-              <span class="save-card-date">${date}</span>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
+    if (useMoodBoard) {
+      this.renderColorFilters();
+      this.prepareColorData();
+    }
 
     // Bind click events
     container.querySelectorAll('.save-card').forEach(card => {
@@ -603,9 +759,45 @@ class StashApp {
     });
   }
 
-  renderSaveCard(save) {
+  renderSaveCard(save, options = {}) {
+    const { moodBoard = false } = options;
     const isHighlight = !!save.highlight;
     const date = new Date(save.created_at).toLocaleDateString();
+    const annotations = this.renderCardAnnotations(save, { compact: moodBoard });
+    const colorEntry = this.saveColorMap[save.id];
+    const dominantStyle = colorEntry?.color ? `style="--dominant: ${colorEntry.color}"` : '';
+
+    if (moodBoard) {
+      const meta = `${this.escapeHtml(save.site_name || '')}${save.site_name ? ' · ' : ''}${date}`;
+      if (isHighlight) {
+        return `
+          <div class="save-card mood-card highlight" data-id="${save.id}" ${dominantStyle}>
+            <div class="mood-media">
+              <div class="mood-placeholder"></div>
+              <div class="mood-overlay">
+                <div class="mood-title">${this.escapeHtml(save.title || 'Untitled')}</div>
+                <div class="save-card-highlight">"${this.escapeHtml(save.highlight)}"</div>
+                <div class="mood-meta">${meta}</div>
+                ${annotations}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="save-card mood-card" data-id="${save.id}" ${dominantStyle}>
+          <div class="mood-media">
+            ${save.image_url ? `<img src="${save.image_url}" alt="" onerror="this.style.display='none'">` : '<div class="mood-placeholder"></div>'}
+            <div class="mood-overlay">
+              <div class="mood-title">${this.escapeHtml(save.title || 'Untitled')}</div>
+              <div class="mood-meta">${meta}</div>
+              ${annotations}
+            </div>
+          </div>
+        </div>
+      `;
+    }
 
     if (isHighlight) {
       return `
@@ -617,6 +809,7 @@ class StashApp {
             <div class="save-card-meta">
               <span class="save-card-date">${date}</span>
             </div>
+            ${annotations}
           </div>
         </div>
       `;
@@ -632,9 +825,53 @@ class StashApp {
           <div class="save-card-meta">
             <span class="save-card-date">${date}</span>
           </div>
+          ${annotations}
         </div>
       </div>
     `;
+  }
+
+  renderCardAnnotations(save, options = {}) {
+    const { compact = false } = options;
+    const tags = this.saveTagMap[save.id] || [];
+    const notes = (save.notes || '').trim();
+    const noteLimit = compact ? 80 : 160;
+    const noteText = notes ? this.escapeHtml(this.truncateText(notes, noteLimit)) : '';
+
+    const tagsMarkup = tags.length
+      ? tags.map(tag => {
+          const color = tag.color || '#94a3b8';
+          return `
+            <span class="save-card-tag" style="background: ${color}20; border-color: ${color}">
+              ${this.escapeHtml(tag.name)}
+            </span>
+          `;
+        }).join('')
+      : `<span class="save-card-tag empty">No tags</span>`;
+
+    const notesMarkup = notes
+      ? `<div class="save-card-notes"><strong>Notes</strong>${noteText}</div>`
+      : '';
+
+    return `
+      <div class="save-card-annotations">
+        <div class="save-card-tags-inline">${tagsMarkup}</div>
+        ${notesMarkup}
+      </div>
+    `;
+  }
+
+  filterSavesForDisplay(saves, useMoodBoard) {
+    if (!useMoodBoard || this.colorFilter === 'all') {
+      return saves;
+    }
+
+    return saves.filter(save => this.getSaveColorBucket(save) === this.colorFilter);
+  }
+
+  truncateText(text, maxLength) {
+    if (!text || text.length <= maxLength) return text;
+    return `${text.slice(0, maxLength - 1).trim()}…`;
   }
 
   getWeekDateRange() {
@@ -644,6 +881,207 @@ class StashApp {
 
     const options = { month: 'short', day: 'numeric' };
     return `${weekAgo.toLocaleDateString('en-US', options)} - ${now.toLocaleDateString('en-US', options)}`;
+  }
+
+  async loadSaveTagMapForSaves(saves) {
+    const saveIds = saves.map(save => save.id);
+    if (saveIds.length === 0) {
+      this.saveTagMap = {};
+      return;
+    }
+
+    const { data } = await this.supabase
+      .from('save_tags')
+      .select('save_id, tags(id, name, color)')
+      .in('save_id', saveIds);
+
+    const map = {};
+    (data || []).forEach(row => {
+      if (!row.tags) return;
+      if (!map[row.save_id]) map[row.save_id] = [];
+      map[row.save_id].push(row.tags);
+    });
+
+    this.saveTagMap = map;
+  }
+
+  async prepareColorData() {
+    if (this.colorDataInFlight || !this.isMoodBoard) return;
+    this.colorDataInFlight = true;
+
+    const updated = await this.populateColorMapForSaves(this.saves);
+    this.colorDataInFlight = false;
+
+    if (updated) {
+      this.renderColorFilters();
+      if (this.colorFilter !== 'all') {
+        this.renderSaves();
+      } else {
+        this.updateSaveCardsWithColors();
+      }
+    }
+  }
+
+  async populateColorMapForSaves(saves) {
+    let updated = false;
+
+    for (const save of saves) {
+      if (this.saveColorMap[save.id]) continue;
+      if (!save.image_url) {
+        this.saveColorMap[save.id] = { color: '#9ca3af', bucket: 'neutral' };
+        updated = true;
+        continue;
+      }
+
+      const color = await this.getDominantColor(save.image_url);
+      const bucket = this.getColorBucketFromHex(color || '#9ca3af');
+      this.saveColorMap[save.id] = { color: color || '#9ca3af', bucket };
+      updated = true;
+    }
+
+    if (updated) {
+      this.saveImageColorCache();
+    }
+
+    return updated;
+  }
+
+  async getDominantColor(imageUrl) {
+    if (!imageUrl) return null;
+    if (this.imageColorCache[imageUrl]) {
+      return this.imageColorCache[imageUrl];
+    }
+
+    try {
+      const color = await this.computeDominantColorFromImage(imageUrl);
+      if (color) {
+        this.imageColorCache[imageUrl] = color;
+      }
+      return color;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  computeDominantColorFromImage(imageUrl) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d', { willReadFrequently: true });
+          if (!ctx) {
+            resolve(null);
+            return;
+          }
+          const size = 24;
+          canvas.width = size;
+          canvas.height = size;
+          ctx.drawImage(img, 0, 0, size, size);
+          const data = ctx.getImageData(0, 0, size, size).data;
+          let r = 0;
+          let g = 0;
+          let b = 0;
+          let count = 0;
+          for (let i = 0; i < data.length; i += 4) {
+            const alpha = data[i + 3];
+            if (alpha < 200) continue;
+            r += data[i];
+            g += data[i + 1];
+            b += data[i + 2];
+            count += 1;
+          }
+
+          if (count === 0) {
+            resolve(null);
+            return;
+          }
+
+          r = Math.round(r / count);
+          g = Math.round(g / count);
+          b = Math.round(b / count);
+          resolve(this.rgbToHex(r, g, b));
+        } catch (e) {
+          resolve(null);
+        }
+      };
+
+      img.onerror = () => resolve(null);
+      img.src = imageUrl;
+    });
+  }
+
+  rgbToHex(r, g, b) {
+    const toHex = (value) => value.toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  }
+
+  getColorBucketFromHex(hex) {
+    if (!hex) return 'neutral';
+    const rgb = hex.replace('#', '');
+    const r = parseInt(rgb.slice(0, 2), 16);
+    const g = parseInt(rgb.slice(2, 4), 16);
+    const b = parseInt(rgb.slice(4, 6), 16);
+    const hsl = this.rgbToHsl(r, g, b);
+    return this.getColorBucketFromHsl(hsl);
+  }
+
+  rgbToHsl(r, g, b) {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const delta = max - min;
+    let h = 0;
+    let s = 0;
+    const l = (max + min) / 2;
+
+    if (delta !== 0) {
+      s = delta / (1 - Math.abs(2 * l - 1));
+      switch (max) {
+        case r:
+          h = ((g - b) / delta) % 6;
+          break;
+        case g:
+          h = (b - r) / delta + 2;
+          break;
+        default:
+          h = (r - g) / delta + 4;
+          break;
+      }
+      h = Math.round(h * 60);
+      if (h < 0) h += 360;
+    }
+
+    return { h, s, l };
+  }
+
+  getColorBucketFromHsl(hsl) {
+    if (!hsl || hsl.s < 0.18 || hsl.l < 0.12 || hsl.l > 0.92) {
+      return 'neutral';
+    }
+    const hue = hsl.h;
+    if (hue < 15 || hue >= 345) return 'red';
+    if (hue < 40) return 'orange';
+    if (hue < 70) return 'yellow';
+    if (hue < 155) return 'green';
+    if (hue < 200) return 'teal';
+    if (hue < 250) return 'blue';
+    if (hue < 290) return 'purple';
+    if (hue < 345) return 'pink';
+    return 'neutral';
+  }
+
+  updateSaveCardsWithColors() {
+    const cards = document.querySelectorAll('.save-card');
+    cards.forEach(card => {
+      const id = card.dataset.id;
+      const entry = this.saveColorMap[id];
+      if (!entry) return;
+      card.style.setProperty('--dominant', entry.color);
+    });
   }
 
   async loadTags() {
@@ -682,6 +1120,7 @@ class StashApp {
     // Update title
     const tag = this.tags.find(t => t.id === tagId);
     document.getElementById('view-title').textContent = tag?.name ? `#${tag.name}` : 'Tag';
+    this.updateColorFilterVisibility();
 
     this.loadSaves();
   }
@@ -726,6 +1165,7 @@ class StashApp {
     // Update title
     const folder = this.folders.find(f => f.id === folderId);
     document.getElementById('view-title').textContent = folder?.name || 'Folder';
+    this.updateColorFilterVisibility();
 
     this.loadSaves();
   }
@@ -754,6 +1194,7 @@ class StashApp {
       stats: 'Stats',
     };
     document.getElementById('view-title').textContent = titles[view] || 'Saves';
+    this.updateColorFilterVisibility();
 
     if (view === 'stats') {
       this.showStats();
@@ -776,6 +1217,7 @@ class StashApp {
     });
 
     this.saves = data || [];
+    await this.loadSaveTagMapForSaves(this.saves);
     this.renderSaves();
   }
 
@@ -1050,6 +1492,8 @@ class StashApp {
 
       this.loadTags();
       this.loadSaveTags(this.currentSave.id);
+      await this.loadSaveTagMapForSaves(this.saves);
+      if (this.showAnnotations) this.renderSaves();
     }
   }
 
@@ -1096,6 +1540,8 @@ class StashApp {
       .eq('tag_id', tagId);
 
     this.loadSaveTags(saveId);
+    await this.loadSaveTagMapForSaves(this.saves);
+    if (this.showAnnotations) this.renderSaves();
   }
 
   async updateSaveFolder(folderId) {
@@ -1134,6 +1580,7 @@ class StashApp {
 
       this.currentSave.notes = notes;
       document.getElementById('notes-status').textContent = 'Saved';
+      if (this.showAnnotations) this.renderSaves();
       setTimeout(() => {
         const status = document.getElementById('notes-status');
         if (status.textContent === 'Saved') {
