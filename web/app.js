@@ -10,9 +10,16 @@ class StashApp {
     this.folders = [];
     this.pendingKindleImport = null; // Stores parsed highlights before import
 
+    // Filter state for folders/tags
+    this.currentFolderId = null;
+    this.currentTagId = null;
+
     // Audio player state
     this.audio = null;
     this.isPlaying = false;
+
+    // Notes auto-save timeout
+    this.notesTimeout = null;
 
     this.init();
   }
@@ -122,6 +129,16 @@ class StashApp {
 
     document.getElementById('add-tag-btn').addEventListener('click', () => {
       this.addTagToSave();
+    });
+
+    // Folder selection in reading pane
+    document.getElementById('reading-folder-select').addEventListener('change', (e) => {
+      this.updateSaveFolder(e.target.value || null);
+    });
+
+    // Notes auto-save
+    document.getElementById('reading-notes-textarea').addEventListener('input', (e) => {
+      this.debouncedSaveNotes(e.target.value);
     });
 
     // Mobile menu
@@ -373,8 +390,31 @@ class StashApp {
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       query = query.gte('created_at', weekAgo.toISOString());
-    } else {
+    } else if (this.currentView !== 'folder' && this.currentView !== 'tag') {
       query = query.eq('is_archived', false);
+    }
+
+    // Apply folder filter
+    if (this.currentFolderId) {
+      query = query.eq('folder_id', this.currentFolderId);
+    }
+
+    // Apply tag filter - need to get save IDs first
+    if (this.currentTagId) {
+      const { data: taggedSaves } = await this.supabase
+        .from('save_tags')
+        .select('save_id')
+        .eq('tag_id', this.currentTagId);
+
+      const saveIds = taggedSaves?.map(ts => ts.save_id) || [];
+      if (saveIds.length === 0) {
+        // No saves with this tag
+        loading.classList.add('hidden');
+        this.saves = [];
+        empty.classList.remove('hidden');
+        return;
+      }
+      query = query.in('id', saveIds);
     }
 
     const { data, error } = await query;
@@ -619,14 +659,31 @@ class StashApp {
   renderTags() {
     const container = document.getElementById('tags-list');
     container.innerHTML = this.tags.map(tag => `
-      <span class="tag" data-id="${tag.id}">${this.escapeHtml(tag.name)}</span>
+      <span class="tag${this.currentTagId === tag.id ? ' active' : ''}" data-id="${tag.id}">${this.escapeHtml(tag.name)}</span>
     `).join('');
 
     container.querySelectorAll('.tag').forEach(el => {
       el.addEventListener('click', () => {
-        // TODO: Filter by tag
+        this.filterByTag(el.dataset.id);
       });
     });
+  }
+
+  filterByTag(tagId) {
+    this.currentTagId = tagId;
+    this.currentFolderId = null;
+    this.currentView = 'tag';
+
+    // Update nav UI - clear other active states
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.tag').forEach(item => item.classList.remove('active'));
+    document.querySelector(`.tag[data-id="${tagId}"]`)?.classList.add('active');
+
+    // Update title
+    const tag = this.tags.find(t => t.id === tagId);
+    document.getElementById('view-title').textContent = tag?.name ? `#${tag.name}` : 'Tag';
+
+    this.loadSaves();
   }
 
   async loadFolders() {
@@ -642,17 +699,47 @@ class StashApp {
   renderFolders() {
     const container = document.getElementById('folders-list');
     container.innerHTML = this.folders.map(folder => `
-      <a href="#" class="nav-item" data-folder="${folder.id}">
+      <a href="#" class="nav-item folder-item${this.currentFolderId === folder.id ? ' active' : ''}" data-folder="${folder.id}">
         <span style="color: ${folder.color}">📁</span>
         ${this.escapeHtml(folder.name)}
       </a>
     `).join('');
+
+    // Add click handlers for folder filtering
+    container.querySelectorAll('.folder-item').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.filterByFolder(el.dataset.folder);
+      });
+    });
+  }
+
+  filterByFolder(folderId) {
+    this.currentFolderId = folderId;
+    this.currentTagId = null;
+    this.currentView = 'folder';
+
+    // Update nav UI - clear other active states
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document.querySelector(`[data-folder="${folderId}"]`)?.classList.add('active');
+
+    // Update title
+    const folder = this.folders.find(f => f.id === folderId);
+    document.getElementById('view-title').textContent = folder?.name || 'Folder';
+
+    this.loadSaves();
   }
 
   setView(view) {
     this.currentView = view;
 
-    // Update nav
+    // Clear folder/tag filters when switching views
+    this.currentFolderId = null;
+    this.currentTagId = null;
+
+    // Update nav - clear all active states first
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.tag').forEach(item => item.classList.remove('active'));
     document.querySelectorAll('.nav-item[data-view]').forEach(item => {
       item.classList.toggle('active', item.dataset.view === view);
     });
@@ -740,6 +827,18 @@ class StashApp {
     // Update button states
     document.getElementById('archive-btn').classList.toggle('active', save.is_archived);
     document.getElementById('favorite-btn').classList.toggle('active', save.is_favorite);
+
+    // Populate folder dropdown
+    const folderSelect = document.getElementById('reading-folder-select');
+    folderSelect.innerHTML = '<option value="">No folder</option>' +
+      this.folders.map(f => `<option value="${f.id}"${save.folder_id === f.id ? ' selected' : ''}>${this.escapeHtml(f.name)}</option>`).join('');
+
+    // Load tags for this save
+    this.loadSaveTags(save.id);
+
+    // Populate notes
+    document.getElementById('reading-notes-textarea').value = save.notes || '';
+    document.getElementById('notes-status').textContent = '';
 
     pane.classList.remove('hidden');
     // Add open class for mobile slide-in animation
@@ -950,6 +1049,99 @@ class StashApp {
         .insert({ save_id: this.currentSave.id, tag_id: existingTag.id });
 
       this.loadTags();
+      this.loadSaveTags(this.currentSave.id);
+    }
+  }
+
+  async loadSaveTags(saveId) {
+    const { data } = await this.supabase
+      .from('save_tags')
+      .select('tag_id, tags(id, name, color)')
+      .eq('save_id', saveId);
+
+    this.currentSaveTags = data || [];
+    this.renderSaveTags();
+  }
+
+  renderSaveTags() {
+    const container = document.getElementById('reading-tags-list');
+    if (!container) return;
+
+    if (!this.currentSaveTags || this.currentSaveTags.length === 0) {
+      container.innerHTML = '<span class="no-tags">No tags</span>';
+      return;
+    }
+
+    container.innerHTML = this.currentSaveTags.map(st => `
+      <span class="save-tag" style="background: ${st.tags.color}20; border-color: ${st.tags.color}">
+        ${this.escapeHtml(st.tags.name)}
+        <button class="tag-remove" data-tag-id="${st.tags.id}" title="Remove tag">&times;</button>
+      </span>
+    `).join('');
+
+    // Bind remove handlers
+    container.querySelectorAll('.tag-remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.removeTagFromSave(this.currentSave.id, btn.dataset.tagId);
+      });
+    });
+  }
+
+  async removeTagFromSave(saveId, tagId) {
+    await this.supabase
+      .from('save_tags')
+      .delete()
+      .eq('save_id', saveId)
+      .eq('tag_id', tagId);
+
+    this.loadSaveTags(saveId);
+  }
+
+  async updateSaveFolder(folderId) {
+    if (!this.currentSave) return;
+
+    await this.supabase
+      .from('saves')
+      .update({ folder_id: folderId })
+      .eq('id', this.currentSave.id);
+
+    this.currentSave.folder_id = folderId;
+
+    // Refresh saves list if filtering by folder
+    if (this.currentFolderId) {
+      this.loadSaves();
+    }
+  }
+
+  debouncedSaveNotes(notes) {
+    document.getElementById('notes-status').textContent = 'Saving...';
+
+    clearTimeout(this.notesTimeout);
+    this.notesTimeout = setTimeout(() => {
+      this.saveNotes(notes);
+    }, 1000); // 1 second debounce
+  }
+
+  async saveNotes(notes) {
+    if (!this.currentSave) return;
+
+    try {
+      await this.supabase
+        .from('saves')
+        .update({ notes })
+        .eq('id', this.currentSave.id);
+
+      this.currentSave.notes = notes;
+      document.getElementById('notes-status').textContent = 'Saved';
+      setTimeout(() => {
+        const status = document.getElementById('notes-status');
+        if (status.textContent === 'Saved') {
+          status.textContent = '';
+        }
+      }, 2000);
+    } catch (err) {
+      document.getElementById('notes-status').textContent = 'Failed to save';
     }
   }
 

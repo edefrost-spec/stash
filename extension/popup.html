@@ -34,6 +34,27 @@
     <div id="main-view" class="view hidden">
       <!-- Save Actions -->
       <div class="actions">
+        <!-- Save Options -->
+        <div class="save-options">
+          <div class="form-group">
+            <label for="folder-select">Folder</label>
+            <select id="folder-select">
+              <option value="">No folder</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="tags-input">Tags</label>
+            <div class="tags-input-container">
+              <div id="selected-tags" class="selected-tags"></div>
+              <input type="text" id="tags-input" placeholder="Add tag...">
+              <div id="tags-suggestions" class="tags-suggestions hidden"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="notes-input">Notes (optional)</label>
+            <textarea id="notes-input" placeholder="Add notes..." rows="2"></textarea>
+          </div>
+        </div>
         <button id="save-page-btn" class="btn primary full-width">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>

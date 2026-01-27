@@ -11,9 +11,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   const savesList = document.getElementById('saves-list');
   const openAppLink = document.getElementById('open-app-link');
 
+  // Form elements
+  const folderSelect = document.getElementById('folder-select');
+  const tagsInput = document.getElementById('tags-input');
+  const selectedTagsContainer = document.getElementById('selected-tags');
+  const tagsSuggestions = document.getElementById('tags-suggestions');
+  const notesInput = document.getElementById('notes-input');
+
+  // State
+  let availableTags = [];
+  let selectedTagIds = [];
+
   // Single-user mode - skip auth, go straight to main view
   showMainView();
   loadRecentSaves();
+  loadFoldersAndTags();
 
   function showAuthView() {
     authView.classList.remove('hidden');
@@ -81,8 +93,104 @@ document.addEventListener('DOMContentLoaded', async () => {
     showAuthView();
   });
 
+  // Load folders and tags
+  async function loadFoldersAndTags() {
+    const [foldersRes, tagsRes] = await Promise.all([
+      chrome.runtime.sendMessage({ action: 'getFolders' }),
+      chrome.runtime.sendMessage({ action: 'getTags' }),
+    ]);
+
+    if (foldersRes.success && foldersRes.folders) {
+      folderSelect.innerHTML = '<option value="">No folder</option>' +
+        foldersRes.folders.map(f => `<option value="${f.id}">${escapeHtml(f.name)}</option>`).join('');
+    }
+
+    if (tagsRes.success && tagsRes.tags) {
+      availableTags = tagsRes.tags;
+    }
+  }
+
+  // Tags input handling
+  tagsInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+
+    if (!query) {
+      tagsSuggestions.classList.add('hidden');
+      return;
+    }
+
+    const matches = availableTags.filter(t =>
+      t.name.toLowerCase().includes(query) && !selectedTagIds.includes(t.id)
+    );
+
+    if (matches.length) {
+      tagsSuggestions.innerHTML = matches.slice(0, 5).map(t =>
+        `<div class="tag-suggestion" data-id="${t.id}" data-name="${escapeHtml(t.name)}">${escapeHtml(t.name)}</div>`
+      ).join('');
+    } else {
+      tagsSuggestions.innerHTML = `<div class="tag-suggestion new" data-name="${escapeHtml(e.target.value)}">Create "${escapeHtml(e.target.value)}"</div>`;
+    }
+    tagsSuggestions.classList.remove('hidden');
+  });
+
+  tagsInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const firstSuggestion = tagsSuggestions.querySelector('.tag-suggestion');
+      if (firstSuggestion) {
+        firstSuggestion.click();
+      }
+    }
+  });
+
+  tagsSuggestions.addEventListener('click', (e) => {
+    const suggestion = e.target.closest('.tag-suggestion');
+    if (!suggestion) return;
+
+    const tagId = suggestion.dataset.id;
+    const tagName = suggestion.dataset.name;
+
+    if (tagId) {
+      selectedTagIds.push(tagId);
+      addTagChip(tagId, tagName);
+    } else {
+      // Create new tag - prefix with 'new:' for backend to handle
+      const tempId = 'new:' + tagName;
+      selectedTagIds.push(tempId);
+      addTagChip(tempId, tagName);
+    }
+
+    tagsInput.value = '';
+    tagsSuggestions.classList.add('hidden');
+  });
+
+  function addTagChip(id, name) {
+    const chip = document.createElement('span');
+    chip.className = 'tag-chip';
+    chip.dataset.id = id;
+    chip.innerHTML = `${escapeHtml(name)} <button class="tag-chip-remove">&times;</button>`;
+
+    chip.querySelector('.tag-chip-remove').addEventListener('click', () => {
+      selectedTagIds = selectedTagIds.filter(t => t !== id);
+      chip.remove();
+    });
+
+    selectedTagsContainer.appendChild(chip);
+  }
+
+  function resetForm() {
+    selectedTagIds = [];
+    selectedTagsContainer.innerHTML = '';
+    folderSelect.value = '';
+    notesInput.value = '';
+    tagsInput.value = '';
+  }
+
   // Save page
   savePageBtn.addEventListener('click', async () => {
+    const folderId = folderSelect.value || null;
+    const notes = notesInput.value.trim() || null;
+
     savePageBtn.disabled = true;
     savePageBtn.innerHTML = `
       <svg class="spinning" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -91,7 +199,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       Saving...
     `;
 
-    await chrome.runtime.sendMessage({ action: 'savePage' });
+    await chrome.runtime.sendMessage({
+      action: 'savePage',
+      folderId,
+      tagIds: selectedTagIds,
+      notes,
+    });
+
+    // Reset form
+    resetForm();
 
     savePageBtn.disabled = false;
     savePageBtn.innerHTML = `

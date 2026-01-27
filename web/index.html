@@ -256,6 +256,13 @@
         </div>
         <div class="reading-content" id="reading-content">
           <div id="reading-meta" class="reading-meta"></div>
+          <!-- Folder Selector -->
+          <div class="reading-folder">
+            <label for="reading-folder-select">Folder:</label>
+            <select id="reading-folder-select">
+              <option value="">No folder</option>
+            </select>
+          </div>
           <!-- Audio Player -->
           <div id="audio-player" class="audio-player hidden">
             <button class="audio-play-btn" id="audio-play-btn" title="Play audio">
@@ -292,6 +299,11 @@
         <div class="reading-tags">
           <div id="reading-tags-list"></div>
           <button class="add-tag-btn" id="add-tag-btn">+ Add tag</button>
+        </div>
+        <div class="reading-notes">
+          <label for="reading-notes-textarea">Notes</label>
+          <textarea id="reading-notes-textarea" placeholder="Add your notes..."></textarea>
+          <span class="notes-status" id="notes-status"></span>
         </div>
       </aside>
     </div>

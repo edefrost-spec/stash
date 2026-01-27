@@ -132,15 +132,124 @@ async function savePage(tab) {
   }
 }
 
+// Save full page with folder, tags, and notes (from popup)
+async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = null) {
+  if (!supabase) await initSupabase();
+
+  try {
+    console.log('savePageWithOptions called for:', tab.url);
+    let article;
+
+    // Extract from current page
+    try {
+      article = await chrome.tabs.sendMessage(tab.id, { action: 'extractArticle' });
+    } catch (e) {
+      // Content script not loaded, inject it first
+      console.log('Content script not loaded, injecting...');
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['Readability.js', 'content.js']
+      });
+      await new Promise(r => setTimeout(r, 100));
+      article = await chrome.tabs.sendMessage(tab.id, { action: 'extractArticle' });
+    }
+
+    if (!article) {
+      throw new Error('Failed to extract article content');
+    }
+
+    // Insert the save with folder and notes
+    const result = await supabase.insert('saves', {
+      user_id: CONFIG.USER_ID,
+      url: tab.url,
+      title: article.title,
+      content: article.content,
+      excerpt: article.excerpt,
+      site_name: article.siteName,
+      author: article.author,
+      published_at: article.publishedTime,
+      image_url: article.imageUrl,
+      source: 'extension',
+      folder_id: folderId,
+      notes: notes,
+    });
+
+    // Handle tags
+    if (tagIds && tagIds.length > 0 && result && result[0]) {
+      const saveId = result[0].id;
+
+      for (const tagId of tagIds) {
+        if (tagId.startsWith('new:')) {
+          // Create new tag first
+          const tagName = tagId.substring(4);
+          const tagResult = await supabase.insert('tags', {
+            user_id: CONFIG.USER_ID,
+            name: tagName,
+          });
+          if (tagResult && tagResult[0]) {
+            await supabase.insert('save_tags', {
+              save_id: saveId,
+              tag_id: tagResult[0].id,
+            });
+          }
+        } else {
+          await supabase.insert('save_tags', {
+            save_id: saveId,
+            tag_id: tagId,
+          });
+        }
+      }
+    }
+
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'showToast',
+      message: 'Page saved!',
+    });
+  } catch (err) {
+    console.error('Save page failed:', err);
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'showToast',
+      message: 'Failed to save: ' + err.message,
+      isError: true,
+    });
+  }
+}
+
 // Handle messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'savePage') {
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       if (tabs[0]) {
-        await savePage(tabs[0]);
+        await savePageWithOptions(tabs[0], request.folderId, request.tagIds, request.notes);
         sendResponse({ success: true });
       }
     });
+    return true;
+  }
+
+  if (request.action === 'getFolders') {
+    (async () => {
+      if (!supabase) await initSupabase();
+      try {
+        const folders = await supabase.select('folders', { order: 'name.asc' });
+        sendResponse({ success: true, folders });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
+    return true;
+  }
+
+  if (request.action === 'getTags') {
+    (async () => {
+      if (!supabase) await initSupabase();
+      try {
+        const tags = await supabase.select('tags', { order: 'name.asc' });
+        sendResponse({ success: true, tags });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
     return true;
   }
 

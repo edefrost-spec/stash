@@ -26,6 +26,7 @@ create table saves (
   excerpt text,
   content text, -- full article text
   highlight text, -- if this is a highlight save
+  notes text, -- user's personal notes about this save
 
   -- Metadata
   site_name text,
@@ -82,7 +83,8 @@ alter table saves add column fts tsvector
     setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
     setweight(to_tsvector('english', coalesce(excerpt, '')), 'B') ||
     setweight(to_tsvector('english', coalesce(content, '')), 'C') ||
-    setweight(to_tsvector('english', coalesce(highlight, '')), 'B')
+    setweight(to_tsvector('english', coalesce(highlight, '')), 'B') ||
+    setweight(to_tsvector('english', coalesce(notes, '')), 'B')
   ) stored;
 
 create index saves_fts_idx on saves using gin(fts);
