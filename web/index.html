@@ -21,7 +21,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <div id="app">
+  <div id="app-root">
     <!-- Auth Screen -->
     <div id="auth-screen" class="screen">
       <div class="auth-container">
@@ -75,6 +75,14 @@
               <polyline points="14 2 14 8 20 8"></polyline>
             </svg>
             Articles
+          </a>
+          <a href="#" class="nav-item" data-view="images">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            Images
           </a>
           <a href="#" class="nav-item" data-view="kindle">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -177,6 +185,9 @@
             </svg>
             <input type="text" id="search-input" placeholder="Search your stash...">
           </div>
+          <button type="button" class="btn primary quick-add-btn hidden" id="quick-add-btn" data-feature="vision-v2">
+            + Quick Add
+          </button>
           <button class="btn icon" id="mobile-menu-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -448,11 +459,90 @@
         </div>
       </div>
     </div>
+
+    <!-- Quick Add Modal (Vision V2) -->
+    <div id="quick-add-modal" class="modal hidden" data-feature="vision-v2">
+      <div class="modal-overlay"></div>
+      <div class="modal-content quick-add-content">
+        <div class="modal-header">
+          <h2>Quick Add</h2>
+          <button class="btn icon modal-close-btn" id="quick-add-close-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="quick-add-tabs">
+            <button type="button" class="quick-add-tab active" data-type="url">URL</button>
+            <button type="button" class="quick-add-tab" data-type="note">Note</button>
+            <button type="button" class="quick-add-tab" data-type="file">File</button>
+          </div>
+
+          <div class="quick-add-form">
+            <label for="quick-add-title">Title (optional)</label>
+            <input type="text" id="quick-add-title" placeholder="Give it a name...">
+
+            <div class="quick-add-panel" data-panel="url">
+              <label for="quick-add-url">URL</label>
+              <input type="url" id="quick-add-url" placeholder="https://example.com">
+            </div>
+
+            <div class="quick-add-panel hidden" data-panel="note">
+              <label for="quick-add-note">Note</label>
+              <textarea id="quick-add-note" placeholder="Paste or type your note..."></textarea>
+            </div>
+
+            <div class="quick-add-panel hidden" data-panel="file">
+              <div class="image-dropzone" id="image-dropzone">
+                <div class="image-dropzone-content" id="image-dropzone-content">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                  </svg>
+                  <p>Drop an image here</p>
+                  <span class="dropzone-hint">or click to browse · paste with ⌘V</span>
+                </div>
+                <div class="image-preview hidden" id="image-preview">
+                  <img id="image-preview-img" alt="Preview">
+                  <button type="button" class="image-preview-remove" id="image-preview-remove" title="Remove">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+                <input type="file" id="quick-add-file" accept="image/*" hidden>
+              </div>
+              <p class="quick-add-hint">Supports JPG, PNG, GIF, WebP</p>
+            </div>
+          </div>
+
+          <div class="quick-add-status hidden" id="quick-add-status"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn secondary" id="quick-add-cancel-btn">Cancel</button>
+          <button class="btn primary" id="quick-add-save-btn">Save</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Config -->
+  <!-- Global Drop Overlay for image saves -->
+  <div class="global-drop-overlay" id="global-drop-overlay">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+      <polyline points="21 15 16 10 5 21"></polyline>
+    </svg>
+    <p>Drop to save image</p>
+    <span>Release to add to your stash</span>
+  </div>
+
+  <!-- Config (loads app.js after config is ready) -->
   <script src="config.js"></script>
-  <script src="app.js"></script>
 
   <!-- Register Service Worker -->
   <script>

@@ -9,6 +9,7 @@ class StashApp {
     this.tags = [];
     this.folders = [];
     this.pendingKindleImport = null; // Stores parsed highlights before import
+    this.pendingImageFile = null; // Stores image file before upload
 
     // Filter state for folders/tags
     this.currentFolderId = null;
@@ -58,6 +59,7 @@ class StashApp {
     // Load theme preference
     this.loadTheme();
     this.loadCardPreferences();
+    this.applyFeatureFlags();
 
     // Skip auth - go straight to main screen
     this.showMainScreen();
@@ -95,6 +97,14 @@ class StashApp {
       moonIcon?.classList.add('hidden');
       if (label) label.textContent = 'Dark Mode';
     }
+  }
+
+  applyFeatureFlags() {
+    const enabled = !!(CONFIG?.FEATURES?.VISION_V2);
+    document.body.classList.toggle('vision-v2', enabled);
+    document.querySelectorAll('[data-feature="vision-v2"]').forEach(el => {
+      el.classList.toggle('hidden', !enabled);
+    });
   }
 
   loadCardPreferences() {
@@ -453,6 +463,261 @@ class StashApp {
     document.getElementById('digest-enabled').addEventListener('change', () => {
       this.updateDigestOptionsState();
     });
+
+    // Quick Add (Vision V2)
+    const quickAddBtn = document.getElementById('quick-add-btn');
+    if (quickAddBtn) {
+      quickAddBtn.addEventListener('click', () => this.showQuickAddModal());
+    }
+
+    const quickAddModal = document.getElementById('quick-add-modal');
+    if (quickAddModal) {
+      quickAddModal.querySelector('.modal-overlay').addEventListener('click', () => {
+        this.hideQuickAddModal();
+      });
+      document.getElementById('quick-add-close-btn')?.addEventListener('click', () => {
+        this.hideQuickAddModal();
+      });
+      document.getElementById('quick-add-cancel-btn')?.addEventListener('click', () => {
+        this.hideQuickAddModal();
+      });
+      document.getElementById('quick-add-save-btn')?.addEventListener('click', () => {
+        this.saveQuickAdd();
+      });
+
+      quickAddModal.querySelectorAll('.quick-add-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          this.switchQuickAddType(tab.dataset.type);
+        });
+      });
+
+      // Image dropzone handlers
+      this.bindImageDropzone();
+    }
+
+    // Global drag & drop for images
+    this.bindGlobalDragDrop();
+
+    // Global clipboard paste for images
+    this.bindClipboardPaste();
+  }
+
+  // Image dropzone in Quick Add modal
+  bindImageDropzone() {
+    const dropzone = document.getElementById('image-dropzone');
+    const fileInput = document.getElementById('quick-add-file');
+    const previewRemove = document.getElementById('image-preview-remove');
+
+    if (!dropzone || !fileInput) return;
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.closest('.image-preview-remove')) return;
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        this.handleImageFile(e.target.files[0]);
+      }
+    });
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        this.handleImageFile(file);
+      }
+    });
+
+    previewRemove?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.clearImagePreview();
+    });
+  }
+
+  // Global drag & drop overlay
+  bindGlobalDragDrop() {
+    const overlay = document.getElementById('global-drop-overlay');
+    if (!overlay) return;
+
+    let dragCounter = 0;
+
+    document.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      // Only show for files
+      if (!e.dataTransfer.types.includes('Files')) return;
+      dragCounter++;
+      if (dragCounter === 1) {
+        overlay.classList.add('visible');
+      }
+    });
+
+    document.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dragCounter--;
+      if (dragCounter === 0) {
+        overlay.classList.remove('visible');
+      }
+    });
+
+    document.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    document.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dragCounter = 0;
+      overlay.classList.remove('visible');
+
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        this.saveImageDirectly(file);
+      }
+    });
+  }
+
+  // Global clipboard paste for screenshots
+  bindClipboardPaste() {
+    document.addEventListener('paste', (e) => {
+      // Don't intercept if user is typing in an input/textarea
+      const activeEl = document.activeElement;
+      const isTyping = activeEl?.tagName === 'INPUT' || activeEl?.tagName === 'TEXTAREA';
+      if (isTyping && !activeEl.closest('#quick-add-modal')) return;
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) {
+            // If Quick Add modal is open with file tab, use that
+            const modal = document.getElementById('quick-add-modal');
+            const fileTabActive = document.querySelector('.quick-add-tab[data-type="file"].active');
+            if (modal && !modal.classList.contains('hidden') && fileTabActive) {
+              this.handleImageFile(file);
+            } else {
+              this.saveImageDirectly(file);
+            }
+          }
+          break;
+        }
+      }
+    });
+  }
+
+  // Handle image file for preview in Quick Add
+  handleImageFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      this.setQuickAddStatus('Please select an image file.', 'error');
+      return;
+    }
+
+    this.pendingImageFile = file;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const previewImg = document.getElementById('image-preview-img');
+      const previewContainer = document.getElementById('image-preview');
+      const dropzoneContent = document.getElementById('image-dropzone-content');
+      const dropzone = document.getElementById('image-dropzone');
+
+      if (previewImg && previewContainer && dropzoneContent && dropzone) {
+        previewImg.src = e.target.result;
+        previewContainer.classList.remove('hidden');
+        dropzoneContent.classList.add('hidden');
+        dropzone.classList.add('has-preview');
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  clearImagePreview() {
+    this.pendingImageFile = null;
+    const previewImg = document.getElementById('image-preview-img');
+    const previewContainer = document.getElementById('image-preview');
+    const dropzoneContent = document.getElementById('image-dropzone-content');
+    const dropzone = document.getElementById('image-dropzone');
+    const fileInput = document.getElementById('quick-add-file');
+
+    if (previewImg) previewImg.src = '';
+    if (previewContainer) previewContainer.classList.add('hidden');
+    if (dropzoneContent) dropzoneContent.classList.remove('hidden');
+    if (dropzone) dropzone.classList.remove('has-preview');
+    if (fileInput) fileInput.value = '';
+  }
+
+  // Save image directly (from global drop or paste)
+  async saveImageDirectly(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+
+    // Show a quick toast/notification
+    this.showToast('Saving image...');
+
+    try {
+      const path = `${this.user.id}/${Date.now()}-${file.name || 'pasted-image.png'}`;
+      const { error: uploadError } = await this.supabase
+        .storage
+        .from('uploads')
+        .upload(path, file, { upsert: false });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = this.supabase.storage.from('uploads').getPublicUrl(path);
+      const imageUrl = data?.publicUrl || null;
+
+      const payload = {
+        user_id: this.user.id,
+        title: file.name || 'Image',
+        url: imageUrl,
+        image_url: imageUrl,
+        site_name: 'Image',
+        source: 'upload',
+        content: null,
+      };
+
+      const { error } = await this.supabase.from('saves').insert(payload);
+      if (error) throw error;
+
+      this.showToast('Image saved!', 'success');
+      this.loadSaves();
+    } catch (err) {
+      console.error('Error saving image:', err);
+      this.showToast('Failed to save image', 'error');
+    }
+  }
+
+  // Simple toast notification
+  showToast(message, type = '') {
+    // Remove existing toast
+    document.querySelector('.toast')?.remove();
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+      toast.classList.add('visible');
+    });
+
+    // Auto-remove
+    setTimeout(() => {
+      toast.classList.remove('visible');
+      setTimeout(() => toast.remove(), 300);
+    }, 2500);
   }
 
   showAuthScreen() {
@@ -557,7 +822,9 @@ class StashApp {
     if (this.currentView === 'highlights') {
       query = query.not('highlight', 'is', null);
     } else if (this.currentView === 'articles') {
-      query = query.is('highlight', null);
+      query = query.is('highlight', null).neq('source', 'upload');
+    } else if (this.currentView === 'images') {
+      query = query.eq('source', 'upload');
     } else if (this.currentView === 'archived') {
       query = query.eq('is_archived', true);
     } else if (this.currentView === 'weekly') {
@@ -762,8 +1029,9 @@ class StashApp {
   renderSaveCard(save, options = {}) {
     const { moodBoard = false } = options;
     const isHighlight = !!save.highlight;
+    const isImageSave = save.source === 'upload' && save.image_url;
     const date = new Date(save.created_at).toLocaleDateString();
-    const annotations = this.renderCardAnnotations(save, { compact: moodBoard });
+    const annotations = this.renderCardAnnotations(save, { compact: moodBoard || isImageSave });
     const colorEntry = this.saveColorMap[save.id];
     const dominantStyle = colorEntry?.color ? `style="--dominant: ${colorEntry.color}"` : '';
 
@@ -786,7 +1054,7 @@ class StashApp {
       }
 
       return `
-        <div class="save-card mood-card" data-id="${save.id}" ${dominantStyle}>
+        <div class="save-card mood-card${isImageSave ? ' image-save' : ''}" data-id="${save.id}" ${dominantStyle}>
           <div class="mood-media">
             ${save.image_url ? `<img src="${save.image_url}" alt="" onerror="this.style.display='none'">` : '<div class="mood-placeholder"></div>'}
             <div class="mood-overlay">
@@ -810,6 +1078,22 @@ class StashApp {
               <span class="save-card-date">${date}</span>
             </div>
             ${annotations}
+          </div>
+        </div>
+      `;
+    }
+
+    // Image save - special card layout
+    if (isImageSave) {
+      return `
+        <div class="save-card image-save" data-id="${save.id}">
+          <img class="save-card-image" src="${save.image_url}" alt="${this.escapeHtml(save.title || 'Image')}">
+          <div class="save-card-content">
+            <div class="save-card-site">${this.escapeHtml(save.site_name || 'Image')}</div>
+            <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
+            <div class="save-card-meta">
+              <span class="save-card-date">${date}</span>
+            </div>
           </div>
         </div>
       `;
@@ -1189,6 +1473,7 @@ class StashApp {
       all: 'All Saves',
       highlights: 'Highlights',
       articles: 'Articles',
+      images: 'Images',
       kindle: 'Kindle Highlights',
       archived: 'Archived',
       stats: 'Stats',
@@ -1223,6 +1508,14 @@ class StashApp {
 
   openReadingPane(save) {
     this.currentSave = save;
+
+    // For image saves, show lightbox instead
+    const isImageSave = save.source === 'upload' && save.image_url;
+    if (isImageSave) {
+      this.openImageLightbox(save);
+      return;
+    }
+
     const pane = document.getElementById('reading-pane');
 
     // Stop any existing audio
@@ -1287,6 +1580,75 @@ class StashApp {
     requestAnimationFrame(() => {
       pane.classList.add('open');
     });
+  }
+
+  // Image lightbox
+  openImageLightbox(save) {
+    // Remove existing lightbox
+    document.querySelector('.image-lightbox')?.remove();
+
+    const lightbox = document.createElement('div');
+    lightbox.className = 'image-lightbox';
+    lightbox.innerHTML = `
+      <img src="${save.image_url}" alt="${this.escapeHtml(save.title || 'Image')}">
+      <button class="image-lightbox-close" title="Close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="image-lightbox-actions">
+        <button class="btn icon lightbox-delete" title="Delete">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+        <a class="btn icon" href="${save.image_url}" download="${save.title || 'image'}" title="Download">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </a>
+      </div>
+    `;
+
+    document.body.appendChild(lightbox);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+      lightbox.classList.add('visible');
+    });
+
+    // Close handlers
+    const closeLightbox = () => {
+      lightbox.classList.remove('visible');
+      setTimeout(() => lightbox.remove(), 300);
+      this.currentSave = null;
+    };
+
+    lightbox.querySelector('.image-lightbox-close').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+
+    // Delete handler
+    lightbox.querySelector('.lightbox-delete')?.addEventListener('click', async () => {
+      if (!confirm('Delete this image? This cannot be undone.')) return;
+      await this.supabase.from('saves').delete().eq('id', save.id);
+      closeLightbox();
+      this.loadSaves();
+    });
+
+    // Escape key
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
   }
 
   closeReadingPane() {
@@ -2099,6 +2461,124 @@ class StashApp {
     document.getElementById('digest-status').classList.add('hidden');
   }
 
+  // Quick Add (Vision V2)
+  showQuickAddModal() {
+    const modal = document.getElementById('quick-add-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    this.resetQuickAddForm();
+  }
+
+  hideQuickAddModal() {
+    const modal = document.getElementById('quick-add-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    this.resetQuickAddForm();
+  }
+
+  resetQuickAddForm() {
+    document.getElementById('quick-add-title').value = '';
+    document.getElementById('quick-add-url').value = '';
+    document.getElementById('quick-add-note').value = '';
+    document.getElementById('quick-add-file').value = '';
+    this.clearImagePreview();
+    this.switchQuickAddType('url');
+    this.setQuickAddStatus('', '');
+  }
+
+  switchQuickAddType(type) {
+    const tabs = document.querySelectorAll('.quick-add-tab');
+    tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.type === type));
+
+    document.querySelectorAll('.quick-add-panel').forEach(panel => {
+      panel.classList.toggle('hidden', panel.dataset.panel !== type);
+    });
+  }
+
+  setQuickAddStatus(message, type) {
+    const status = document.getElementById('quick-add-status');
+    if (!status) return;
+    if (!message) {
+      status.classList.add('hidden');
+      status.textContent = '';
+      status.className = 'quick-add-status hidden';
+      return;
+    }
+    status.textContent = message;
+    status.className = `quick-add-status ${type || ''}`;
+    status.classList.remove('hidden');
+  }
+
+  async saveQuickAdd() {
+    const activeTab = document.querySelector('.quick-add-tab.active');
+    const type = activeTab?.dataset.type || 'url';
+    const title = document.getElementById('quick-add-title').value.trim();
+    const url = document.getElementById('quick-add-url').value.trim();
+    const note = document.getElementById('quick-add-note').value.trim();
+    const file = this.pendingImageFile;
+
+    if (type === 'url' && !url) {
+      this.setQuickAddStatus('Please enter a URL.', 'error');
+      return;
+    }
+
+    if (type === 'note' && !note) {
+      this.setQuickAddStatus('Please enter a note.', 'error');
+      return;
+    }
+
+    if (type === 'file' && !file) {
+      this.setQuickAddStatus('Please select an image to upload.', 'error');
+      return;
+    }
+
+    this.setQuickAddStatus('Saving...', '');
+
+    try {
+      let imageUrl = null;
+      let storedUrl = null;
+
+      if (type === 'file' && file) {
+        const path = `${this.user.id}/${Date.now()}-${file.name || 'image.png'}`;
+        const { error: uploadError } = await this.supabase
+          .storage
+          .from('uploads')
+          .upload(path, file, { upsert: false });
+
+        if (uploadError) throw uploadError;
+
+        const { data } = this.supabase.storage.from('uploads').getPublicUrl(path);
+        storedUrl = data?.publicUrl || null;
+        imageUrl = storedUrl;
+      }
+
+      const payload = {
+        user_id: this.user.id,
+        title: title || (type === 'file' ? (file?.name || 'Image') : (type === 'note' ? 'Quick Note' : url)),
+        url: type === 'url' ? url : storedUrl,
+        content: type === 'note' ? note : null,
+        excerpt: type === 'note' ? note.slice(0, 180) : null,
+        notes: type === 'note' ? note : null,
+        site_name: type === 'note' ? 'Note' : (type === 'file' ? 'Image' : null),
+        source: type === 'file' ? 'upload' : 'manual',
+        image_url: imageUrl,
+      };
+
+      const { error } = await this.supabase
+        .from('saves')
+        .insert(payload);
+
+      if (error) throw error;
+
+      this.setQuickAddStatus('Saved!', 'success');
+      this.loadSaves();
+      setTimeout(() => this.hideQuickAddModal(), 600);
+    } catch (err) {
+      console.error('Quick add error:', err);
+      this.setQuickAddStatus('Failed to save. Please try again.', 'error');
+    }
+  }
+
   async loadDigestPreferences() {
     try {
       const { data, error } = await this.supabase
@@ -2204,5 +2684,6 @@ class StashApp {
   }
 }
 
-// Initialize app
-const app = new StashApp();
+// Initialize app (expose for debugging in console)
+window.StashApp = StashApp;
+window.stashApp = new StashApp();

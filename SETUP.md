@@ -33,6 +33,14 @@ A simple, self-hosted Pocket replacement with Chrome extension, web app, and cro
 3. Enter your email and password
 4. Copy the user ID (UUID) and add it to your config files
 
+### 3b. Create Storage Bucket (for Quick Add uploads)
+
+If you plan to use the Quick Add file upload:
+
+1. In Supabase, go to **Storage** > **Create bucket**
+2. Name it `uploads`
+3. Set it to **Public**
+
 ### 4. Install the Chrome Extension
 
 1. Open Chrome and go to `chrome://extensions/`
@@ -55,6 +63,17 @@ cd web
 python3 -m http.server 3000
 ```
 Then open http://localhost:3000
+
+### 5b. Dev vs Prod Config
+
+The web app now auto-loads `web/config.dev.js` on localhost and `web/config.prod.js` on hosted domains.
+
+- Update your production keys in `web/config.prod.js`
+- Update your dev keys in `web/config.dev.js`
+- To force a specific env in the browser console:
+  - `localStorage.setItem('stash-env', 'dev')`
+  - `localStorage.setItem('stash-env', 'prod')`
+  - `localStorage.removeItem('stash-env')` (back to auto)
 
 ### 6. Update Config with Web App URL
 
