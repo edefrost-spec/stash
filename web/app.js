@@ -49,6 +49,9 @@ class StashApp {
     // Masonry layout instance
     this.masonry = null;
 
+    // Rediscovery saves cache
+    this.rediscoverySaves = [];
+
     this.init();
   }
 
@@ -1165,20 +1168,8 @@ class StashApp {
     // Get unique sites
     const sites = [...new Set(this.saves.map(s => s.site_name).filter(Boolean))];
 
-    // Pick a random "rediscovery" from older saves
-    let rediscovery = null;
-    const allSavesQuery = this.supabase
-      .from('saves')
-      .select('*')
-      .lt('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
-      .limit(50);
-
-    allSavesQuery.then(({ data }) => {
-      if (data && data.length > 0) {
-        rediscovery = data[Math.floor(Math.random() * data.length)];
-        this.updateRediscovery(rediscovery);
-      }
-    });
+    // Pick a random "rediscovery" from older saves (30+ days old)
+    this.loadRediscovery();
 
     container.innerHTML = `
       <div class="weekly-review">
@@ -1240,6 +1231,37 @@ class StashApp {
     });
   }
 
+  async loadRediscovery() {
+    const section = document.getElementById('rediscovery-section');
+    if (!section) return;
+
+    const { data } = await this.supabase
+      .from('saves')
+      .select('*')
+      .eq('user_id', this.user.id)
+      .lt('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+      .limit(50);
+
+    if (data && data.length > 0) {
+      const save = data[Math.floor(Math.random() * data.length)];
+      this.rediscoverySaves = data; // Store for shuffle
+      this.updateRediscovery(save);
+    } else {
+      section.innerHTML = `
+        <div class="rediscovery-header">
+          <h4>Rediscover</h4>
+        </div>
+        <p class="weekly-rediscovery-hint">Keep saving! Your gems will appear here after 30 days.</p>
+      `;
+    }
+  }
+
+  shuffleRediscovery() {
+    if (!this.rediscoverySaves || this.rediscoverySaves.length === 0) return;
+    const save = this.rediscoverySaves[Math.floor(Math.random() * this.rediscoverySaves.length)];
+    this.updateRediscovery(save);
+  }
+
   updateRediscovery(save) {
     const section = document.getElementById('rediscovery-section');
     if (!section || !save) return;
@@ -1250,18 +1272,44 @@ class StashApp {
       year: 'numeric'
     });
 
+    const saveType = this.getSaveType(save);
+    const hasImage = save.image_url && saveType !== 'note';
+
     section.innerHTML = `
-      <h4>Rediscover</h4>
-      <div class="rediscovery-card" data-id="${save.id}">
-        <div class="rediscovery-meta">Saved ${date}</div>
-        <div class="rediscovery-title">${this.escapeHtml(save.title || 'Untitled')}</div>
-        ${save.highlight ? `<div class="rediscovery-highlight">"${this.escapeHtml(save.highlight)}"</div>` : ''}
-        <div class="rediscovery-source">${this.escapeHtml(save.site_name || '')}</div>
+      <div class="rediscovery-header">
+        <h4>Rediscover</h4>
+        <button class="rediscovery-shuffle" title="Show another">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 3 21 3 21 8"></polyline>
+            <line x1="4" y1="20" x2="21" y2="3"></line>
+            <polyline points="21 16 21 21 16 21"></polyline>
+            <line x1="15" y1="15" x2="21" y2="21"></line>
+            <line x1="4" y1="4" x2="9" y2="9"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="rediscovery-card ${hasImage ? 'has-image' : ''}" data-id="${save.id}">
+        ${hasImage ? `<img class="rediscovery-image" src="${save.image_url}" alt="" onerror="this.style.display='none'">` : ''}
+        <div class="rediscovery-content">
+          <div class="rediscovery-meta">
+            <span class="rediscovery-type">${saveType.charAt(0).toUpperCase() + saveType.slice(1)}</span>
+            <span class="rediscovery-date">Saved ${date}</span>
+          </div>
+          <div class="rediscovery-title">${this.escapeHtml(save.title || 'Untitled')}</div>
+          ${save.highlight ? `<div class="rediscovery-highlight">"${this.escapeHtml(this.truncateText(save.highlight, 150))}"</div>` : ''}
+          ${save.excerpt && !save.highlight ? `<div class="rediscovery-excerpt">${this.escapeHtml(this.truncateText(save.excerpt, 120))}</div>` : ''}
+          <div class="rediscovery-source">${this.escapeHtml(save.site_name || '')}</div>
+        </div>
       </div>
     `;
 
     section.querySelector('.rediscovery-card')?.addEventListener('click', () => {
       this.openReadingPane(save);
+    });
+
+    section.querySelector('.rediscovery-shuffle')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.shuffleRediscovery();
     });
   }
 
