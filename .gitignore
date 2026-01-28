@@ -7,6 +7,8 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+*.xcuserstate
+xcuserdata/
 
 # Node (if you add any)
 node_modules/

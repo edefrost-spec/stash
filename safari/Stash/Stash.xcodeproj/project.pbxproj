@@ -1,0 +1,1025 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		80E51CCF2F2AB4500006FA98 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E51CCE2F2AB4500006FA98 /* AppDelegate.swift */; };
+		80E51CD12F2AB4500006FA98 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E51CD02F2AB4500006FA98 /* SceneDelegate.swift */; };
+		80E51CD42F2AB4500006FA98 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CD22F2AB4500006FA98 /* LaunchScreen.storyboard */; };
+		80E51CD72F2AB4500006FA98 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CD52F2AB4500006FA98 /* Main.storyboard */; };
+		80E51CE02F2AB4500006FA98 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E51CDF2F2AB4500006FA98 /* AppDelegate.swift */; };
+		80E51CE32F2AB4500006FA98 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CE12F2AB4500006FA98 /* Main.storyboard */; };
+		80E51CEA2F2AB4500006FA98 /* Stash Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 80E51CE92F2AB4500006FA98 /* Stash Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		80E51CF42F2AB4500006FA98 /* Stash Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 80E51CF32F2AB4500006FA98 /* Stash Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		80E51CF92F2AB4500006FA98 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CBE2F2AB44F0006FA98 /* Main.html */; };
+		80E51CFA2F2AB4500006FA98 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CBE2F2AB44F0006FA98 /* Main.html */; };
+		80E51CFB2F2AB4500006FA98 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CC02F2AB44F0006FA98 /* Icon.png */; };
+		80E51CFC2F2AB4500006FA98 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CC02F2AB44F0006FA98 /* Icon.png */; };
+		80E51CFD2F2AB4500006FA98 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CC12F2AB44F0006FA98 /* Style.css */; };
+		80E51CFE2F2AB4500006FA98 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CC12F2AB44F0006FA98 /* Style.css */; };
+		80E51CFF2F2AB4500006FA98 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CC22F2AB44F0006FA98 /* Script.js */; };
+		80E51D002F2AB4500006FA98 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CC22F2AB44F0006FA98 /* Script.js */; };
+		80E51D012F2AB4500006FA98 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E51CC32F2AB44F0006FA98 /* ViewController.swift */; };
+		80E51D022F2AB4500006FA98 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E51CC32F2AB44F0006FA98 /* ViewController.swift */; };
+		80E51D032F2AB4500006FA98 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CC42F2AB4500006FA98 /* Assets.xcassets */; };
+		80E51D042F2AB4500006FA98 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 80E51CC42F2AB4500006FA98 /* Assets.xcassets */; };
+		80E51D052F2AB4500006FA98 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E51CC62F2AB4500006FA98 /* SafariWebExtensionHandler.swift */; };
+		80E51D062F2AB4500006FA98 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E51CC62F2AB4500006FA98 /* SafariWebExtensionHandler.swift */; };
+		80E51D222F2AB4510006FA98 /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D182F2AB4510006FA98 /* popup.js */; };
+		80E51D232F2AB4510006FA98 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D192F2AB4510006FA98 /* background.js */; };
+		80E51D242F2AB4510006FA98 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1A2F2AB4510006FA98 /* popup.html */; };
+		80E51D252F2AB4510006FA98 /* supabase.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1B2F2AB4510006FA98 /* supabase.js */; };
+		80E51D262F2AB4510006FA98 /* config.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1C2F2AB4510006FA98 /* config.js */; };
+		80E51D272F2AB4510006FA98 /* Readability.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1D2F2AB4510006FA98 /* Readability.js */; };
+		80E51D282F2AB4510006FA98 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1E2F2AB4510006FA98 /* icons */; };
+		80E51D292F2AB4510006FA98 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1F2F2AB4510006FA98 /* manifest.json */; };
+		80E51D2A2F2AB4510006FA98 /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D202F2AB4510006FA98 /* popup.css */; };
+		80E51D2B2F2AB4510006FA98 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D212F2AB4510006FA98 /* content.js */; };
+		80E51D2C2F2AB4510006FA98 /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D182F2AB4510006FA98 /* popup.js */; };
+		80E51D2D2F2AB4510006FA98 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D192F2AB4510006FA98 /* background.js */; };
+		80E51D2E2F2AB4510006FA98 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1A2F2AB4510006FA98 /* popup.html */; };
+		80E51D2F2F2AB4510006FA98 /* supabase.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1B2F2AB4510006FA98 /* supabase.js */; };
+		80E51D302F2AB4510006FA98 /* config.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1C2F2AB4510006FA98 /* config.js */; };
+		80E51D312F2AB4510006FA98 /* Readability.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1D2F2AB4510006FA98 /* Readability.js */; };
+		80E51D322F2AB4510006FA98 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1E2F2AB4510006FA98 /* icons */; };
+		80E51D332F2AB4510006FA98 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D1F2F2AB4510006FA98 /* manifest.json */; };
+		80E51D342F2AB4510006FA98 /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D202F2AB4510006FA98 /* popup.css */; };
+		80E51D352F2AB4510006FA98 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 80E51D212F2AB4510006FA98 /* content.js */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		80E51CEB2F2AB4500006FA98 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 80E51CB82F2AB44F0006FA98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 80E51CE82F2AB4500006FA98;
+			remoteInfo = "Stash Extension (iOS)";
+		};
+		80E51CF52F2AB4500006FA98 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 80E51CB82F2AB44F0006FA98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 80E51CF22F2AB4500006FA98;
+			remoteInfo = "Stash Extension (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		80E51D0C2F2AB4500006FA98 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				80E51CEA2F2AB4500006FA98 /* Stash Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80E51D132F2AB4500006FA98 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				80E51CF42F2AB4500006FA98 /* Stash Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		80E51CBF2F2AB44F0006FA98 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		80E51CC02F2AB44F0006FA98 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		80E51CC12F2AB44F0006FA98 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		80E51CC22F2AB44F0006FA98 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		80E51CC32F2AB44F0006FA98 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		80E51CC42F2AB4500006FA98 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		80E51CC62F2AB4500006FA98 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		80E51CCB2F2AB4500006FA98 /* Stash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stash.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		80E51CCE2F2AB4500006FA98 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		80E51CD02F2AB4500006FA98 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		80E51CD32F2AB4500006FA98 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		80E51CD62F2AB4500006FA98 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		80E51CD82F2AB4500006FA98 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		80E51CDD2F2AB4500006FA98 /* Stash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stash.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		80E51CDF2F2AB4500006FA98 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		80E51CE22F2AB4500006FA98 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		80E51CE42F2AB4500006FA98 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		80E51CE92F2AB4500006FA98 /* Stash Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Stash Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		80E51CEE2F2AB4500006FA98 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		80E51CF32F2AB4500006FA98 /* Stash Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Stash Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		80E51CF82F2AB4500006FA98 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		80E51D182F2AB4510006FA98 /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = Resources/popup.js; sourceTree = "<group>"; };
+		80E51D192F2AB4510006FA98 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
+		80E51D1A2F2AB4510006FA98 /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = Resources/popup.html; sourceTree = "<group>"; };
+		80E51D1B2F2AB4510006FA98 /* supabase.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = supabase.js; path = Resources/supabase.js; sourceTree = "<group>"; };
+		80E51D1C2F2AB4510006FA98 /* config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = config.js; path = Resources/config.js; sourceTree = "<group>"; };
+		80E51D1D2F2AB4510006FA98 /* Readability.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = Readability.js; path = Resources/Readability.js; sourceTree = "<group>"; };
+		80E51D1E2F2AB4510006FA98 /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = Resources/icons; sourceTree = "<group>"; };
+		80E51D1F2F2AB4510006FA98 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
+		80E51D202F2AB4510006FA98 /* popup.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = popup.css; path = Resources/popup.css; sourceTree = "<group>"; };
+		80E51D212F2AB4510006FA98 /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = Resources/content.js; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		80E51CC82F2AB4500006FA98 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80E51CDA2F2AB4500006FA98 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80E51CE62F2AB4500006FA98 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80E51CF02F2AB4500006FA98 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		80E51CB72F2AB44F0006FA98 = {
+			isa = PBXGroup;
+			children = (
+				80E51CBC2F2AB44F0006FA98 /* Shared (App) */,
+				80E51CC52F2AB4500006FA98 /* Shared (Extension) */,
+				80E51CCD2F2AB4500006FA98 /* iOS (App) */,
+				80E51CDE2F2AB4500006FA98 /* macOS (App) */,
+				80E51CED2F2AB4500006FA98 /* iOS (Extension) */,
+				80E51CF72F2AB4500006FA98 /* macOS (Extension) */,
+				80E51CCC2F2AB4500006FA98 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		80E51CBC2F2AB44F0006FA98 /* Shared (App) */ = {
+			isa = PBXGroup;
+			children = (
+				80E51CC32F2AB44F0006FA98 /* ViewController.swift */,
+				80E51CC42F2AB4500006FA98 /* Assets.xcassets */,
+				80E51CBD2F2AB44F0006FA98 /* Resources */,
+			);
+			path = "Shared (App)";
+			sourceTree = "<group>";
+		};
+		80E51CBD2F2AB44F0006FA98 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				80E51CBE2F2AB44F0006FA98 /* Main.html */,
+				80E51CC02F2AB44F0006FA98 /* Icon.png */,
+				80E51CC12F2AB44F0006FA98 /* Style.css */,
+				80E51CC22F2AB44F0006FA98 /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		80E51CC52F2AB4500006FA98 /* Shared (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				80E51D172F2AB4510006FA98 /* Resources */,
+				80E51CC62F2AB4500006FA98 /* SafariWebExtensionHandler.swift */,
+			);
+			path = "Shared (Extension)";
+			sourceTree = "<group>";
+		};
+		80E51CCC2F2AB4500006FA98 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				80E51CCB2F2AB4500006FA98 /* Stash.app */,
+				80E51CDD2F2AB4500006FA98 /* Stash.app */,
+				80E51CE92F2AB4500006FA98 /* Stash Extension.appex */,
+				80E51CF32F2AB4500006FA98 /* Stash Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		80E51CCD2F2AB4500006FA98 /* iOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				80E51CCE2F2AB4500006FA98 /* AppDelegate.swift */,
+				80E51CD02F2AB4500006FA98 /* SceneDelegate.swift */,
+				80E51CD22F2AB4500006FA98 /* LaunchScreen.storyboard */,
+				80E51CD52F2AB4500006FA98 /* Main.storyboard */,
+				80E51CD82F2AB4500006FA98 /* Info.plist */,
+			);
+			path = "iOS (App)";
+			sourceTree = "<group>";
+		};
+		80E51CDE2F2AB4500006FA98 /* macOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				80E51CDF2F2AB4500006FA98 /* AppDelegate.swift */,
+				80E51CE12F2AB4500006FA98 /* Main.storyboard */,
+				80E51CE42F2AB4500006FA98 /* Info.plist */,
+			);
+			path = "macOS (App)";
+			sourceTree = "<group>";
+		};
+		80E51CED2F2AB4500006FA98 /* iOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				80E51CEE2F2AB4500006FA98 /* Info.plist */,
+			);
+			path = "iOS (Extension)";
+			sourceTree = "<group>";
+		};
+		80E51CF72F2AB4500006FA98 /* macOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				80E51CF82F2AB4500006FA98 /* Info.plist */,
+			);
+			path = "macOS (Extension)";
+			sourceTree = "<group>";
+		};
+		80E51D172F2AB4510006FA98 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				80E51D182F2AB4510006FA98 /* popup.js */,
+				80E51D192F2AB4510006FA98 /* background.js */,
+				80E51D1A2F2AB4510006FA98 /* popup.html */,
+				80E51D1B2F2AB4510006FA98 /* supabase.js */,
+				80E51D1C2F2AB4510006FA98 /* config.js */,
+				80E51D1D2F2AB4510006FA98 /* Readability.js */,
+				80E51D1E2F2AB4510006FA98 /* icons */,
+				80E51D1F2F2AB4510006FA98 /* manifest.json */,
+				80E51D202F2AB4510006FA98 /* popup.css */,
+				80E51D212F2AB4510006FA98 /* content.js */,
+			);
+			name = Resources;
+			path = "Shared (Extension)";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		80E51CCA2F2AB4500006FA98 /* Stash (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 80E51D0D2F2AB4500006FA98 /* Build configuration list for PBXNativeTarget "Stash (iOS)" */;
+			buildPhases = (
+				80E51CC72F2AB4500006FA98 /* Sources */,
+				80E51CC82F2AB4500006FA98 /* Frameworks */,
+				80E51CC92F2AB4500006FA98 /* Resources */,
+				80E51D0C2F2AB4500006FA98 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				80E51CEC2F2AB4500006FA98 /* PBXTargetDependency */,
+			);
+			name = "Stash (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "Stash (iOS)";
+			productReference = 80E51CCB2F2AB4500006FA98 /* Stash.app */;
+			productType = "com.apple.product-type.application";
+		};
+		80E51CDC2F2AB4500006FA98 /* Stash (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 80E51D142F2AB4500006FA98 /* Build configuration list for PBXNativeTarget "Stash (macOS)" */;
+			buildPhases = (
+				80E51CD92F2AB4500006FA98 /* Sources */,
+				80E51CDA2F2AB4500006FA98 /* Frameworks */,
+				80E51CDB2F2AB4500006FA98 /* Resources */,
+				80E51D132F2AB4500006FA98 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				80E51CF62F2AB4500006FA98 /* PBXTargetDependency */,
+			);
+			name = "Stash (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "Stash (macOS)";
+			productReference = 80E51CDD2F2AB4500006FA98 /* Stash.app */;
+			productType = "com.apple.product-type.application";
+		};
+		80E51CE82F2AB4500006FA98 /* Stash Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 80E51D092F2AB4500006FA98 /* Build configuration list for PBXNativeTarget "Stash Extension (iOS)" */;
+			buildPhases = (
+				80E51CE52F2AB4500006FA98 /* Sources */,
+				80E51CE62F2AB4500006FA98 /* Frameworks */,
+				80E51CE72F2AB4500006FA98 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Stash Extension (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "Stash Extension (iOS)";
+			productReference = 80E51CE92F2AB4500006FA98 /* Stash Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		80E51CF22F2AB4500006FA98 /* Stash Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 80E51D102F2AB4500006FA98 /* Build configuration list for PBXNativeTarget "Stash Extension (macOS)" */;
+			buildPhases = (
+				80E51CEF2F2AB4500006FA98 /* Sources */,
+				80E51CF02F2AB4500006FA98 /* Frameworks */,
+				80E51CF12F2AB4500006FA98 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Stash Extension (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "Stash Extension (macOS)";
+			productReference = 80E51CF32F2AB4500006FA98 /* Stash Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		80E51CB82F2AB44F0006FA98 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					80E51CCA2F2AB4500006FA98 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					80E51CDC2F2AB4500006FA98 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					80E51CE82F2AB4500006FA98 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					80E51CF22F2AB4500006FA98 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+				};
+			};
+			buildConfigurationList = 80E51CBB2F2AB44F0006FA98 /* Build configuration list for PBXProject "Stash" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 80E51CB72F2AB44F0006FA98;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 80E51CCC2F2AB4500006FA98 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				80E51CCA2F2AB4500006FA98 /* Stash (iOS) */,
+				80E51CDC2F2AB4500006FA98 /* Stash (macOS) */,
+				80E51CE82F2AB4500006FA98 /* Stash Extension (iOS) */,
+				80E51CF22F2AB4500006FA98 /* Stash Extension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		80E51CC92F2AB4500006FA98 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80E51CFB2F2AB4500006FA98 /* Icon.png in Resources */,
+				80E51CD42F2AB4500006FA98 /* LaunchScreen.storyboard in Resources */,
+				80E51CF92F2AB4500006FA98 /* Main.html in Resources */,
+				80E51CFF2F2AB4500006FA98 /* Script.js in Resources */,
+				80E51D032F2AB4500006FA98 /* Assets.xcassets in Resources */,
+				80E51CD72F2AB4500006FA98 /* Main.storyboard in Resources */,
+				80E51CFD2F2AB4500006FA98 /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80E51CDB2F2AB4500006FA98 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80E51CFC2F2AB4500006FA98 /* Icon.png in Resources */,
+				80E51CFE2F2AB4500006FA98 /* Style.css in Resources */,
+				80E51CE32F2AB4500006FA98 /* Main.storyboard in Resources */,
+				80E51D002F2AB4500006FA98 /* Script.js in Resources */,
+				80E51D042F2AB4500006FA98 /* Assets.xcassets in Resources */,
+				80E51CFA2F2AB4500006FA98 /* Main.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80E51CE72F2AB4500006FA98 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80E51D2D2F2AB4510006FA98 /* background.js in Resources */,
+				80E51D312F2AB4510006FA98 /* Readability.js in Resources */,
+				80E51D2E2F2AB4510006FA98 /* popup.html in Resources */,
+				80E51D2F2F2AB4510006FA98 /* supabase.js in Resources */,
+				80E51D352F2AB4510006FA98 /* content.js in Resources */,
+				80E51D332F2AB4510006FA98 /* manifest.json in Resources */,
+				80E51D342F2AB4510006FA98 /* popup.css in Resources */,
+				80E51D302F2AB4510006FA98 /* config.js in Resources */,
+				80E51D322F2AB4510006FA98 /* icons in Resources */,
+				80E51D2C2F2AB4510006FA98 /* popup.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80E51CF12F2AB4500006FA98 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80E51D232F2AB4510006FA98 /* background.js in Resources */,
+				80E51D272F2AB4510006FA98 /* Readability.js in Resources */,
+				80E51D242F2AB4510006FA98 /* popup.html in Resources */,
+				80E51D252F2AB4510006FA98 /* supabase.js in Resources */,
+				80E51D2B2F2AB4510006FA98 /* content.js in Resources */,
+				80E51D292F2AB4510006FA98 /* manifest.json in Resources */,
+				80E51D2A2F2AB4510006FA98 /* popup.css in Resources */,
+				80E51D262F2AB4510006FA98 /* config.js in Resources */,
+				80E51D282F2AB4510006FA98 /* icons in Resources */,
+				80E51D222F2AB4510006FA98 /* popup.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		80E51CC72F2AB4500006FA98 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80E51D012F2AB4500006FA98 /* ViewController.swift in Sources */,
+				80E51CCF2F2AB4500006FA98 /* AppDelegate.swift in Sources */,
+				80E51CD12F2AB4500006FA98 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80E51CD92F2AB4500006FA98 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80E51D022F2AB4500006FA98 /* ViewController.swift in Sources */,
+				80E51CE02F2AB4500006FA98 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80E51CE52F2AB4500006FA98 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80E51D052F2AB4500006FA98 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80E51CEF2F2AB4500006FA98 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80E51D062F2AB4500006FA98 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		80E51CEC2F2AB4500006FA98 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 80E51CE82F2AB4500006FA98 /* Stash Extension (iOS) */;
+			targetProxy = 80E51CEB2F2AB4500006FA98 /* PBXContainerItemProxy */;
+		};
+		80E51CF62F2AB4500006FA98 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 80E51CF22F2AB4500006FA98 /* Stash Extension (macOS) */;
+			targetProxy = 80E51CF52F2AB4500006FA98 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		80E51CBE2F2AB44F0006FA98 /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				80E51CBF2F2AB44F0006FA98 /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		80E51CD22F2AB4500006FA98 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				80E51CD32F2AB4500006FA98 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		80E51CD52F2AB4500006FA98 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				80E51CD62F2AB4500006FA98 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		80E51CE12F2AB4500006FA98 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				80E51CE22F2AB4500006FA98 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		80E51D072F2AB4500006FA98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		80E51D082F2AB4500006FA98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		80E51D0A2F2AB4500006FA98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Stash Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.stash.app.Extension;
+				PRODUCT_NAME = "Stash Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		80E51D0B2F2AB4500006FA98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Stash Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.stash.app.Extension;
+				PRODUCT_NAME = "Stash Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		80E51D0E2F2AB4500006FA98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Stash;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.stash.app;
+				PRODUCT_NAME = Stash;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		80E51D0F2F2AB4500006FA98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Stash;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.stash.app;
+				PRODUCT_NAME = Stash;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		80E51D112F2AB4500006FA98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Stash Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.stash.app.Extension;
+				PRODUCT_NAME = "Stash Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		80E51D122F2AB4500006FA98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Stash Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.stash.app.Extension;
+				PRODUCT_NAME = "Stash Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		80E51D152F2AB4500006FA98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Stash;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.stash.app;
+				PRODUCT_NAME = Stash;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		80E51D162F2AB4500006FA98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Stash;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.stash.app;
+				PRODUCT_NAME = Stash;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		80E51CBB2F2AB44F0006FA98 /* Build configuration list for PBXProject "Stash" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				80E51D072F2AB4500006FA98 /* Debug */,
+				80E51D082F2AB4500006FA98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		80E51D092F2AB4500006FA98 /* Build configuration list for PBXNativeTarget "Stash Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				80E51D0A2F2AB4500006FA98 /* Debug */,
+				80E51D0B2F2AB4500006FA98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		80E51D0D2F2AB4500006FA98 /* Build configuration list for PBXNativeTarget "Stash (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				80E51D0E2F2AB4500006FA98 /* Debug */,
+				80E51D0F2F2AB4500006FA98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		80E51D102F2AB4500006FA98 /* Build configuration list for PBXNativeTarget "Stash Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				80E51D112F2AB4500006FA98 /* Debug */,
+				80E51D122F2AB4500006FA98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		80E51D142F2AB4500006FA98 /* Build configuration list for PBXNativeTarget "Stash (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				80E51D152F2AB4500006FA98 /* Debug */,
+				80E51D162F2AB4500006FA98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 80E51CB82F2AB44F0006FA98 /* Project object */;
+}
