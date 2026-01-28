@@ -687,14 +687,48 @@ class StashApp {
         content: null,
       };
 
-      const { error } = await this.supabase.from('saves').insert(payload);
+      const { data: insertedSave, error } = await this.supabase
+        .from('saves')
+        .insert(payload)
+        .select('id')
+        .single();
       if (error) throw error;
 
       this.showToast('Image saved!', 'success');
       this.loadSaves();
+
+      // Trigger auto-tagging in background
+      if (insertedSave?.id) {
+        this.triggerAutoTag(insertedSave.id);
+      }
     } catch (err) {
       console.error('Error saving image:', err);
       this.showToast('Failed to save image', 'error');
+    }
+  }
+
+  // Trigger auto-tagging via edge function (fire-and-forget)
+  async triggerAutoTag(saveId) {
+    try {
+      const response = await fetch(
+        `${CONFIG.SUPABASE_URL}/functions/v1/auto-tag`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': CONFIG.SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({
+            save_id: saveId,
+            user_id: this.user.id,
+          }),
+        }
+      );
+      if (!response.ok) {
+        console.warn('Auto-tag failed:', await response.text());
+      }
+    } catch (err) {
+      console.warn('Auto-tag error:', err);
     }
   }
 
@@ -2564,15 +2598,22 @@ class StashApp {
         image_url: imageUrl,
       };
 
-      const { error } = await this.supabase
+      const { data: insertedSave, error } = await this.supabase
         .from('saves')
-        .insert(payload);
+        .insert(payload)
+        .select('id')
+        .single();
 
       if (error) throw error;
 
       this.setQuickAddStatus('Saved!', 'success');
       this.loadSaves();
       setTimeout(() => this.hideQuickAddModal(), 600);
+
+      // Trigger auto-tagging in background
+      if (insertedSave?.id) {
+        this.triggerAutoTag(insertedSave.id);
+      }
     } catch (err) {
       console.error('Quick add error:', err);
       this.setQuickAddStatus('Failed to save. Please try again.', 'error');

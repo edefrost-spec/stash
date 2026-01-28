@@ -20,6 +20,31 @@ async function initSupabase() {
   await supabase.init();
 }
 
+// Trigger auto-tagging via edge function (fire-and-forget)
+async function triggerAutoTag(saveId, userId) {
+  try {
+    const response = await fetch(
+      `${CONFIG.SUPABASE_URL}/functions/v1/auto-tag`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': CONFIG.SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
+          save_id: saveId,
+          user_id: userId,
+        }),
+      }
+    );
+    if (!response.ok) {
+      console.warn('Auto-tag failed:', await response.text());
+    }
+  } catch (err) {
+    console.warn('Auto-tag error:', err);
+  }
+}
+
 // Context menu for "Save highlight to Stash"
 function setupContextMenu() {
   chrome.contextMenus.removeAll(() => {
@@ -51,7 +76,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 // Save highlighted text
 async function saveHighlight(tab, selectionText) {
   try {
-    await supabase.insert('saves', {
+    const result = await supabase.insert('saves', {
       user_id: CONFIG.USER_ID,
       url: tab.url,
       title: tab.title,
@@ -64,6 +89,11 @@ async function saveHighlight(tab, selectionText) {
       action: 'showToast',
       message: 'Highlight saved!',
     });
+
+    // Trigger auto-tagging in background
+    if (result && result[0]?.id) {
+      triggerAutoTag(result[0].id, CONFIG.USER_ID);
+    }
   } catch (err) {
     console.error('Save highlight failed:', err);
     chrome.tabs.sendMessage(tab.id, {
@@ -122,6 +152,11 @@ async function savePage(tab) {
       action: 'showToast',
       message: 'Page saved!',
     });
+
+    // Trigger auto-tagging in background
+    if (result && result[0]?.id) {
+      triggerAutoTag(result[0].id, CONFIG.USER_ID);
+    }
   } catch (err) {
     console.error('Save page failed:', err);
     chrome.tabs.sendMessage(tab.id, {
@@ -205,6 +240,11 @@ async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = nu
       action: 'showToast',
       message: 'Page saved!',
     });
+
+    // Trigger auto-tagging in background (will add AI-suggested tags alongside manual ones)
+    if (result && result[0]?.id) {
+      triggerAutoTag(result[0].id, CONFIG.USER_ID);
+    }
   } catch (err) {
     console.error('Save page failed:', err);
     chrome.tabs.sendMessage(tab.id, {
