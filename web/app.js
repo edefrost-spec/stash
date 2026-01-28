@@ -46,6 +46,9 @@ class StashApp {
     // Notes auto-save timeout
     this.notesTimeout = null;
 
+    // Masonry layout instance
+    this.masonry = null;
+
     this.init();
   }
 
@@ -60,6 +63,7 @@ class StashApp {
     this.loadTheme();
     this.loadCardPreferences();
     this.applyFeatureFlags();
+    this.hideQuickAddModal();
 
     // Skip auth - go straight to main screen
     this.showMainScreen();
@@ -1091,8 +1095,17 @@ class StashApp {
     const useMoodBoard = this.isMoodBoard && viewAllows;
     const savesToRender = this.filterSavesForDisplay(this.saves, useMoodBoard);
 
+    // Destroy existing masonry instance before re-rendering
+    if (this.masonry) {
+      this.masonry.destroy();
+      this.masonry = null;
+    }
+
     container.classList.toggle('mood-board', useMoodBoard);
-    container.innerHTML = savesToRender.map(save => this.renderSaveCard(save, { moodBoard: useMoodBoard })).join('');
+
+    // Add grid-sizer for masonry column width calculation
+    const cardsHtml = savesToRender.map(save => this.renderSaveCard(save, { moodBoard: useMoodBoard })).join('');
+    container.innerHTML = `<div class="grid-sizer"></div>${cardsHtml}`;
 
     if (useMoodBoard) {
       this.renderColorFilters();
@@ -1107,6 +1120,34 @@ class StashApp {
         if (save) this.openReadingPane(save);
       });
     });
+
+    // Initialize Masonry layout
+    this.initMasonry(container);
+  }
+
+  initMasonry(container) {
+    // Check if Masonry is available
+    if (typeof Masonry === 'undefined') {
+      console.warn('Masonry library not loaded');
+      return;
+    }
+
+    // Initialize Masonry
+    this.masonry = new Masonry(container, {
+      itemSelector: '.save-card',
+      columnWidth: '.grid-sizer',
+      percentPosition: true,
+      gutter: 16
+    });
+
+    // Re-layout after images load for proper positioning
+    if (typeof imagesLoaded !== 'undefined') {
+      imagesLoaded(container, () => {
+        if (this.masonry) {
+          this.masonry.layout();
+        }
+      });
+    }
   }
 
   // Weekly Review special rendering
@@ -1224,18 +1265,31 @@ class StashApp {
     });
   }
 
+  /**
+   * Determine the save type for card rendering
+   * @param {Object} save - The save object
+   * @returns {'highlight'|'image'|'note'|'link'|'article'} - The save type
+   */
+  getSaveType(save) {
+    if (save.highlight) return 'highlight';
+    if (save.source === 'upload' && save.image_url) return 'image';
+    if (save.site_name === 'Note' || (!save.url && (save.notes || save.content))) return 'note';
+    if (save.url && !save.content && !save.excerpt) return 'link';
+    return 'article';
+  }
+
   renderSaveCard(save, options = {}) {
     const { moodBoard = false } = options;
-    const isHighlight = !!save.highlight;
-    const isImageSave = save.source === 'upload' && save.image_url;
+    const saveType = this.getSaveType(save);
     const date = new Date(save.created_at).toLocaleDateString();
-    const annotations = this.renderCardAnnotations(save, { compact: moodBoard || isImageSave });
+    const annotations = this.renderCardAnnotations(save, { compact: moodBoard || saveType === 'image' });
     const colorEntry = this.saveColorMap[save.id];
     const dominantStyle = colorEntry?.color ? `style="--dominant: ${colorEntry.color}"` : '';
 
+    // Mood board mode - visual-focused layout
     if (moodBoard) {
       const meta = `${this.escapeHtml(save.site_name || '')}${save.site_name ? ' · ' : ''}${date}`;
-      if (isHighlight) {
+      if (saveType === 'highlight') {
         return `
           <div class="save-card mood-card highlight" data-id="${save.id}" ${dominantStyle}>
             <div class="mood-media">
@@ -1252,7 +1306,7 @@ class StashApp {
       }
 
       return `
-        <div class="save-card mood-card${isImageSave ? ' image-save' : ''}" data-id="${save.id}" ${dominantStyle}>
+        <div class="save-card mood-card${saveType === 'image' ? ' image-save' : ''}" data-id="${save.id}" ${dominantStyle}>
           <div class="mood-media">
             ${save.image_url ? `<img src="${save.image_url}" alt="" onerror="this.style.display='none'">` : '<div class="mood-placeholder"></div>'}
             <div class="mood-overlay">
@@ -1265,52 +1319,90 @@ class StashApp {
       `;
     }
 
-    if (isHighlight) {
-      return `
-        <div class="save-card highlight" data-id="${save.id}">
-          <div class="save-card-content">
-            <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
-            <div class="save-card-highlight">"${this.escapeHtml(save.highlight)}"</div>
-            <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
-            <div class="save-card-meta">
-              <span class="save-card-date">${date}</span>
-            </div>
-            ${annotations}
-          </div>
-        </div>
-      `;
-    }
-
-    // Image save - special card layout
-    if (isImageSave) {
-      return `
-        <div class="save-card image-save" data-id="${save.id}">
-          <img class="save-card-image" src="${save.image_url}" alt="${this.escapeHtml(save.title || 'Image')}">
-          <div class="save-card-content">
-            <div class="save-card-site">${this.escapeHtml(save.site_name || 'Image')}</div>
-            <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
-            <div class="save-card-meta">
-              <span class="save-card-date">${date}</span>
+    // Type-specific card templates
+    switch (saveType) {
+      case 'highlight':
+        return `
+          <div class="save-card highlight" data-id="${save.id}">
+            <div class="save-card-content">
+              <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
+              <div class="save-card-highlight">"${this.escapeHtml(save.highlight)}"</div>
+              <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
+              <div class="save-card-meta">
+                <span class="save-card-date">${date}</span>
+              </div>
+              ${annotations}
             </div>
           </div>
-        </div>
-      `;
-    }
+        `;
 
-    return `
-      <div class="save-card" data-id="${save.id}">
-        ${save.image_url ? `<img class="save-card-image" src="${save.image_url}" alt="" onerror="this.style.display='none'">` : ''}
-        <div class="save-card-content">
-          <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
-          <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
-          <div class="save-card-excerpt">${this.escapeHtml(save.excerpt || '')}</div>
-          <div class="save-card-meta">
-            <span class="save-card-date">${date}</span>
+      case 'image':
+        // Image card - just the image, annotations on hover
+        return `
+          <div class="save-card image-save" data-id="${save.id}">
+            <img class="save-card-image" src="${save.image_url}" alt="">
+            <div class="save-card-content">
+              ${annotations}
+            </div>
           </div>
-          ${annotations}
-        </div>
-      </div>
-    `;
+        `;
+
+      case 'note':
+        // Note card - text-focused, no image
+        const noteContent = save.notes || save.content || '';
+        return `
+          <div class="save-card note-save" data-id="${save.id}">
+            <div class="save-card-content">
+              <div class="save-card-site">Note</div>
+              <div class="save-card-title">${this.escapeHtml(save.title || 'Quick Note')}</div>
+              <div class="save-card-note-content">${this.escapeHtml(noteContent)}</div>
+              <div class="save-card-meta">
+                <span class="save-card-date">${date}</span>
+              </div>
+              ${annotations}
+            </div>
+          </div>
+        `;
+
+      case 'link':
+        // Link card - minimal with favicon
+        const domain = save.url ? new URL(save.url).hostname.replace('www.', '') : '';
+        const faviconUrl = save.url ? `https://www.google.com/s2/favicons?domain=${domain}&sz=32` : '';
+        return `
+          <div class="save-card link-save" data-id="${save.id}">
+            <div class="save-card-content">
+              <div class="link-header">
+                ${faviconUrl ? `<img class="link-favicon" src="${faviconUrl}" alt="" onerror="this.style.display='none'">` : ''}
+                <span class="link-domain">${this.escapeHtml(domain)}</span>
+              </div>
+              <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
+              <div class="save-card-url">${this.escapeHtml(save.url || '')}</div>
+              <div class="save-card-meta">
+                <span class="save-card-date">${date}</span>
+              </div>
+              ${annotations}
+            </div>
+          </div>
+        `;
+
+      case 'article':
+      default:
+        // Article card - standard with image, title, excerpt
+        return `
+          <div class="save-card article-save" data-id="${save.id}">
+            ${save.image_url ? `<img class="save-card-image" src="${save.image_url}" alt="" onerror="this.style.display='none'">` : ''}
+            <div class="save-card-content">
+              <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
+              <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
+              <div class="save-card-excerpt">${this.escapeHtml(save.excerpt || '')}</div>
+              <div class="save-card-meta">
+                <span class="save-card-date">${date}</span>
+              </div>
+              ${annotations}
+            </div>
+          </div>
+        `;
+    }
   }
 
   renderCardAnnotations(save, options = {}) {
