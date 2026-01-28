@@ -85,6 +85,7 @@ After deploying, update `extension/config.js` with your web app URL.
 
 - **Save a page**: Click the Stash icon or right-click > "Save page to Stash"
 - **Save a highlight**: Select text > right-click > "Save highlight to Stash"
+- **Save an image**: Right-click an image > "Save image to Stash"
 
 ### Web App
 
@@ -102,6 +103,10 @@ After deploying, update `extension/config.js` with your web app URL.
 ### iOS Shortcut (Save from Safari)
 
 See `ios-shortcut/README.md` for setup instructions.
+
+### Safari Web Extension (macOS + iOS)
+
+See `safari/README.md` to generate and run the Safari Web Extension wrapper.
 
 ## Features
 

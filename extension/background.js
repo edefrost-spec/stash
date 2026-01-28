@@ -60,6 +60,12 @@ function setupContextMenu() {
       title: 'Save page to Stash',
       contexts: ['page'],
     });
+
+    chrome.contextMenus.create({
+      id: 'save-image',
+      title: 'Save image to Stash',
+      contexts: ['image'],
+    });
   });
 }
 
@@ -71,6 +77,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     await saveHighlight(tab, info.selectionText);
   } else if (info.menuItemId === 'save-page') {
     await savePage(tab);
+  } else if (info.menuItemId === 'save-image') {
+    await saveImage(tab, info.srcUrl, info.pageUrl);
   }
 });
 
@@ -163,6 +171,169 @@ async function savePage(tab) {
     chrome.tabs.sendMessage(tab.id, {
       action: 'showToast',
       message: 'Failed to save: ' + err.message,
+      isError: true,
+    });
+  }
+}
+
+function sanitizeFilename(name) {
+  if (!name) return 'image';
+  const cleaned = name.replace(/[^\w.-]+/g, '-').replace(/-+/g, '-').replace(/^[-.]+|[-.]+$/g, '');
+  return cleaned || 'image';
+}
+
+function extensionFromType(contentType) {
+  if (!contentType) return '';
+  const type = contentType.split(';')[0].trim().toLowerCase();
+  const map = {
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg',
+    'image/png': 'png',
+    'image/gif': 'gif',
+    'image/webp': 'webp',
+    'image/svg+xml': 'svg',
+    'image/bmp': 'bmp',
+    'image/tiff': 'tiff',
+  };
+  return map[type] ? `.${map[type]}` : '';
+}
+
+function buildFilenameFromUrl(srcUrl, contentType) {
+  let name = 'image';
+
+  try {
+    const url = new URL(srcUrl);
+    const lastSegment = url.pathname.split('/').filter(Boolean).pop();
+    if (lastSegment) {
+      name = decodeURIComponent(lastSegment);
+    }
+  } catch (err) {
+    // data: or invalid URL; keep default
+  }
+
+  name = sanitizeFilename(name);
+
+  if (!/\.[a-z0-9]{2,5}$/i.test(name)) {
+    const ext = extensionFromType(contentType);
+    if (ext) name += ext;
+  }
+
+  return name;
+}
+
+function encodeStoragePath(path) {
+  return path.split('/').map(segment => encodeURIComponent(segment)).join('/');
+}
+
+async function fetchImageBlob(srcUrl) {
+  const response = await fetch(srcUrl, { cache: 'no-store', credentials: 'omit' });
+  if (!response.ok) {
+    throw new Error(`Image fetch failed (${response.status})`);
+  }
+  const blob = await response.blob();
+  const contentType = response.headers.get('content-type') || blob.type || 'application/octet-stream';
+  return { blob, contentType };
+}
+
+async function uploadImageToStorage(path, blob, contentType) {
+  const uploadUrl = `${CONFIG.SUPABASE_URL}/storage/v1/object/uploads/${encodeStoragePath(path)}`;
+  const authToken = supabase?.accessToken || CONFIG.SUPABASE_ANON_KEY;
+
+  const res = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: {
+      'apikey': CONFIG.SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': contentType || 'application/octet-stream',
+      'x-upsert': 'false',
+    },
+    body: blob,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || 'Upload failed');
+  }
+}
+
+async function generateImageEmbedding(saveId, userId, imageUrl) {
+  try {
+    const response = await fetch(
+      `${CONFIG.SUPABASE_URL}/functions/v1/generate-image-embedding`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': CONFIG.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          save_id: saveId,
+          user_id: userId,
+          image_url: imageUrl,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      console.warn('Image embedding failed:', await response.text());
+    }
+  } catch (err) {
+    console.warn('Image embedding error:', err);
+  }
+}
+
+async function saveImage(tab, srcUrl, pageUrl) {
+  try {
+    if (!srcUrl) throw new Error('No image URL found');
+    if (!supabase) await initSupabase();
+
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'showToast',
+      message: 'Saving image...',
+    });
+
+    const { blob, contentType } = await fetchImageBlob(srcUrl);
+    const filename = buildFilenameFromUrl(srcUrl, contentType);
+    const path = `${CONFIG.USER_ID}/${Date.now()}-${filename}`;
+
+    await uploadImageToStorage(path, blob, contentType);
+
+    const imageUrl = `${CONFIG.SUPABASE_URL}/storage/v1/object/public/uploads/${encodeStoragePath(path)}`;
+    let siteName = 'Image';
+    const sourcePage = pageUrl || tab?.url;
+    if (sourcePage) {
+      try {
+        siteName = new URL(sourcePage).hostname.replace('www.', '');
+      } catch (err) {
+        siteName = 'Image';
+      }
+    }
+
+    const result = await supabase.insert('saves', {
+      user_id: CONFIG.USER_ID,
+      url: imageUrl,
+      title: filename,
+      image_url: imageUrl,
+      site_name: siteName,
+      source: 'upload',
+      content: null,
+    });
+
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'showToast',
+      message: 'Image saved!',
+    });
+
+    if (result && result[0]?.id) {
+      triggerAutoTag(result[0].id, CONFIG.USER_ID);
+      generateImageEmbedding(result[0].id, CONFIG.USER_ID, imageUrl);
+    }
+  } catch (err) {
+    console.error('Save image failed:', err);
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'showToast',
+      message: 'Failed to save image: ' + err.message,
       isError: true,
     });
   }

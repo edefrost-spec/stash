@@ -7,6 +7,7 @@ A simple, self-hosted read-it-later app. Save articles, highlights, and Kindle n
 ## Features
 
 - **Chrome Extension** - Save pages and highlights with one click
+- **Safari Web Extension** - Save from Safari on Mac and iPhone/iPad
 - **Web App** - Access your saves from any device
 - **Kindle Sync** - Import highlights from your Kindle library
 - **Full-Text Search** - Find anything you've saved
@@ -37,6 +38,7 @@ See [SETUP.md](SETUP.md) for detailed instructions.
 ```
 stash/
 ├── extension/       # Chrome extension
+├── safari/          # Safari Web Extension wrapper instructions
 ├── web/            # Web app (PWA)
 ├── tts/            # Text-to-speech generator
 ├── bookmarklet/    # Universal save bookmarklet

@@ -103,7 +103,13 @@ class StashApp {
     const enabled = !!(CONFIG?.FEATURES?.VISION_V2);
     document.body.classList.toggle('vision-v2', enabled);
     document.querySelectorAll('[data-feature="vision-v2"]').forEach(el => {
-      el.classList.toggle('hidden', !enabled);
+      if (!enabled) {
+        el.classList.add('hidden');
+        return;
+      }
+      // Keep modals hidden until explicitly opened.
+      if (el.classList.contains('modal')) return;
+      el.classList.remove('hidden');
     });
   }
 
