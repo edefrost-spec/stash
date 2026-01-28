@@ -1168,9 +1168,6 @@ class StashApp {
     // Get unique sites
     const sites = [...new Set(this.saves.map(s => s.site_name).filter(Boolean))];
 
-    // Pick a random "rediscovery" from older saves (30+ days old)
-    this.loadRediscovery();
-
     container.innerHTML = `
       <div class="weekly-review">
         <div class="weekly-header">
@@ -1229,6 +1226,9 @@ class StashApp {
         if (save) this.openReadingPane(save);
       });
     });
+
+    // Load rediscovery after DOM is ready
+    this.loadRediscovery();
   }
 
   async loadRediscovery() {
