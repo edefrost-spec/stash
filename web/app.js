@@ -700,6 +700,11 @@ class StashApp {
       // Trigger auto-tagging in background
       if (insertedSave?.id) {
         this.triggerAutoTag(insertedSave.id);
+        // Generate image embedding for similarity search
+        this.generateImageEmbedding({
+          id: insertedSave.id,
+          image_url: imageUrl,
+        }).catch(err => console.warn('Embedding generation failed:', err));
       }
     } catch (err) {
       console.error('Error saving image:', err);
@@ -731,6 +736,158 @@ class StashApp {
     } catch (err) {
       console.warn('Auto-tag error:', err);
     }
+  }
+
+  // Find similar images by aesthetic vibe
+  async findSimilarImages(save) {
+    this.showToast('Finding similar images...');
+
+    try {
+      const response = await fetch(
+        `${CONFIG.SUPABASE_URL}/functions/v1/find-similar-images`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': CONFIG.SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            save_id: save.id,
+            user_id: this.user.id,
+            limit: 12,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // If embedding doesn't exist, generate it first
+        if (data.needsEmbedding) {
+          this.showToast('Analyzing image aesthetics...');
+          await this.generateImageEmbedding(save);
+          // Retry the search
+          return this.findSimilarImages(save);
+        }
+        throw new Error(data.error || 'Failed to find similar images');
+      }
+
+      if (!data.similar || data.similar.length === 0) {
+        this.showToast('No similar images found');
+        return;
+      }
+
+      this.showSimilarImagesModal(save, data.similar, data.source_description);
+
+    } catch (err) {
+      console.error('Find similar error:', err);
+      this.showToast('Failed to find similar images', 'error');
+    }
+  }
+
+  // Generate aesthetic embedding for an image
+  async generateImageEmbedding(save) {
+    const response = await fetch(
+      `${CONFIG.SUPABASE_URL}/functions/v1/generate-image-embedding`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': CONFIG.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          save_id: save.id,
+          user_id: this.user.id,
+          image_url: save.image_url,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Failed to generate embedding');
+    }
+
+    return response.json();
+  }
+
+  // Show modal with similar images
+  showSimilarImagesModal(sourceSave, similarImages, description) {
+    // Remove existing modal
+    document.querySelector('.similar-images-modal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.className = 'modal similar-images-modal';
+    modal.innerHTML = `
+      <div class="modal-overlay"></div>
+      <div class="modal-content similar-images-content">
+        <div class="modal-header">
+          <h2>Similar Vibes</h2>
+          <button class="btn icon modal-close-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          ${description ? `<p class="similar-vibe-description">${this.escapeHtml(description)}</p>` : ''}
+          <div class="similar-images-grid">
+            ${similarImages.map(img => `
+              <div class="similar-image-card" data-id="${img.id}">
+                <img src="${img.image_url}" alt="${this.escapeHtml(img.title || 'Image')}" loading="lazy">
+                <div class="similar-image-info">
+                  <span class="similar-score">${Math.round(img.similarity * 100)}%</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Animate in
+    requestAnimationFrame(() => modal.classList.add('visible'));
+
+    // Event handlers
+    const closeModal = () => {
+      modal.classList.remove('visible');
+      setTimeout(() => modal.remove(), 300);
+    };
+
+    modal.querySelector('.modal-overlay').addEventListener('click', closeModal);
+    modal.querySelector('.modal-close-btn').addEventListener('click', closeModal);
+
+    // Click on similar image to view it
+    modal.querySelectorAll('.similar-image-card').forEach(card => {
+      card.addEventListener('click', async () => {
+        const imageId = card.dataset.id;
+        const { data: save } = await this.supabase
+          .from('saves')
+          .select('*')
+          .eq('id', imageId)
+          .single();
+
+        if (save) {
+          closeModal();
+          document.querySelector('.image-lightbox')?.remove();
+          this.openImageLightbox(save);
+        }
+      });
+    });
+
+    // Escape key
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
   }
 
   // Simple toast notification
@@ -1633,6 +1790,14 @@ class StashApp {
         </svg>
       </button>
       <div class="image-lightbox-actions">
+        <button class="btn icon lightbox-similar" title="Find Similar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </button>
         <button class="btn icon lightbox-delete" title="Delete">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="3 6 5 6 21 6"></polyline>
@@ -1674,6 +1839,11 @@ class StashApp {
       await this.supabase.from('saves').delete().eq('id', save.id);
       closeLightbox();
       this.loadSaves();
+    });
+
+    // Find Similar handler
+    lightbox.querySelector('.lightbox-similar')?.addEventListener('click', () => {
+      this.findSimilarImages(save);
     });
 
     // Escape key
@@ -2614,6 +2784,13 @@ class StashApp {
       // Trigger auto-tagging in background
       if (insertedSave?.id) {
         this.triggerAutoTag(insertedSave.id);
+        // Generate image embedding for file uploads (similarity search)
+        if (type === 'file' && imageUrl) {
+          this.generateImageEmbedding({
+            id: insertedSave.id,
+            image_url: imageUrl,
+          }).catch(err => console.warn('Embedding generation failed:', err));
+        }
       }
     } catch (err) {
       console.error('Quick add error:', err);
