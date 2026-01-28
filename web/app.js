@@ -1233,25 +1233,49 @@ class StashApp {
 
   async loadRediscovery() {
     const section = document.getElementById('rediscovery-section');
-    if (!section) return;
+    if (!section) {
+      console.log('Rediscovery section not found');
+      return;
+    }
 
-    const { data } = await this.supabase
-      .from('saves')
-      .select('*')
-      .eq('user_id', this.user.id)
-      .lt('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
-      .limit(50);
+    try {
+      const { data, error } = await this.supabase
+        .from('saves')
+        .select('*')
+        .eq('user_id', this.user.id)
+        .lt('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+        .limit(50);
 
-    if (data && data.length > 0) {
-      const save = data[Math.floor(Math.random() * data.length)];
-      this.rediscoverySaves = data; // Store for shuffle
-      this.updateRediscovery(save);
-    } else {
+      if (error) {
+        console.error('Rediscovery query error:', error);
+        section.innerHTML = `
+          <div class="rediscovery-header">
+            <h4>Rediscover</h4>
+          </div>
+          <p class="weekly-rediscovery-hint">Could not load archived saves.</p>
+        `;
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const save = data[Math.floor(Math.random() * data.length)];
+        this.rediscoverySaves = data; // Store for shuffle
+        this.updateRediscovery(save);
+      } else {
+        section.innerHTML = `
+          <div class="rediscovery-header">
+            <h4>Rediscover</h4>
+          </div>
+          <p class="weekly-rediscovery-hint">Keep saving! Your gems will appear here after 30 days.</p>
+        `;
+      }
+    } catch (err) {
+      console.error('Rediscovery error:', err);
       section.innerHTML = `
         <div class="rediscovery-header">
           <h4>Rediscover</h4>
         </div>
-        <p class="weekly-rediscovery-hint">Keep saving! Your gems will appear here after 30 days.</p>
+        <p class="weekly-rediscovery-hint">Something went wrong loading your archive.</p>
       `;
     }
   }
