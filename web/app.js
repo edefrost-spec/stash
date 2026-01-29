@@ -1118,11 +1118,25 @@ class StashApp {
       this.masonry = null;
     }
 
+    // Save reference to quick note input before clearing
+    const quickNoteInput = document.getElementById('quick-note-input');
+    const quickNoteParent = quickNoteInput ? quickNoteInput.parentNode : null;
+
     container.classList.toggle('mood-board', useMoodBoard);
 
     // Add grid-sizer for masonry column width calculation
     const cardsHtml = savesToRender.map(save => this.renderSaveCard(save, { moodBoard: useMoodBoard })).join('');
     container.innerHTML = `<div class="grid-sizer"></div>${cardsHtml}`;
+
+    // Re-insert quick note input at the beginning (after grid-sizer)
+    if (quickNoteInput && quickNoteParent === container) {
+      const gridSizer = container.querySelector('.grid-sizer');
+      if (gridSizer && gridSizer.nextSibling) {
+        container.insertBefore(quickNoteInput, gridSizer.nextSibling);
+      } else {
+        container.appendChild(quickNoteInput);
+      }
+    }
 
     if (useMoodBoard) {
       this.renderColorFilters();
@@ -1154,12 +1168,16 @@ class StashApp {
       return;
     }
 
-    // Initialize Masonry
+    // Get stamp element (quick note) if it exists
+    const stampElem = container.querySelector('.quick-note-input');
+
+    // Initialize Masonry - quick-note-input is stamped in place, layout flows around it
     this.masonry = new Masonry(container, {
       itemSelector: '.save-card',
       columnWidth: '.grid-sizer',
       percentPosition: true,
-      gutter: 16
+      gutter: 16,
+      stamp: stampElem ? '.quick-note-input' : null
     });
 
     // Re-layout after images load for proper positioning
