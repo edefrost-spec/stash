@@ -18,14 +18,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tagsSuggestions = document.getElementById('tags-suggestions');
   const notesInput = document.getElementById('notes-input');
 
+  // Product detection elements
+  const productBanner = document.getElementById('product-banner');
+  const productPriceDisplay = document.getElementById('product-price-display');
+  const saveAsProductCheckbox = document.getElementById('save-as-product');
+
   // State
   let availableTags = [];
   let selectedTagIds = [];
+  let detectedProduct = null;
 
   // Single-user mode - skip auth, go straight to main view
   showMainView();
   loadRecentSaves();
   loadFoldersAndTags();
+  detectProductOnPage();
 
   function showAuthView() {
     authView.classList.remove('hidden');
@@ -186,10 +193,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     tagsInput.value = '';
   }
 
+  // Detect product on current page
+  async function detectProductOnPage() {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab) return;
+
+      // Try to get product data from content script
+      let article;
+      try {
+        article = await chrome.tabs.sendMessage(tab.id, { action: 'extractArticle' });
+      } catch (e) {
+        // Content script not loaded, inject it first
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['Readability.js', 'content.js']
+        });
+        await new Promise(r => setTimeout(r, 100));
+        article = await chrome.tabs.sendMessage(tab.id, { action: 'extractArticle' });
+      }
+
+      if (article && article.isProduct) {
+        detectedProduct = {
+          isProduct: true,
+          price: article.productPrice,
+          currency: article.productCurrency || 'USD',
+          availability: article.productAvailability,
+        };
+
+        // Show product banner
+        productBanner.classList.remove('hidden');
+
+        // Display price
+        if (detectedProduct.price) {
+          const currencySymbol = detectedProduct.currency === 'USD' ? '$' : detectedProduct.currency + ' ';
+          productPriceDisplay.textContent = currencySymbol + detectedProduct.price;
+        } else {
+          productPriceDisplay.textContent = '';
+        }
+      }
+    } catch (err) {
+      console.log('Product detection failed:', err);
+    }
+  }
+
   // Save page
   savePageBtn.addEventListener('click', async () => {
     const folderId = folderSelect.value || null;
     const notes = notesInput.value.trim() || null;
+
+    // Check if saving as product
+    const saveAsProduct = detectedProduct && saveAsProductCheckbox.checked;
 
     savePageBtn.disabled = true;
     savePageBtn.innerHTML = `
@@ -204,6 +258,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       folderId,
       tagIds: selectedTagIds,
       notes,
+      // Product data
+      isProduct: saveAsProduct,
+      productPrice: saveAsProduct ? detectedProduct.price : null,
+      productCurrency: saveAsProduct ? detectedProduct.currency : null,
+      productAvailability: saveAsProduct ? detectedProduct.availability : null,
     });
 
     // Reset form

@@ -30,6 +30,7 @@ async function extractArticle() {
     const article = reader.parse();
 
     if (article && article.textContent && article.textContent.length > 200) {
+      const productData = extractProductData();
       return {
         success: true,
         title: article.title || document.title,
@@ -39,6 +40,11 @@ async function extractArticle() {
         author: article.byline,
         publishedTime: extractPublishedTime(),
         imageUrl: extractMainImage(),
+        // Product data
+        isProduct: productData.isProduct,
+        productPrice: productData.price,
+        productCurrency: productData.currency,
+        productAvailability: productData.availability,
       };
     }
   } catch (e) {
@@ -47,6 +53,7 @@ async function extractArticle() {
 
   // Fallback: try to find article content more intelligently
   const content = extractFallbackContent();
+  const productData = extractProductData();
 
   return {
     success: true,
@@ -58,6 +65,11 @@ async function extractArticle() {
     author: extractAuthor(),
     publishedTime: extractPublishedTime(),
     imageUrl: extractMainImage(),
+    // Product data
+    isProduct: productData.isProduct,
+    productPrice: productData.price,
+    productCurrency: productData.currency,
+    productAvailability: productData.availability,
   };
 }
 
@@ -282,6 +294,102 @@ function extractMainImage() {
   return document.querySelector('meta[property="og:image"]')?.content ||
          document.querySelector('meta[name="twitter:image"]')?.content ||
          null;
+}
+
+// Extract product data from schema.org markup and meta tags
+function extractProductData() {
+  const product = {
+    isProduct: false,
+    price: null,
+    currency: 'USD',
+    availability: null
+  };
+
+  // Check JSON-LD schema (highest priority)
+  const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+  for (const script of scripts) {
+    try {
+      let data = JSON.parse(script.textContent);
+
+      // Handle @graph arrays
+      if (data['@graph']) {
+        data = data['@graph'].find(item =>
+          item['@type'] === 'Product' ||
+          (Array.isArray(item['@type']) && item['@type'].includes('Product'))
+        );
+        if (!data) continue;
+      }
+
+      const type = data['@type'];
+      if (type === 'Product' || (Array.isArray(type) && type.includes('Product'))) {
+        product.isProduct = true;
+
+        if (data.offers) {
+          const offer = Array.isArray(data.offers) ? data.offers[0] : data.offers;
+          product.price = offer.price || offer.lowPrice || offer.highPrice;
+          product.currency = offer.priceCurrency || 'USD';
+          product.availability = offer.availability?.replace('https://schema.org/', '')?.replace('http://schema.org/', '');
+        }
+        break;
+      }
+    } catch (e) {
+      // JSON parse error, skip this script
+    }
+  }
+
+  // Check Open Graph product meta tags (fallback)
+  if (!product.isProduct) {
+    const ogType = document.querySelector('meta[property="og:type"]');
+    if (ogType?.content === 'product' || ogType?.content === 'og:product') {
+      product.isProduct = true;
+    }
+
+    const priceAmount = document.querySelector('meta[property="product:price:amount"]') ||
+                        document.querySelector('meta[property="og:price:amount"]');
+    const priceCurrency = document.querySelector('meta[property="product:price:currency"]') ||
+                          document.querySelector('meta[property="og:price:currency"]');
+
+    if (priceAmount) {
+      product.isProduct = true;
+      product.price = priceAmount.content;
+      product.currency = priceCurrency?.content || 'USD';
+    }
+  }
+
+  // Check common ecommerce domains for confidence boost
+  const hostname = window.location.hostname.toLowerCase();
+  const ecommerceDomains = ['amazon.', 'ebay.', 'etsy.', 'shopify.', 'walmart.', 'target.', 'bestbuy.'];
+  if (ecommerceDomains.some(domain => hostname.includes(domain))) {
+    // If on ecommerce domain, try harder to find price
+    if (!product.price) {
+      // Look for common price selectors
+      const priceSelectors = [
+        '[data-price]',
+        '.price',
+        '.product-price',
+        '.a-price .a-offscreen', // Amazon
+        '#priceblock_ourprice',
+        '#priceblock_dealprice',
+        '.x-price-primary',
+        '[itemprop="price"]'
+      ];
+
+      for (const selector of priceSelectors) {
+        const el = document.querySelector(selector);
+        if (el) {
+          const priceText = el.getAttribute('data-price') || el.textContent;
+          const match = priceText?.match(/[\d,.]+/);
+          if (match) {
+            product.price = match[0].replace(',', '');
+            product.isProduct = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return product;
 }
 
 // Show save confirmation toast

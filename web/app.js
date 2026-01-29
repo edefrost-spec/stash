@@ -56,6 +56,9 @@ class StashApp {
     this.pendingNoteColor = null;
     this.pendingNoteGradient = null;
 
+    // Focus Bar state
+    this.pinnedSaves = [];
+
     this.init();
   }
 
@@ -80,6 +83,9 @@ class StashApp {
     this.bindQuickNoteEvents();
     this.bindQuickNoteKeyboardShortcut();
     this.bindFormatBar();
+    this.bindPinButton();
+    this.bindProductModal();
+    this.loadPinnedSaves();
   }
 
   // Theme Management
@@ -1350,6 +1356,7 @@ class StashApp {
    * @returns {'highlight'|'image'|'note'|'link'|'article'} - The save type
    */
   getSaveType(save) {
+    if (save.is_product) return 'product';
     if (save.highlight) return 'highlight';
     if (save.source === 'upload' && save.image_url) return 'image';
     if (save.site_name === 'Note' || (!save.url && (save.notes || save.content))) return 'note';
@@ -1400,6 +1407,27 @@ class StashApp {
 
     // Type-specific card templates
     switch (saveType) {
+      case 'product':
+        // Product card - image with price badge
+        const priceDisplay = save.product_price
+          ? `${save.product_currency === 'USD' ? '$' : (save.product_currency + ' ')}${save.product_price}`
+          : '';
+        return `
+          <div class="save-card product-save" data-id="${save.id}">
+            ${save.image_url ? `
+              <div class="product-image-container">
+                <img class="save-card-image" src="${save.image_url}" alt="">
+                ${priceDisplay ? `<span class="product-price-badge">${priceDisplay}</span>` : ''}
+              </div>
+            ` : ''}
+            <div class="save-card-content">
+              <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
+              <div class="save-card-title">${this.escapeHtml(save.title || 'Product')}</div>
+              ${annotations}
+            </div>
+          </div>
+        `;
+
       case 'highlight':
         return `
           <div class="save-card highlight" data-id="${save.id}">
@@ -1892,6 +1920,12 @@ class StashApp {
       return;
     }
 
+    // For product saves, show product modal instead
+    if (save.is_product) {
+      this.openProductModal(save);
+      return;
+    }
+
     const pane = document.getElementById('reading-pane');
 
     // Stop any existing audio
@@ -1938,6 +1972,7 @@ class StashApp {
     // Update button states
     document.getElementById('archive-btn').classList.toggle('active', save.is_archived);
     document.getElementById('favorite-btn').classList.toggle('active', save.is_favorite);
+    document.getElementById('pin-btn')?.classList.toggle('active', save.is_pinned);
 
     // Populate folder dropdown
     const folderSelect = document.getElementById('reading-folder-select');
@@ -3561,6 +3596,163 @@ class StashApp {
     const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
     const B = Math.min(255, (num & 0x0000FF) + amt);
     return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
+  }
+
+  // ===================================
+  // Focus Bar (Pinned Items)
+  // ===================================
+
+  async loadPinnedSaves() {
+    try {
+      const { data } = await this.supabase
+        .from('saves')
+        .select('*')
+        .eq('is_pinned', true)
+        .order('pinned_at', { ascending: false })
+        .limit(5);
+
+      this.pinnedSaves = data || [];
+      this.renderFocusBar();
+    } catch (err) {
+      console.error('Error loading pinned saves:', err);
+    }
+  }
+
+  renderFocusBar() {
+    const focusBar = document.getElementById('focus-bar');
+    const container = document.getElementById('focus-bar-items');
+
+    if (!focusBar || !container) return;
+
+    if (!this.pinnedSaves.length) {
+      focusBar.classList.add('hidden');
+      return;
+    }
+
+    focusBar.classList.remove('hidden');
+    container.innerHTML = this.pinnedSaves.map(save => `
+      <div class="focus-bar-item" data-id="${save.id}">
+        ${save.image_url ? `<img class="focus-bar-item-image" src="${save.image_url}" alt="">` : ''}
+        <span class="focus-bar-item-title">${this.escapeHtml(save.title || 'Untitled')}</span>
+        <button class="focus-bar-item-unpin" title="Unpin">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    `).join('');
+
+    // Bind click events
+    container.querySelectorAll('.focus-bar-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        if (e.target.closest('.focus-bar-item-unpin')) {
+          e.stopPropagation();
+          this.unpinSave(item.dataset.id);
+        } else {
+          const save = this.pinnedSaves.find(s => s.id === item.dataset.id);
+          if (save) this.openReadingPane(save);
+        }
+      });
+    });
+  }
+
+  bindPinButton() {
+    document.getElementById('pin-btn')?.addEventListener('click', () => this.togglePin());
+  }
+
+  async togglePin() {
+    if (!this.currentSave) return;
+
+    const newValue = !this.currentSave.is_pinned;
+
+    // Check pin limit
+    if (newValue && this.pinnedSaves.length >= 5) {
+      alert('Maximum 5 pinned items allowed. Unpin an item first.');
+      return;
+    }
+
+    try {
+      await this.supabase
+        .from('saves')
+        .update({
+          is_pinned: newValue,
+          pinned_at: newValue ? new Date().toISOString() : null
+        })
+        .eq('id', this.currentSave.id);
+
+      this.currentSave.is_pinned = newValue;
+      document.getElementById('pin-btn')?.classList.toggle('active', newValue);
+
+      await this.loadPinnedSaves();
+    } catch (err) {
+      console.error('Error toggling pin:', err);
+    }
+  }
+
+  async unpinSave(saveId) {
+    try {
+      await this.supabase
+        .from('saves')
+        .update({ is_pinned: false, pinned_at: null })
+        .eq('id', saveId);
+
+      if (this.currentSave?.id === saveId) {
+        this.currentSave.is_pinned = false;
+        document.getElementById('pin-btn')?.classList.remove('active');
+      }
+
+      await this.loadPinnedSaves();
+    } catch (err) {
+      console.error('Error unpinning save:', err);
+    }
+  }
+
+  // ===================================
+  // Product Save Type
+  // ===================================
+
+  bindProductModal() {
+    const modal = document.getElementById('product-modal');
+    if (!modal) return;
+
+    const overlay = modal.querySelector('.modal-overlay');
+    const closeBtn = document.getElementById('product-modal-close');
+
+    overlay?.addEventListener('click', () => this.hideProductModal());
+    closeBtn?.addEventListener('click', () => this.hideProductModal());
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        this.hideProductModal();
+      }
+    });
+  }
+
+  openProductModal(save) {
+    const modal = document.getElementById('product-modal');
+    if (!modal) return;
+
+    // Populate modal
+    document.getElementById('product-modal-title').textContent = save.title || 'Product';
+    document.getElementById('product-modal-image').src = save.image_url || '';
+    document.getElementById('product-modal-image').style.display = save.image_url ? 'block' : 'none';
+
+    // Format price
+    const price = save.product_price;
+    const currency = save.product_currency || 'USD';
+    const priceDisplay = price ? (currency === 'USD' ? `$${price}` : `${currency} ${price}`) : '';
+    document.getElementById('product-modal-price').textContent = priceDisplay;
+
+    document.getElementById('product-modal-site').textContent = save.site_name || '';
+    document.getElementById('product-modal-description').textContent = save.excerpt || save.content || '';
+    document.getElementById('product-modal-link').href = save.url || '#';
+
+    modal.classList.remove('hidden');
+  }
+
+  hideProductModal() {
+    document.getElementById('product-modal')?.classList.add('hidden');
   }
 }
 

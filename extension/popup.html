@@ -34,6 +34,19 @@
     <div id="main-view" class="view hidden">
       <!-- Save Actions -->
       <div class="actions">
+        <!-- Product Detection Banner -->
+        <div id="product-banner" class="product-banner hidden">
+          <div class="product-banner-icon">🛒</div>
+          <div class="product-banner-info">
+            <span class="product-banner-label">Product detected</span>
+            <span id="product-price-display" class="product-price"></span>
+          </div>
+          <label class="product-toggle">
+            <input type="checkbox" id="save-as-product" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
         <!-- Save Options -->
         <div class="save-options">
           <div class="form-group">

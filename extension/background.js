@@ -339,8 +339,8 @@ async function saveImage(tab, srcUrl, pageUrl) {
   }
 }
 
-// Save full page with folder, tags, and notes (from popup)
-async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = null) {
+// Save full page with folder, tags, notes, and product data (from popup)
+async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = null, productData = null) {
   if (!supabase) await initSupabase();
 
   try {
@@ -365,8 +365,8 @@ async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = nu
       throw new Error('Failed to extract article content');
     }
 
-    // Insert the save with folder and notes
-    const result = await supabase.insert('saves', {
+    // Insert the save with folder, notes, and product data
+    const saveData = {
       user_id: CONFIG.USER_ID,
       url: tab.url,
       title: article.title,
@@ -379,7 +379,17 @@ async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = nu
       source: 'extension',
       folder_id: folderId,
       notes: notes,
-    });
+    };
+
+    // Add product fields if this is a product save
+    if (productData && productData.isProduct) {
+      saveData.is_product = true;
+      saveData.product_price = productData.price;
+      saveData.product_currency = productData.currency || 'USD';
+      saveData.product_availability = productData.availability;
+    }
+
+    const result = await supabase.insert('saves', saveData);
 
     // Handle tags
     if (tagIds && tagIds.length > 0 && result && result[0]) {
@@ -432,7 +442,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'savePage') {
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       if (tabs[0]) {
-        await savePageWithOptions(tabs[0], request.folderId, request.tagIds, request.notes);
+        const productData = request.isProduct ? {
+          isProduct: request.isProduct,
+          price: request.productPrice,
+          currency: request.productCurrency,
+          availability: request.productAvailability,
+        } : null;
+        await savePageWithOptions(tabs[0], request.folderId, request.tagIds, request.notes, productData);
         sendResponse({ success: true });
       }
     });

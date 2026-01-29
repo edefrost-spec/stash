@@ -49,6 +49,16 @@ create table saves (
   note_color text, -- Background color for note cards (hex)
   note_gradient text, -- Background gradient for note cards (CSS gradient)
 
+  -- Product save fields
+  is_product boolean default false,
+  product_price text,
+  product_currency text default 'USD',
+  product_availability text,
+
+  -- Pin/Focus functionality
+  is_pinned boolean default false,
+  pinned_at timestamp with time zone,
+
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );

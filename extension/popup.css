@@ -395,3 +395,87 @@ input:focus {
   color: #6366f1;
   font-style: italic;
 }
+
+/* Product Banner */
+.product-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.product-banner-icon {
+  font-size: 18px;
+}
+
+.product-banner-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.product-banner-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #047857;
+}
+
+.product-price {
+  font-size: 15px;
+  font-weight: 600;
+  color: #065f46;
+}
+
+/* Toggle Switch */
+.product-toggle {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.product-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #d1d5db;
+  transition: 0.2s;
+  border-radius: 20px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+.product-toggle input:checked + .toggle-slider {
+  background-color: #10b981;
+}
+
+.product-toggle input:checked + .toggle-slider:before {
+  transform: translateX(16px);
+}
