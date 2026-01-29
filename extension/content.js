@@ -45,6 +45,7 @@ async function extractArticle() {
         productPrice: productData.price,
         productCurrency: productData.currency,
         productAvailability: productData.availability,
+        productDescription: productData.description,
       };
     }
   } catch (e) {
@@ -296,13 +297,114 @@ function extractMainImage() {
          null;
 }
 
+// Clean product description by removing common noise
+function cleanProductDescription(text) {
+  if (!text) return '';
+
+  // Remove common noise patterns
+  const noisePatterns = [
+    /size\s*(chart|guide)/gi,
+    /specifications?:/gi,
+    /dimensions?:/gi,
+    /material:/gi,
+    /care\s*instructions?/gi,
+    /shipping\s*(info|information|details|&\s*returns?)/gi,
+    /returns?\s*(policy|info)/gi,
+    /delivery\s*(info|details)/gi,
+    /\bsku\b\s*[:#]?\s*\S+/gi,
+    /\bitem\s*#?\s*\S+/gi,
+    /\bupc\b\s*[:#]?\s*\S+/gi,
+    /\basin\b\s*[:#]?\s*\S+/gi,
+    /model\s*(number|#|no\.?)\s*[:#]?\s*\S+/gi,
+    /sold\s*(&|and)\s*shipped\s*by/gi,
+    /free\s*shipping/gi,
+    /add\s*to\s*(cart|bag|basket)/gi,
+    /buy\s*now/gi,
+    /in\s*stock/gi,
+    /out\s*of\s*stock/gi,
+    /usually\s*ships/gi,
+  ];
+
+  let cleaned = text;
+  noisePatterns.forEach(pattern => {
+    cleaned = cleaned.replace(pattern, '');
+  });
+
+  // Remove excessive whitespace
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n').replace(/\s+/g, ' ').trim();
+
+  // Truncate to first meaningful content (before specs start)
+  const paragraphs = cleaned.split(/\n\n+/);
+  if (paragraphs.length > 2) {
+    cleaned = paragraphs.slice(0, 2).join(' ');
+  }
+
+  // Limit to reasonable length
+  if (cleaned.length > 500) {
+    cleaned = cleaned.slice(0, 500).replace(/\s+\S*$/, '') + '...';
+  }
+
+  return cleaned.trim();
+}
+
+// Extract clean product description
+function extractProductDescription() {
+  // Try structured data first
+  const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+  for (const script of scripts) {
+    try {
+      let data = JSON.parse(script.textContent);
+      if (data['@graph']) {
+        data = data['@graph'].find(item =>
+          item['@type'] === 'Product' ||
+          (Array.isArray(item['@type']) && item['@type'].includes('Product'))
+        );
+      }
+      if (data?.description) {
+        return cleanProductDescription(data.description);
+      }
+    } catch (e) {}
+  }
+
+  // Try meta description
+  const metaDesc = document.querySelector('meta[property="og:description"]')?.content ||
+                   document.querySelector('meta[name="description"]')?.content;
+  if (metaDesc && metaDesc.length > 50) {
+    return cleanProductDescription(metaDesc);
+  }
+
+  // Try common product description selectors
+  const descSelectors = [
+    '[itemprop="description"]',
+    '.product-description',
+    '#product-description',
+    '.product-summary',
+    '.product-details-description',
+    '#feature-bullets', // Amazon
+    '.a-expander-content', // Amazon
+  ];
+
+  for (const selector of descSelectors) {
+    const el = document.querySelector(selector);
+    if (el) {
+      const text = el.textContent?.trim();
+      if (text && text.length > 50) {
+        return cleanProductDescription(text);
+      }
+    }
+  }
+
+  return null;
+}
+
 // Extract product data from schema.org markup and meta tags
 function extractProductData() {
   const product = {
     isProduct: false,
     price: null,
     currency: 'USD',
-    availability: null
+    availability: null,
+    description: null
   };
 
   // Check JSON-LD schema (highest priority)
@@ -387,6 +489,11 @@ function extractProductData() {
         }
       }
     }
+  }
+
+  // Extract clean product description if this is a product
+  if (product.isProduct) {
+    product.description = extractProductDescription();
   }
 
   return product;

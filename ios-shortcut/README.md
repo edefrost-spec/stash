@@ -23,7 +23,7 @@ Save pages to Stash from your iPhone's share sheet.
   - `Content-Type`: `application/json`
   - `Prefer`: `return=minimal`
 - Request Body: **JSON**
-  ```
+  ```json
   {
     "user_id": "YOUR_USER_ID",
     "url": [URLs variable],
@@ -44,3 +44,42 @@ Save pages to Stash from your iPhone's share sheet.
 4. Name it "Save to Stash"
 
 Now when you're in Safari (or any app), tap Share → Save to Stash!
+
+---
+
+## Save Types
+
+The iOS shortcut creates basic link saves. Stash supports several save types:
+
+| Type | Description | How to create |
+|------|-------------|---------------|
+| **Article** | Full article with content | Use Safari/Chrome extension |
+| **Product** | Product with price tracking | Use Safari/Chrome extension on product pages |
+| **Note** | Quick notes with markdown | Create in Stash web app |
+| **Highlight** | Selected text from pages | Use browser extension context menu |
+| **Link** | URL bookmark (no content) | iOS shortcut, or extension without content |
+
+## Product Saves
+
+For full product detection with price extraction, use the Safari extension instead of the shortcut. The extension can detect:
+- Product prices from schema.org markup
+- Currency information
+- Availability status
+- Clean product descriptions
+
+If you want to manually mark a save as a product via the shortcut, add these fields:
+
+```json
+{
+  "user_id": "YOUR_USER_ID",
+  "url": [URLs variable],
+  "title": "Saved from iPhone",
+  "site_name": "",
+  "source": "ios-shortcut",
+  "is_product": true,
+  "product_price": "29.99",
+  "product_currency": "GBP"
+}
+```
+
+**Supported currencies**: USD ($), GBP (£), EUR (€), JPY (¥), and more.

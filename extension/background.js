@@ -387,6 +387,10 @@ async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = nu
       saveData.product_price = productData.price;
       saveData.product_currency = productData.currency || 'USD';
       saveData.product_availability = productData.availability;
+      // Use cleaned product description as excerpt if available
+      if (article.productDescription) {
+        saveData.excerpt = article.productDescription;
+      }
     }
 
     const result = await supabase.insert('saves', saveData);

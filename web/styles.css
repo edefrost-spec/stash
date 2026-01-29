@@ -2850,11 +2850,52 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
   font-size: 15px;
   line-height: 1.6;
   color: var(--text);
-  white-space: pre-wrap;
+  white-space: normal;
   display: -webkit-box;
   -webkit-line-clamp: 8;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.save-card.note-save .save-card-note-content ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.save-card.note-save .save-card-note-content li {
+  margin: 4px 0;
+}
+
+/* Task List / Checkbox Styles */
+.task-list-item {
+  list-style: none !important;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.task-checkbox {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  margin-top: 3px;
+  cursor: pointer;
+  accent-color: var(--primary);
+  position: relative;
+  z-index: 10;
+}
+
+.task-list-item input[type="checkbox"]:checked + span,
+.task-list-item input[type="checkbox"]:checked ~ * {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.note-truncated {
+  color: var(--text-secondary);
+  font-style: italic;
 }
 
 /* Link/Bookmark Card Styles */
@@ -3150,6 +3191,29 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 
 .color-indicator.has-color {
   border-color: transparent;
+}
+
+.quick-note-title-input {
+  width: 100%;
+  padding: 0 0 8px 0;
+  margin-bottom: 8px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: inherit;
+}
+
+.quick-note-title-input:focus {
+  outline: none;
+  border-bottom-color: var(--primary);
+}
+
+.quick-note-title-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 #quick-note-textarea {
@@ -3664,27 +3728,43 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 
 .save-card.product-save .product-image-container {
   position: relative;
+  margin: -16px -16px 0 -16px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;
+}
+
+.save-card.product-save .product-image-container .save-card-image {
+  width: 100%;
+  display: block;
+  border-radius: 0;
 }
 
 .product-price-badge {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: var(--success);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 13px;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
+}
+
+[data-theme="dark"] .product-price-badge {
+  background: rgba(31, 41, 55, 0.95);
+  color: var(--text);
 }
 
 .save-card.product-save .product-placeholder {
   position: relative;
-  width: 100%;
+  width: calc(100% + 32px);
+  margin: -16px -16px 0 -16px;
   padding-top: 100%;
   background: var(--bg-tertiary);
-  border-radius: var(--radius);
+  border-radius: var(--radius) var(--radius) 0 0;
 }
 
 /* ===================================

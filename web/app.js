@@ -85,6 +85,7 @@ class StashApp {
     this.bindFormatBar();
     this.bindPinButton();
     this.bindProductModal();
+    this.bindEditNoteModal();
     this.loadPinnedSaves();
   }
 
@@ -1130,12 +1131,17 @@ class StashApp {
 
     // Bind click events
     container.querySelectorAll('.save-card').forEach(card => {
-      card.addEventListener('click', () => {
+      card.addEventListener('click', (e) => {
+        // Don't open reading pane if clicking a checkbox
+        if (e.target.classList.contains('task-checkbox')) return;
         const id = card.dataset.id;
         const save = this.saves.find(s => s.id === id);
         if (save) this.openReadingPane(save);
       });
     });
+
+    // Bind task checkbox interactions
+    this.bindTaskCheckboxes(container);
 
     // Initialize Masonry layout
     this.initMasonry(container);
@@ -1409,9 +1415,7 @@ class StashApp {
     switch (saveType) {
       case 'product':
         // Product card - image only with price badge
-        const priceDisplay = save.product_price
-          ? `${save.product_currency === 'USD' ? '$' : (save.product_currency + ' ')}${save.product_price}`
-          : '';
+        const priceDisplay = this.formatPrice(save.product_price, save.product_currency);
         return `
           <div class="save-card product-save" data-id="${save.id}">
             ${save.image_url ? `
@@ -1464,7 +1468,7 @@ class StashApp {
           <div class="save-card note-save" data-id="${save.id}" style="${noteStyle}">
             <div class="save-card-content">
               <div class="save-card-title">${this.escapeHtml(save.title || 'Quick Note')}</div>
-              <div class="save-card-note-content">${this.escapeHtml(noteContent)}</div>
+              <div class="save-card-note-content">${this.renderMarkdownPreview(noteContent)}</div>
               ${annotations}
             </div>
           </div>
@@ -1908,6 +1912,14 @@ class StashApp {
     // For product saves, show product modal instead
     if (save.is_product) {
       this.openProductModal(save);
+      return;
+    }
+
+    // For note saves (Quick Notes), show edit modal instead
+    const isNoteSave = save.site_name === 'Note' ||
+                       (save.source === 'manual' && !save.url && !save.highlight);
+    if (isNoteSave) {
+      this.openEditNoteModal(save);
       return;
     }
 
@@ -2834,6 +2846,23 @@ class StashApp {
     return div.innerHTML;
   }
 
+  formatPrice(price, currency) {
+    if (!price) return '';
+    const currencySymbols = {
+      'USD': '$',
+      'GBP': '£',
+      'EUR': '€',
+      'JPY': '¥',
+      'CNY': '¥',
+      'KRW': '₩',
+      'INR': '₹',
+      'AUD': 'A$',
+      'CAD': 'C$',
+    };
+    const symbol = currencySymbols[currency] || (currency ? `${currency} ` : '');
+    return `${symbol}${price}`;
+  }
+
   renderMarkdown(text) {
     if (!text) return '';
 
@@ -2855,6 +2884,91 @@ class StashApp {
 
     // Fallback if marked isn't loaded
     return `<div style="white-space: pre-wrap;">${this.escapeHtml(text)}</div>`;
+  }
+
+  renderMarkdownPreview(text, maxLines = 8) {
+    if (!text) return '';
+
+    // Truncate to approximate number of lines (rough estimate)
+    const lines = text.split('\n');
+    const truncated = lines.slice(0, maxLines).join('\n');
+    const wasTruncated = lines.length > maxLines;
+
+    // Render markdown
+    let html = this.renderMarkdown(truncated);
+
+    // Add ellipsis if truncated
+    if (wasTruncated) {
+      html += '<span class="note-truncated">...</span>';
+    }
+
+    return html;
+  }
+
+  bindTaskCheckboxes(container) {
+    container.querySelectorAll('.task-list-item input[type="checkbox"]').forEach(checkbox => {
+      // Add our custom class for styling
+      checkbox.classList.add('task-checkbox');
+
+      checkbox.addEventListener('change', async (e) => {
+        e.stopPropagation();
+
+        const card = checkbox.closest('.save-card');
+        if (!card) return;
+
+        const saveId = card.dataset.id;
+        const save = this.saves.find(s => s.id === saveId);
+        if (!save) return;
+
+        await this.toggleTaskInNote(save, checkbox);
+      });
+    });
+  }
+
+  async toggleTaskInNote(save, checkbox) {
+    let content = save.content || save.notes || '';
+    const lines = content.split('\n');
+
+    // Find which checkbox index was clicked
+    const card = checkbox.closest('.save-card');
+    const allCheckboxes = card.querySelectorAll('.task-checkbox');
+    const checkboxIndex = Array.from(allCheckboxes).indexOf(checkbox);
+
+    // Find and toggle the matching task in the content
+    let taskIndex = 0;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].match(/^(\s*)?[-*]\s*\[([ xX])\]/)) {
+        if (taskIndex === checkboxIndex) {
+          const isChecked = checkbox.checked;
+          lines[i] = lines[i].replace(
+            /^(\s*)?([-*])\s*\[([ xX])\]/,
+            isChecked ? '$1$2 [x]' : '$1$2 [ ]'
+          );
+          break;
+        }
+        taskIndex++;
+      }
+    }
+
+    const newContent = lines.join('\n');
+
+    try {
+      await this.supabase
+        .from('saves')
+        .update({
+          content: newContent,
+          notes: newContent,
+        })
+        .eq('id', save.id);
+
+      // Update local state
+      save.content = newContent;
+      save.notes = newContent;
+    } catch (err) {
+      console.error('Error updating task:', err);
+      // Revert checkbox state on error
+      checkbox.checked = !checkbox.checked;
+    }
   }
 
   // Digest Settings Methods
@@ -3257,11 +3371,19 @@ class StashApp {
   async saveQuickNoteToGrid() {
     const textarea = document.getElementById('quick-note-textarea');
     const modalTextarea = document.getElementById('quick-note-modal-textarea');
+    const titleInput = document.getElementById('quick-note-title');
+    const modalTitleInput = document.getElementById('quick-note-modal-title');
+
     const content = (modalTextarea && !modalTextarea.closest('.hidden')
       ? modalTextarea.value
       : textarea?.value || '').trim();
 
     if (!content) return;
+
+    // Get title from the active input (modal or sticky)
+    const customTitle = (modalTitleInput && !modalTitleInput.closest('.hidden')
+      ? modalTitleInput.value
+      : titleInput?.value || '').trim();
 
     const saveBtn = document.getElementById('quick-note-save-btn');
     const modalSaveBtn = document.getElementById('quick-note-modal-save');
@@ -3273,7 +3395,7 @@ class StashApp {
     try {
       const payload = {
         user_id: this.user.id,
-        title: 'Quick Note',
+        title: customTitle || 'Quick Note',
         content: content,
         notes: content,
         excerpt: content.slice(0, 180),
@@ -3293,6 +3415,8 @@ class StashApp {
         textarea.style.height = 'auto';
       }
       if (modalTextarea) modalTextarea.value = '';
+      if (titleInput) titleInput.value = '';
+      if (modalTitleInput) modalTitleInput.value = '';
 
       const charCount = document.getElementById('quick-note-char-count');
       if (charCount) charCount.textContent = '';
@@ -3348,6 +3472,8 @@ class StashApp {
     const modal = document.getElementById('quick-note-modal');
     const textarea = document.getElementById('quick-note-modal-textarea');
     const stickyTextarea = document.getElementById('quick-note-textarea');
+    const titleInput = document.getElementById('quick-note-modal-title');
+    const stickyTitleInput = document.getElementById('quick-note-title');
     const preview = document.getElementById('quick-note-modal-preview');
 
     if (!modal) return;
@@ -3355,6 +3481,11 @@ class StashApp {
     // Sync content from sticky note input
     if (textarea && stickyTextarea) {
       textarea.value = stickyTextarea.value;
+    }
+
+    // Sync title from sticky note input
+    if (titleInput && stickyTitleInput) {
+      titleInput.value = stickyTitleInput.value;
     }
 
     // Reset to edit mode
@@ -3381,6 +3512,8 @@ class StashApp {
     const modal = document.getElementById('quick-note-modal');
     const modalTextarea = document.getElementById('quick-note-modal-textarea');
     const stickyTextarea = document.getElementById('quick-note-textarea');
+    const modalTitleInput = document.getElementById('quick-note-modal-title');
+    const stickyTitleInput = document.getElementById('quick-note-title');
 
     // Sync content back to sticky note input
     if (modalTextarea && stickyTextarea && !modal?.classList.contains('hidden')) {
@@ -3391,6 +3524,11 @@ class StashApp {
         const len = stickyTextarea.value.length;
         charCount.textContent = len > 0 ? `${len}` : '';
       }
+    }
+
+    // Sync title back to sticky note input
+    if (modalTitleInput && stickyTitleInput && !modal?.classList.contains('hidden')) {
+      stickyTitleInput.value = modalTitleInput.value;
     }
 
     modal?.classList.add('hidden');
@@ -3435,6 +3573,292 @@ class StashApp {
         `;
       }
     }
+  }
+
+  // Edit Note Modal Methods
+  bindEditNoteModal() {
+    const modal = document.getElementById('edit-note-modal');
+    if (!modal) return;
+
+    const overlay = modal.querySelector('.modal-overlay');
+    const closeBtn = document.getElementById('edit-note-modal-close');
+    const cancelBtn = document.getElementById('edit-note-modal-cancel');
+    const saveBtn = document.getElementById('edit-note-modal-save');
+    const previewToggle = document.getElementById('edit-note-preview-toggle');
+    const colorBtn = document.getElementById('edit-note-color-btn');
+
+    overlay?.addEventListener('click', () => this.hideEditNoteModal());
+    closeBtn?.addEventListener('click', () => this.hideEditNoteModal());
+    cancelBtn?.addEventListener('click', () => this.hideEditNoteModal());
+    saveBtn?.addEventListener('click', () => this.saveEditedNote());
+    previewToggle?.addEventListener('click', () => this.toggleEditNotePreview());
+
+    // Color button opens the color picker
+    colorBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.showEditNoteColorPicker();
+    });
+
+    // Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        this.hideEditNoteModal();
+      }
+    });
+  }
+
+  openEditNoteModal(save) {
+    const modal = document.getElementById('edit-note-modal');
+    if (!modal) return;
+
+    this.editingNote = save;
+
+    // Populate fields
+    const titleInput = document.getElementById('edit-note-title');
+    const textarea = document.getElementById('edit-note-textarea');
+    const preview = document.getElementById('edit-note-preview');
+
+    if (titleInput) titleInput.value = save.title || '';
+    if (textarea) textarea.value = save.content || save.notes || '';
+    if (preview) preview.classList.add('hidden');
+    if (textarea) textarea.classList.remove('hidden');
+
+    // Store current color
+    this.editNoteColor = save.note_color || null;
+    this.editNoteGradient = save.note_gradient || null;
+    this.updateEditNoteColorIndicator();
+
+    // Reset preview toggle button
+    const previewToggle = document.getElementById('edit-note-preview-toggle');
+    if (previewToggle) {
+      previewToggle.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        Preview
+      `;
+    }
+
+    modal.classList.remove('hidden');
+    textarea?.focus();
+  }
+
+  hideEditNoteModal() {
+    const modal = document.getElementById('edit-note-modal');
+    modal?.classList.add('hidden');
+    this.editingNote = null;
+    this.hideEditNoteColorPicker();
+  }
+
+  async saveEditedNote() {
+    if (!this.editingNote) return;
+
+    const titleInput = document.getElementById('edit-note-title');
+    const textarea = document.getElementById('edit-note-textarea');
+
+    const title = (titleInput?.value || '').trim() || 'Quick Note';
+    const content = (textarea?.value || '').trim();
+
+    if (!content) return;
+
+    const saveBtn = document.getElementById('edit-note-modal-save');
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('saves')
+        .update({
+          title,
+          content,
+          notes: content,
+          excerpt: content.slice(0, 180),
+          note_color: this.editNoteColor,
+          note_gradient: this.editNoteGradient,
+        })
+        .eq('id', this.editingNote.id);
+
+      if (error) throw error;
+
+      this.hideEditNoteModal();
+      await this.loadSaves();
+
+    } catch (err) {
+      console.error('Error saving note:', err);
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+      }
+    }
+  }
+
+  toggleEditNotePreview() {
+    const textarea = document.getElementById('edit-note-textarea');
+    const preview = document.getElementById('edit-note-preview');
+    const previewToggle = document.getElementById('edit-note-preview-toggle');
+
+    if (!textarea || !preview) return;
+
+    const isShowingPreview = !preview.classList.contains('hidden');
+
+    if (isShowingPreview) {
+      // Switch to edit mode
+      preview.classList.add('hidden');
+      textarea.classList.remove('hidden');
+      if (previewToggle) {
+        previewToggle.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Preview
+        `;
+      }
+      textarea.focus();
+    } else {
+      // Switch to preview mode
+      const content = textarea.value || '';
+      preview.innerHTML = this.renderMarkdown(content);
+      preview.classList.remove('hidden');
+      textarea.classList.add('hidden');
+      if (previewToggle) {
+        previewToggle.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Edit
+        `;
+      }
+    }
+  }
+
+  updateEditNoteColorIndicator() {
+    const indicator = document.getElementById('edit-note-color-indicator');
+    if (!indicator) return;
+
+    if (this.editNoteGradient) {
+      indicator.style.background = this.editNoteGradient;
+      indicator.classList.add('has-color');
+    } else if (this.editNoteColor) {
+      indicator.style.background = this.editNoteColor;
+      indicator.classList.add('has-color');
+    } else {
+      indicator.style.background = '';
+      indicator.classList.remove('has-color');
+    }
+  }
+
+  showEditNoteColorPicker() {
+    // Reuse the existing color picker UI, just reposition and bind for edit modal
+    const colorPicker = document.getElementById('quick-note-color-picker');
+    const colorBtn = document.getElementById('edit-note-color-btn');
+
+    if (!colorPicker || !colorBtn) return;
+
+    // Position color picker near the edit modal color button
+    const rect = colorBtn.getBoundingClientRect();
+    colorPicker.style.position = 'fixed';
+    colorPicker.style.top = `${rect.bottom + 8}px`;
+    colorPicker.style.left = `${rect.left}px`;
+    colorPicker.style.right = 'auto';
+    colorPicker.classList.remove('hidden');
+
+    // Update selection state
+    this.updateEditNoteColorSelection();
+
+    // Store that we're editing colors for the edit modal
+    this.editNoteColorPickerActive = true;
+
+    // Rebind color preset clicks for edit modal
+    this.bindEditNoteColorPresets();
+  }
+
+  hideEditNoteColorPicker() {
+    const colorPicker = document.getElementById('quick-note-color-picker');
+    if (colorPicker) {
+      colorPicker.classList.add('hidden');
+      colorPicker.style.position = '';
+      colorPicker.style.top = '';
+      colorPicker.style.left = '';
+      colorPicker.style.right = '';
+    }
+    this.editNoteColorPickerActive = false;
+  }
+
+  updateEditNoteColorSelection() {
+    const colorPicker = document.getElementById('quick-note-color-picker');
+    if (!colorPicker) return;
+
+    // Clear all active states
+    colorPicker.querySelectorAll('.color-preset, .gradient-preset').forEach(btn => {
+      btn.classList.remove('active');
+    });
+
+    // Set active based on current edit note colors
+    if (this.editNoteGradient) {
+      const match = colorPicker.querySelector(`.gradient-preset[data-gradient="${this.editNoteGradient}"]`);
+      if (match) match.classList.add('active');
+    } else if (this.editNoteColor) {
+      const match = colorPicker.querySelector(`.color-preset[data-color="${this.editNoteColor}"]`);
+      if (match) match.classList.add('active');
+    }
+  }
+
+  bindEditNoteColorPresets() {
+    const colorPicker = document.getElementById('quick-note-color-picker');
+    if (!colorPicker) return;
+
+    // Create cloned handlers for edit modal
+    const colorPresets = colorPicker.querySelectorAll('.color-preset');
+    const gradientPresets = colorPicker.querySelectorAll('.gradient-preset');
+
+    colorPresets.forEach(btn => {
+      // Remove old listeners by cloning
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+
+      newBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const color = newBtn.dataset.color;
+        if (this.editNoteColorPickerActive) {
+          this.editNoteColor = color;
+          this.editNoteGradient = null;
+          this.updateEditNoteColorIndicator();
+          this.updateEditNoteColorSelection();
+        } else {
+          this.pendingNoteColor = color;
+          this.pendingNoteGradient = null;
+          this.updateColorIndicator();
+          this.updateColorSelection();
+        }
+      });
+    });
+
+    gradientPresets.forEach(btn => {
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+
+      newBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const gradient = newBtn.dataset.gradient;
+        if (this.editNoteColorPickerActive) {
+          this.editNoteGradient = gradient;
+          this.editNoteColor = null;
+          this.updateEditNoteColorIndicator();
+          this.updateEditNoteColorSelection();
+        } else {
+          this.pendingNoteGradient = gradient;
+          this.pendingNoteColor = null;
+          this.updateColorIndicator();
+          this.updateColorSelection();
+        }
+      });
+    });
   }
 
   // ===================================
@@ -3543,6 +3967,11 @@ class StashApp {
         before = '\n- ';
         after = '';
         placeholder = 'list item';
+        break;
+      case 'task':
+        before = '\n- [ ] ';
+        after = '';
+        placeholder = 'task';
         break;
       default:
         return;
@@ -3724,9 +4153,7 @@ class StashApp {
     document.getElementById('product-modal-image').style.display = save.image_url ? 'block' : 'none';
 
     // Format price
-    const price = save.product_price;
-    const currency = save.product_currency || 'USD';
-    const priceDisplay = price ? (currency === 'USD' ? `$${price}` : `${currency} ${price}`) : '';
+    const priceDisplay = this.formatPrice(save.product_price, save.product_currency);
     document.getElementById('product-modal-price').textContent = priceDisplay;
 
     document.getElementById('product-modal-site').textContent = save.site_name || '';
