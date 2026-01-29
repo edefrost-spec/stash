@@ -3679,8 +3679,12 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.save-card.product-save .save-card-content {
-  padding: 12px 16px;
+.save-card.product-save .product-placeholder {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius);
 }
 
 /* ===================================

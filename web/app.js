@@ -1408,7 +1408,7 @@ class StashApp {
     // Type-specific card templates
     switch (saveType) {
       case 'product':
-        // Product card - image with price badge
+        // Product card - image only with price badge
         const priceDisplay = save.product_price
           ? `${save.product_currency === 'USD' ? '$' : (save.product_currency + ' ')}${save.product_price}`
           : '';
@@ -1419,12 +1419,11 @@ class StashApp {
                 <img class="save-card-image" src="${save.image_url}" alt="">
                 ${priceDisplay ? `<span class="product-price-badge">${priceDisplay}</span>` : ''}
               </div>
-            ` : ''}
-            <div class="save-card-content">
-              <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
-              <div class="save-card-title">${this.escapeHtml(save.title || 'Product')}</div>
-              ${annotations}
-            </div>
+            ` : `
+              <div class="product-placeholder">
+                ${priceDisplay ? `<span class="product-price-badge">${priceDisplay}</span>` : ''}
+              </div>
+            `}
           </div>
         `;
 
@@ -1435,9 +1434,6 @@ class StashApp {
               <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
               <div class="save-card-highlight">"${this.escapeHtml(save.highlight)}"</div>
               <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
-              <div class="save-card-meta">
-                <span class="save-card-date">${date}</span>
-              </div>
               ${annotations}
             </div>
           </div>
@@ -1467,12 +1463,8 @@ class StashApp {
         return `
           <div class="save-card note-save" data-id="${save.id}" style="${noteStyle}">
             <div class="save-card-content">
-              <div class="save-card-site">Note</div>
               <div class="save-card-title">${this.escapeHtml(save.title || 'Quick Note')}</div>
               <div class="save-card-note-content">${this.escapeHtml(noteContent)}</div>
-              <div class="save-card-meta">
-                <span class="save-card-date">${date}</span>
-              </div>
               ${annotations}
             </div>
           </div>
@@ -1491,9 +1483,6 @@ class StashApp {
               </div>
               <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
               <div class="save-card-url">${this.escapeHtml(save.url || '')}</div>
-              <div class="save-card-meta">
-                <span class="save-card-date">${date}</span>
-              </div>
               ${annotations}
             </div>
           </div>
@@ -1501,17 +1490,13 @@ class StashApp {
 
       case 'article':
       default:
-        // Article card - standard with image, title, excerpt
+        // Article card - standard with image and title
         return `
           <div class="save-card article-save" data-id="${save.id}">
             ${save.image_url ? `<img class="save-card-image" src="${save.image_url}" alt="" onerror="this.style.display='none'">` : ''}
             <div class="save-card-content">
               <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
               <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
-              <div class="save-card-excerpt">${this.escapeHtml(save.excerpt || '')}</div>
-              <div class="save-card-meta">
-                <span class="save-card-date">${date}</span>
-              </div>
               ${annotations}
             </div>
           </div>
