@@ -52,6 +52,10 @@ class StashApp {
     // Rediscovery saves cache
     this.rediscoverySaves = [];
 
+    // Quick Note state
+    this.pendingNoteColor = null;
+    this.pendingNoteGradient = null;
+
     this.init();
   }
 
@@ -73,6 +77,9 @@ class StashApp {
     this.loadData();
 
     this.bindEvents();
+    this.bindQuickNoteEvents();
+    this.bindQuickNoteKeyboardShortcut();
+    this.bindFormatBar();
   }
 
   // Theme Management
@@ -1422,8 +1429,15 @@ class StashApp {
       case 'note':
         // Note card - text-focused, no image
         const noteContent = save.notes || save.content || '';
+        // Apply saved color/gradient as background
+        let noteStyle = '';
+        if (save.note_gradient) {
+          noteStyle = `background: ${save.note_gradient};`;
+        } else if (save.note_color) {
+          noteStyle = `background: linear-gradient(135deg, ${save.note_color} 0%, ${this.lightenColor(save.note_color, 15)} 100%);`;
+        }
         return `
-          <div class="save-card note-save" data-id="${save.id}">
+          <div class="save-card note-save" data-id="${save.id}" style="${noteStyle}">
             <div class="save-card-content">
               <div class="save-card-site">Note</div>
               <div class="save-card-title">${this.escapeHtml(save.title || 'Quick Note')}</div>
@@ -3070,6 +3084,483 @@ class StashApp {
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save Settings';
     }
+  }
+
+  // ===================================
+  // Quick Note Feature
+  // ===================================
+
+  bindQuickNoteEvents() {
+    const textarea = document.getElementById('quick-note-textarea');
+    const saveBtn = document.getElementById('quick-note-save-btn');
+    const expandBtn = document.getElementById('quick-note-expand-btn');
+    const colorBtn = document.getElementById('quick-note-color-btn');
+    const colorPicker = document.getElementById('quick-note-color-picker');
+    const charCount = document.getElementById('quick-note-char-count');
+
+    // Textarea input - update char count
+    if (textarea) {
+      textarea.addEventListener('input', () => {
+        const len = textarea.value.length;
+        if (charCount) {
+          charCount.textContent = len > 0 ? `${len}` : '';
+        }
+        // Auto-resize textarea
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+      });
+    }
+
+    // Save button
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => this.saveQuickNoteToGrid());
+    }
+
+    // Expand button
+    if (expandBtn) {
+      expandBtn.addEventListener('click', () => this.showQuickNoteModal());
+    }
+
+    // Color picker toggle
+    if (colorBtn && colorPicker) {
+      colorBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        colorPicker.classList.toggle('hidden');
+      });
+
+      // Close on outside click
+      document.addEventListener('click', (e) => {
+        if (!colorPicker.contains(e.target) && !colorBtn.contains(e.target)) {
+          colorPicker.classList.add('hidden');
+        }
+      });
+    }
+
+    // Color presets
+    document.querySelectorAll('.color-preset').forEach(preset => {
+      preset.addEventListener('click', () => {
+        this.setPendingNoteColor(preset.dataset.color, null);
+        this.updateColorSelection();
+      });
+    });
+
+    // Gradient presets
+    document.querySelectorAll('.gradient-preset').forEach(preset => {
+      preset.addEventListener('click', () => {
+        this.setPendingNoteColor(null, preset.dataset.gradient);
+        this.updateColorSelection();
+      });
+    });
+
+    // Hex color picker
+    const hexPicker = document.getElementById('quick-note-hex-picker');
+    const hexInput = document.getElementById('quick-note-hex-input');
+
+    if (hexPicker) {
+      hexPicker.addEventListener('input', (e) => {
+        this.setPendingNoteColor(e.target.value, null);
+        if (hexInput) hexInput.value = e.target.value;
+      });
+    }
+
+    if (hexInput) {
+      hexInput.addEventListener('input', (e) => {
+        const value = e.target.value;
+        if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+          this.setPendingNoteColor(value, null);
+          if (hexPicker) hexPicker.value = value;
+        }
+      });
+    }
+
+    // Modal events
+    this.bindQuickNoteModalEvents();
+  }
+
+  bindQuickNoteKeyboardShortcut() {
+    document.addEventListener('keydown', (e) => {
+      // Cmd+J (Mac) or Ctrl+J (Windows)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'j') {
+        e.preventDefault();
+        this.focusQuickNote();
+      }
+    });
+  }
+
+  focusQuickNote() {
+    const textarea = document.getElementById('quick-note-textarea');
+    if (textarea) {
+      textarea.focus();
+      textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  setPendingNoteColor(color, gradient) {
+    this.pendingNoteColor = color;
+    this.pendingNoteGradient = gradient;
+    this.updateColorIndicator();
+  }
+
+  updateColorIndicator() {
+    const indicator = document.getElementById('color-indicator');
+    const modalIndicator = document.getElementById('modal-color-indicator');
+
+    [indicator, modalIndicator].forEach(el => {
+      if (!el) return;
+      if (this.pendingNoteGradient) {
+        el.style.background = this.pendingNoteGradient;
+        el.classList.add('has-color');
+      } else if (this.pendingNoteColor) {
+        el.style.background = this.pendingNoteColor;
+        el.classList.add('has-color');
+      } else {
+        el.style.background = '';
+        el.classList.remove('has-color');
+      }
+    });
+  }
+
+  updateColorSelection() {
+    document.querySelectorAll('.color-preset, .gradient-preset').forEach(el => {
+      el.classList.remove('active');
+    });
+
+    if (this.pendingNoteGradient) {
+      const match = document.querySelector(`.gradient-preset[data-gradient="${this.pendingNoteGradient}"]`);
+      if (match) match.classList.add('active');
+    } else if (this.pendingNoteColor) {
+      const match = document.querySelector(`.color-preset[data-color="${this.pendingNoteColor}"]`);
+      if (match) match.classList.add('active');
+    }
+  }
+
+  async saveQuickNoteToGrid() {
+    const textarea = document.getElementById('quick-note-textarea');
+    const modalTextarea = document.getElementById('quick-note-modal-textarea');
+    const content = (modalTextarea && !modalTextarea.closest('.hidden')
+      ? modalTextarea.value
+      : textarea?.value || '').trim();
+
+    if (!content) return;
+
+    const saveBtn = document.getElementById('quick-note-save-btn');
+    const modalSaveBtn = document.getElementById('quick-note-modal-save');
+
+    // Disable buttons while saving
+    if (saveBtn) saveBtn.disabled = true;
+    if (modalSaveBtn) modalSaveBtn.disabled = true;
+
+    try {
+      const payload = {
+        user_id: this.user.id,
+        title: 'Quick Note',
+        content: content,
+        notes: content,
+        excerpt: content.slice(0, 180),
+        site_name: 'Note',
+        source: 'manual',
+        note_color: this.pendingNoteColor,
+        note_gradient: this.pendingNoteGradient,
+      };
+
+      const { error } = await this.supabase.from('saves').insert(payload);
+
+      if (error) throw error;
+
+      // Clear input for next note
+      if (textarea) {
+        textarea.value = '';
+        textarea.style.height = 'auto';
+      }
+      if (modalTextarea) modalTextarea.value = '';
+
+      const charCount = document.getElementById('quick-note-char-count');
+      if (charCount) charCount.textContent = '';
+
+      // Reset color selection
+      this.pendingNoteColor = null;
+      this.pendingNoteGradient = null;
+      this.updateColorIndicator();
+      this.updateColorSelection();
+
+      // Hide modal if open
+      this.hideQuickNoteModal();
+
+      // Reload saves to show new note in grid
+      await this.loadSaves();
+
+    } catch (err) {
+      console.error('Quick note save error:', err);
+    } finally {
+      if (saveBtn) saveBtn.disabled = false;
+      if (modalSaveBtn) modalSaveBtn.disabled = false;
+    }
+  }
+
+  bindQuickNoteModalEvents() {
+    const modal = document.getElementById('quick-note-modal');
+    if (!modal) return;
+
+    const overlay = modal.querySelector('.modal-overlay');
+    const closeBtn = document.getElementById('quick-note-modal-close');
+    const cancelBtn = document.getElementById('quick-note-modal-cancel');
+    const saveBtn = document.getElementById('quick-note-modal-save');
+    const previewToggle = document.getElementById('quick-note-preview-toggle');
+
+    overlay?.addEventListener('click', () => this.hideQuickNoteModal());
+    closeBtn?.addEventListener('click', () => this.hideQuickNoteModal());
+    cancelBtn?.addEventListener('click', () => this.hideQuickNoteModal());
+
+    saveBtn?.addEventListener('click', () => this.saveQuickNoteToGrid());
+
+    // Preview toggle
+    previewToggle?.addEventListener('click', () => this.toggleQuickNotePreview());
+
+    // Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        this.hideQuickNoteModal();
+      }
+    });
+  }
+
+  showQuickNoteModal() {
+    const modal = document.getElementById('quick-note-modal');
+    const textarea = document.getElementById('quick-note-modal-textarea');
+    const stickyTextarea = document.getElementById('quick-note-textarea');
+    const preview = document.getElementById('quick-note-modal-preview');
+
+    if (!modal) return;
+
+    // Sync content from sticky note input
+    if (textarea && stickyTextarea) {
+      textarea.value = stickyTextarea.value;
+    }
+
+    // Reset to edit mode
+    preview?.classList.add('hidden');
+    textarea?.classList.remove('hidden');
+
+    // Update preview toggle button text
+    const previewToggle = document.getElementById('quick-note-preview-toggle');
+    if (previewToggle) {
+      previewToggle.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        Preview
+      `;
+    }
+
+    modal.classList.remove('hidden');
+    textarea?.focus();
+  }
+
+  hideQuickNoteModal() {
+    const modal = document.getElementById('quick-note-modal');
+    const modalTextarea = document.getElementById('quick-note-modal-textarea');
+    const stickyTextarea = document.getElementById('quick-note-textarea');
+
+    // Sync content back to sticky note input
+    if (modalTextarea && stickyTextarea && !modal?.classList.contains('hidden')) {
+      stickyTextarea.value = modalTextarea.value;
+      // Update char count
+      const charCount = document.getElementById('quick-note-char-count');
+      if (charCount) {
+        const len = stickyTextarea.value.length;
+        charCount.textContent = len > 0 ? `${len}` : '';
+      }
+    }
+
+    modal?.classList.add('hidden');
+  }
+
+  toggleQuickNotePreview() {
+    const textarea = document.getElementById('quick-note-modal-textarea');
+    const preview = document.getElementById('quick-note-modal-preview');
+    const previewToggle = document.getElementById('quick-note-preview-toggle');
+
+    if (!textarea || !preview) return;
+
+    const isShowingPreview = !preview.classList.contains('hidden');
+
+    if (isShowingPreview) {
+      // Switch to edit mode
+      preview.classList.add('hidden');
+      textarea.classList.remove('hidden');
+      if (previewToggle) {
+        previewToggle.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Preview
+        `;
+      }
+      textarea.focus();
+    } else {
+      // Switch to preview mode
+      const content = textarea.value || '';
+      preview.innerHTML = this.renderMarkdown(content);
+      preview.classList.remove('hidden');
+      textarea.classList.add('hidden');
+      if (previewToggle) {
+        previewToggle.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Edit
+        `;
+      }
+    }
+  }
+
+  // ===================================
+  // Floating Format Bar
+  // ===================================
+
+  bindFormatBar() {
+    const textareas = [
+      document.getElementById('quick-note-textarea'),
+      document.getElementById('quick-note-modal-textarea')
+    ].filter(Boolean);
+
+    textareas.forEach(textarea => {
+      textarea.addEventListener('mouseup', () => this.checkSelection(textarea));
+      textarea.addEventListener('keyup', (e) => {
+        // Only check on shift+arrow keys (selection change)
+        if (e.shiftKey) {
+          this.checkSelection(textarea);
+        }
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('mousedown', (e) => {
+      const formatBar = document.getElementById('format-bar');
+      if (formatBar && !formatBar.contains(e.target) && !e.target.closest('textarea')) {
+        this.hideFormatBar();
+      }
+    });
+
+    // Format button clicks
+    document.querySelectorAll('.format-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const formatBar = document.getElementById('format-bar');
+        const targetId = formatBar?.dataset.targetId;
+        const textarea = targetId ? document.getElementById(targetId) : null;
+        if (textarea) {
+          this.insertMarkdownFormatting(textarea, btn.dataset.action);
+        }
+      });
+    });
+  }
+
+  checkSelection(textarea) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    if (start !== end) {
+      this.showFormatBar(textarea);
+    } else {
+      this.hideFormatBar();
+    }
+  }
+
+  showFormatBar(textarea) {
+    const bar = document.getElementById('format-bar');
+    if (!bar) return;
+
+    const rect = textarea.getBoundingClientRect();
+
+    // Position above the textarea, horizontally centered
+    bar.style.top = `${rect.top + window.scrollY - 44}px`;
+    bar.style.left = `${rect.left + rect.width / 2 - 80}px`;
+    bar.classList.remove('hidden');
+    bar.dataset.targetId = textarea.id;
+  }
+
+  hideFormatBar() {
+    const bar = document.getElementById('format-bar');
+    bar?.classList.add('hidden');
+  }
+
+  insertMarkdownFormatting(textarea, action) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selected = text.substring(start, end);
+
+    let before = '';
+    let after = '';
+    let placeholder = '';
+
+    switch (action) {
+      case 'bold':
+        before = '**';
+        after = '**';
+        placeholder = 'bold text';
+        break;
+      case 'italic':
+        before = '*';
+        after = '*';
+        placeholder = 'italic text';
+        break;
+      case 'heading':
+        before = '## ';
+        after = '';
+        placeholder = 'Heading';
+        break;
+      case 'link':
+        before = '[';
+        after = '](url)';
+        placeholder = 'link text';
+        break;
+      case 'list':
+        before = '\n- ';
+        after = '';
+        placeholder = 'list item';
+        break;
+      default:
+        return;
+    }
+
+    const insertion = selected || placeholder;
+    const newText = text.substring(0, start) + before + insertion + after + text.substring(end);
+
+    textarea.value = newText;
+    textarea.focus();
+
+    // Position cursor appropriately
+    if (selected) {
+      // If there was selected text, place cursor after the formatting
+      const newPos = start + before.length + insertion.length + after.length;
+      textarea.setSelectionRange(newPos, newPos);
+    } else {
+      // If no selection, select the placeholder text
+      const selectStart = start + before.length;
+      const selectEnd = selectStart + placeholder.length;
+      textarea.setSelectionRange(selectStart, selectEnd);
+    }
+
+    this.hideFormatBar();
+
+    // Trigger input event for any listeners
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  // Helper to lighten a hex color
+  lightenColor(hex, percent) {
+    if (!hex) return hex;
+    const num = parseInt(hex.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.min(255, (num >> 16) + amt);
+    const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+    const B = Math.min(255, (num & 0x0000FF) + amt);
+    return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
   }
 }
 

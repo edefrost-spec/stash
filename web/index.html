@@ -222,6 +222,61 @@
             </div>
           </div>
 
+          <!-- Quick Note Input -->
+          <div id="quick-note-input" class="quick-note-input">
+            <div class="quick-note-header">
+              <span class="quick-note-label">Add a new note</span>
+              <div class="quick-note-actions">
+                <button type="button" class="quick-note-color-btn" id="quick-note-color-btn" title="Note color">
+                  <span class="color-indicator" id="color-indicator"></span>
+                </button>
+                <button type="button" class="quick-note-expand-btn" id="quick-note-expand-btn" title="Expand">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <textarea id="quick-note-textarea" placeholder="start typing here..."></textarea>
+            <div class="quick-note-footer">
+              <span class="quick-note-char-count" id="quick-note-char-count"></span>
+              <button class="btn primary small" id="quick-note-save-btn">Save</button>
+            </div>
+            <!-- Color picker dropdown -->
+            <div id="quick-note-color-picker" class="quick-note-color-picker hidden">
+              <div class="color-picker-section">
+                <label>Presets</label>
+                <div class="color-preset-grid">
+                  <button type="button" class="color-preset" data-color="#fef3c7" style="background: #fef3c7" title="Yellow"></button>
+                  <button type="button" class="color-preset" data-color="#d1fae5" style="background: #d1fae5" title="Green"></button>
+                  <button type="button" class="color-preset" data-color="#dbeafe" style="background: #dbeafe" title="Blue"></button>
+                  <button type="button" class="color-preset" data-color="#fce7f3" style="background: #fce7f3" title="Pink"></button>
+                  <button type="button" class="color-preset" data-color="#e9d5ff" style="background: #e9d5ff" title="Purple"></button>
+                  <button type="button" class="color-preset" data-color="#fed7aa" style="background: #fed7aa" title="Orange"></button>
+                </div>
+              </div>
+              <div class="color-picker-section">
+                <label>Gradients</label>
+                <div class="gradient-preset-grid">
+                  <button type="button" class="gradient-preset" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)" title="Purple Haze"></button>
+                  <button type="button" class="gradient-preset" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" title="Pink Sunset"></button>
+                  <button type="button" class="gradient-preset" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" title="Ocean Blue"></button>
+                  <button type="button" class="gradient-preset" data-gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)" title="Fresh Mint"></button>
+                </div>
+              </div>
+              <div class="color-picker-section">
+                <label>Custom</label>
+                <div class="color-custom-row">
+                  <input type="color" id="quick-note-hex-picker" value="#fef3c7">
+                  <input type="text" id="quick-note-hex-input" placeholder="#fef3c7" maxlength="7">
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div id="saves-container" class="saves-grid">
             <!-- Saves will be loaded here -->
           </div>
@@ -528,6 +583,69 @@
         </div>
       </div>
     </div>
+
+    <!-- Quick Note Expanded Modal -->
+    <div id="quick-note-modal" class="modal hidden">
+      <div class="modal-overlay"></div>
+      <div class="modal-content quick-note-modal-content">
+        <div class="modal-header">
+          <h2>Quick Note</h2>
+          <div class="quick-note-modal-actions">
+            <button type="button" class="btn secondary small" id="quick-note-preview-toggle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              Preview
+            </button>
+            <button class="btn icon" id="quick-note-modal-close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="modal-body quick-note-modal-body">
+          <textarea id="quick-note-modal-textarea" placeholder="Write your note... Markdown is supported"></textarea>
+          <div id="quick-note-modal-preview" class="quick-note-modal-preview hidden"></div>
+        </div>
+        <div class="modal-footer">
+          <div class="quick-note-modal-color">
+            <button type="button" class="quick-note-color-btn" id="quick-note-modal-color-btn" title="Note color">
+              <span class="color-indicator" id="modal-color-indicator"></span>
+            </button>
+          </div>
+          <div class="quick-note-modal-footer-actions">
+            <button class="btn secondary" id="quick-note-modal-cancel">Cancel</button>
+            <button class="btn primary" id="quick-note-modal-save">Save Note</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Format Bar -->
+  <div id="format-bar" class="format-bar hidden">
+    <button type="button" class="format-btn" data-action="bold" title="Bold"><strong>B</strong></button>
+    <button type="button" class="format-btn" data-action="italic" title="Italic"><em>I</em></button>
+    <button type="button" class="format-btn" data-action="heading" title="Heading">#</button>
+    <button type="button" class="format-btn" data-action="link" title="Link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+      </svg>
+    </button>
+    <button type="button" class="format-btn" data-action="list" title="Bullet List">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="8" y1="6" x2="21" y2="6"></line>
+        <line x1="8" y1="12" x2="21" y2="12"></line>
+        <line x1="8" y1="18" x2="21" y2="18"></line>
+        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+      </svg>
+    </button>
   </div>
 
   <!-- Global Drop Overlay for image saves -->

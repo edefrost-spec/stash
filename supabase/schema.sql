@@ -45,6 +45,10 @@ create table saves (
   -- Audio (TTS)
   audio_url text, -- Generated TTS audio file URL
 
+  -- Quick Note styling
+  note_color text, -- Background color for note cards (hex)
+  note_gradient text, -- Background gradient for note cards (CSS gradient)
+
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
