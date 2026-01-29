@@ -1414,20 +1414,15 @@ class StashApp {
     // Type-specific card templates
     switch (saveType) {
       case 'product':
-        // Product card - image only with price badge
+        // Product card - like image save with price badge
         const priceDisplay = this.formatPrice(save.product_price, save.product_currency);
         return `
           <div class="save-card product-save" data-id="${save.id}">
-            ${save.image_url ? `
-              <div class="product-image-container">
-                <img class="save-card-image" src="${save.image_url}" alt="">
-                ${priceDisplay ? `<span class="product-price-badge">${priceDisplay}</span>` : ''}
-              </div>
-            ` : `
-              <div class="product-placeholder">
-                ${priceDisplay ? `<span class="product-price-badge">${priceDisplay}</span>` : ''}
-              </div>
-            `}
+            ${save.image_url ? `<img class="save-card-image" src="${save.image_url}" alt="">` : ''}
+            ${priceDisplay ? `<span class="product-price-badge">${priceDisplay}</span>` : ''}
+            <div class="save-card-content">
+              ${annotations}
+            </div>
           </div>
         `;
 
@@ -1906,12 +1901,6 @@ class StashApp {
     const isImageSave = save.source === 'upload' && save.image_url;
     if (isImageSave) {
       this.openImageLightbox(save);
-      return;
-    }
-
-    // For product saves, show product modal instead
-    if (save.is_product) {
-      this.openProductModal(save);
       return;
     }
 

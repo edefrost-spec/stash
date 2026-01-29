@@ -3723,48 +3723,88 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 }
 
 /* ===================================
-   Product Card
+   Product Card - matches image-save style
    =================================== */
 
-.save-card.product-save .product-image-container {
+.save-card.product-save {
   position: relative;
-  margin: -16px -16px 0 -16px;
-  border-radius: var(--radius) var(--radius) 0 0;
   overflow: hidden;
+  border: none;
 }
 
-.save-card.product-save .product-image-container .save-card-image {
+.save-card.product-save .save-card-image {
   width: 100%;
+  height: auto;
   display: block;
-  border-radius: 0;
+  object-fit: cover;
 }
 
+.save-card.product-save .save-card-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+  padding: 12px;
+  color: white;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.save-card.product-save:hover .save-card-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hide text elements on product cards */
+.save-card.product-save .save-card-site,
+.save-card.product-save .save-card-title,
+.save-card.product-save .save-card-excerpt,
+.save-card.product-save .save-card-meta {
+  display: none;
+}
+
+/* Only show annotations on hover */
+.save-card.product-save .save-card-annotations {
+  display: none;
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+body.show-annotations .save-card.product-save:hover .save-card-annotations {
+  display: flex;
+}
+
+.save-card.product-save .save-card-tag {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.save-card.product-save .save-card-notes {
+  color: white;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Price badge - square, top right */
 .product-price-badge {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
+  top: 8px;
+  right: 8px;
   background: rgba(255, 255, 255, 0.95);
   color: var(--text);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="dark"] .product-price-badge {
   background: rgba(31, 41, 55, 0.95);
   color: var(--text);
-}
-
-.save-card.product-save .product-placeholder {
-  position: relative;
-  width: calc(100% + 32px);
-  margin: -16px -16px 0 -16px;
-  padding-top: 100%;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius) var(--radius) 0 0;
 }
 
 /* ===================================
