@@ -777,12 +777,14 @@
             <div id="modal-tldr-content" class="modal-tldr-content"></div>
           </div>
 
-          <!-- Already read (for books) -->
+          <!-- Reading status (for books) -->
           <div id="modal-read-status-section" class="modal-section hidden">
-            <label class="modal-checkbox-label">
-              <input type="checkbox" id="modal-already-read-checkbox">
-              <span>Already read</span>
-            </label>
+            <label class="modal-section-header">READING STATUS</label>
+            <select id="modal-read-status-select" class="modal-select">
+              <option value="unread">Unread</option>
+              <option value="reading">Reading</option>
+              <option value="finished">Finished</option>
+            </select>
           </div>
 
           <!-- Folder selector -->

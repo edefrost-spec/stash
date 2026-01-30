@@ -6,11 +6,9 @@ create extension if not exists vector;
 
 -- Add book-specific fields to saves table
 alter table saves add column if not exists is_book boolean default false;
-alter table saves add column if not exists book_isbn text;
-alter table saves add column if not exists book_publication_date date;
 alter table saves add column if not exists book_page_count integer;
-alter table saves add column if not exists book_publisher text;
-alter table saves add column if not exists book_edition text;
+alter table saves add column if not exists read_status text check (read_status in ('unread', 'reading', 'finished')) default 'unread';
+alter table saves add column if not exists dominant_color text;
 
 -- Add vector embedding columns for semantic search
 alter table saves add column if not exists content_embedding vector(1536);
@@ -32,11 +30,9 @@ alter table user_preferences add column if not exists enable_image_auto_tag bool
 
 -- Comments for documentation
 comment on column saves.is_book is 'True if this save is a book';
-comment on column saves.book_isbn is 'ISBN number for books';
-comment on column saves.book_publication_date is 'Publication date for books';
 comment on column saves.book_page_count is 'Number of pages for books';
-comment on column saves.book_publisher is 'Publisher name for books';
-comment on column saves.book_edition is 'Edition type for books (hardcover, paperback, kindle, etc.)';
+comment on column saves.read_status is 'Reading status for books: unread, reading, or finished';
+comment on column saves.dominant_color is 'Dominant color extracted from book cover for styling';
 comment on column saves.content_embedding is 'Vector embedding of content for semantic search';
 comment on column saves.image_embedding is 'Vector embedding of image aesthetics for visual similarity search';
 comment on column saves.image_aesthetic_description is 'AI-generated description of image aesthetics';

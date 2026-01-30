@@ -4433,6 +4433,25 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   line-height: 1.4;
 }
 
+.book-description {
+  width: 100%;
+  padding: 20px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin-top: 8px;
+}
+
+.book-description .book-meta-label {
+  margin-bottom: 12px;
+}
+
+.book-description-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .modal-container {

@@ -49,11 +49,7 @@ async function extractArticle() {
         productDescription: productData.description,
         // Book data
         isBook: bookData.isBook,
-        bookIsbn: bookData.isbn,
-        bookPublisher: bookData.publisher,
-        bookPublicationDate: bookData.publicationDate,
         bookPageCount: bookData.pageCount,
-        bookEdition: bookData.edition,
       };
     }
   } catch (e) {
@@ -82,11 +78,7 @@ async function extractArticle() {
     productAvailability: productData.availability,
     // Book data
     isBook: bookData.isBook,
-    bookIsbn: bookData.isbn,
-    bookPublisher: bookData.publisher,
-    bookPublicationDate: bookData.publicationDate,
     bookPageCount: bookData.pageCount,
-    bookEdition: bookData.edition,
   };
 }
 
@@ -519,12 +511,8 @@ function extractProductData() {
 function extractBookData() {
   const book = {
     isBook: false,
-    isbn: null,
     author: null,
-    publisher: null,
-    publicationDate: null,
-    pageCount: null,
-    edition: null
+    pageCount: null
   };
 
   // Strategy 1: Check JSON-LD Schema.org Book markup (highest priority)
@@ -546,19 +534,6 @@ function extractBookData() {
       if (type === 'Book' || (Array.isArray(type) && type.includes('Book'))) {
         book.isBook = true;
 
-        // Extract ISBN (can be isbn, workExample.isbn, or sameAs containing ISBN)
-        book.isbn = data.isbn || data.workExample?.isbn;
-        if (!book.isbn && data.sameAs) {
-          const sameAsArray = Array.isArray(data.sameAs) ? data.sameAs : [data.sameAs];
-          for (const url of sameAsArray) {
-            const isbnMatch = url.match(/isbn[\/:](\d{10}|\d{13})/i);
-            if (isbnMatch) {
-              book.isbn = isbnMatch[1];
-              break;
-            }
-          }
-        }
-
         // Extract author (can be string or object)
         if (data.author) {
           if (typeof data.author === 'string') {
@@ -570,19 +545,8 @@ function extractBookData() {
           }
         }
 
-        // Extract publisher (can be string or object)
-        if (data.publisher) {
-          book.publisher = typeof data.publisher === 'string' ? data.publisher : data.publisher.name;
-        }
-
-        // Extract publication date
-        book.publicationDate = data.datePublished;
-
         // Extract page count
         book.pageCount = data.numberOfPages;
-
-        // Extract edition (bookEdition or bookFormat)
-        book.edition = data.bookEdition || data.bookFormat;
 
         break;
       }
@@ -607,14 +571,6 @@ function extractBookData() {
     if (pattern.regex.test(url)) {
       book.isBook = true;
 
-      // Extract ISBN from Amazon URL
-      if (pattern.site === 'amazon' && !book.isbn) {
-        const match = url.match(/\/dp\/([A-Z0-9]{10})/i);
-        if (match) {
-          book.isbn = match[1];
-        }
-      }
-
       // Try to extract author and other metadata from page
       if (!book.author) {
         const authorSelectors = [
@@ -622,49 +578,40 @@ function extractBookData() {
           '.author',
           '.book-author',
           '[itemprop="author"]',
-          '.authorName', // Goodreads
-          '.contributorNameID' // Goodreads
+          '.authorName a', // Goodreads - only get the link text, not stats
+          '.ContributorLink' // Goodreads updated selector
         ];
 
         for (const selector of authorSelectors) {
           const el = document.querySelector(selector);
           if (el && el.textContent.trim()) {
-            book.author = el.textContent.trim();
-            break;
+            // For Goodreads, extract only the clean author name without stats
+            let authorText = el.textContent.trim();
+            // Remove common noise patterns (follower counts, book counts, etc.)
+            authorText = authorText.split('\n')[0].trim(); // Take first line only
+            authorText = authorText.replace(/\d+\s*(followers?|books?|ratings?)/gi, '').trim();
+            if (authorText.length > 0) {
+              book.author = authorText;
+              break;
+            }
           }
         }
       }
 
-      // Try to extract edition from page
-      if (!book.edition) {
-        const editionSelectors = [
-          '#format',  // Amazon format dropdown
-          '.format',
-          '[data-selected-ebook-format-name]', // Amazon Kindle
-          '[itemprop="bookFormat"]',
-          '.bookFormat'
+      // Try to extract page count for Goodreads
+      if (!book.pageCount && pattern.site === 'goodreads') {
+        const pageCountSelectors = [
+          '[itemprop="numberOfPages"]',
+          '.PageText'
         ];
-
-        for (const selector of editionSelectors) {
+        for (const selector of pageCountSelectors) {
           const el = document.querySelector(selector);
-          if (el && el.textContent.trim()) {
-            let edition = el.textContent.trim();
-            // Normalize common edition formats
-            if (edition.toLowerCase().includes('hardcover')) book.edition = 'Hardcover';
-            else if (edition.toLowerCase().includes('paperback')) book.edition = 'Paperback';
-            else if (edition.toLowerCase().includes('kindle')) book.edition = 'Kindle';
-            else if (edition.toLowerCase().includes('ebook')) book.edition = 'E-book';
-            else if (edition.toLowerCase().includes('audiobook')) book.edition = 'Audiobook';
-            else book.edition = edition;
-            break;
-          }
-        }
-
-        // Special handling for Amazon - check the selected format button
-        if (!book.edition && pattern.site === 'amazon') {
-          const selectedFormat = document.querySelector('[data-a-target="a-declarative"] .a-button-selected .a-button-text');
-          if (selectedFormat) {
-            book.edition = selectedFormat.textContent.trim();
+          if (el && el.textContent) {
+            const match = el.textContent.match(/(\d+)\s*pages?/i);
+            if (match) {
+              book.pageCount = parseInt(match[1], 10);
+              break;
+            }
           }
         }
       }
@@ -679,22 +626,10 @@ function extractBookData() {
     if (ogType?.content === 'book' || ogType?.content === 'books.book') {
       book.isBook = true;
 
-      const isbnMeta = document.querySelector('meta[property="books:isbn"]') ||
-                       document.querySelector('meta[name="isbn"]');
-      if (isbnMeta) {
-        book.isbn = isbnMeta.content;
-      }
-
       const authorMeta = document.querySelector('meta[property="books:author"]') ||
                          document.querySelector('meta[name="author"]');
       if (authorMeta) {
         book.author = authorMeta.content;
-      }
-
-      const editionMeta = document.querySelector('meta[property="books:edition"]') ||
-                          document.querySelector('meta[name="book:edition"]');
-      if (editionMeta) {
-        book.edition = editionMeta.content;
       }
     }
   }

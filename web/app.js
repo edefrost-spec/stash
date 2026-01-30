@@ -2253,30 +2253,11 @@ class StashApp {
               </div>
             </div>
           ` : ''}
-          ${save.book_publisher ? `
-            <div class="book-meta-item">
-              <div class="book-meta-icon">📍</div>
-              <div class="book-meta-content">
-                <div class="book-meta-label">PUBLISHER</div>
-                <div class="book-meta-value">${this.escapeHtml(save.book_publisher)}</div>
-              </div>
-            </div>
-          ` : ''}
-          ${save.book_edition ? `
-            <div class="book-meta-item">
-              <div class="book-meta-icon">📚</div>
-              <div class="book-meta-content">
-                <div class="book-meta-label">EDITION</div>
-                <div class="book-meta-value">${this.escapeHtml(save.book_edition)}</div>
-              </div>
-            </div>
-          ` : ''}
-          ${save.book_isbn ? `
-            <div class="book-meta-item">
-              <div class="book-meta-icon">🏷️</div>
-              <div class="book-meta-content">
-                <div class="book-meta-label">ISBN</div>
-                <div class="book-meta-value">${save.book_isbn}</div>
+          ${save.excerpt || save.content ? `
+            <div class="book-description">
+              <div class="book-meta-label">DESCRIPTION</div>
+              <div class="book-description-text">
+                ${save.excerpt ? this.escapeHtml(save.excerpt) : this.renderMarkdown(save.content)}
               </div>
             </div>
           ` : ''}
@@ -2289,23 +2270,36 @@ class StashApp {
     if (!save.image_url) return;
 
     try {
-      const img = new Image();
-      img.crossOrigin = 'Anonymous';
-      img.src = save.image_url;
+      let dominantColor = save.dominant_color;
 
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-      });
+      // Extract and store dominant color if not already cached
+      if (!dominantColor) {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.src = save.image_url;
 
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
 
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const dominantColor = this.extractDominantColor(imageData);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        dominantColor = this.extractDominantColor(imageData);
+
+        // Store in database for future use
+        await this.supabase
+          .from('saves')
+          .update({ dominant_color: dominantColor })
+          .eq('id', save.id);
+
+        save.dominant_color = dominantColor;
+      }
 
       // Apply subtle tinted overlay to modal
       const modalContainer = document.querySelector('.modal-container');
@@ -2369,16 +2363,17 @@ class StashApp {
 
     if (saveType === 'book') {
       // Show TLDR section if excerpt exists
-      if (save.excerpt) {
+      if (save.excerpt || save.content) {
         tldrSection.classList.remove('hidden');
-        document.getElementById('modal-tldr-content').textContent = save.excerpt;
+        const tldrContent = save.excerpt || (save.content ? save.content.substring(0, 300) + '...' : '');
+        document.getElementById('modal-tldr-content').textContent = tldrContent;
       } else {
         tldrSection.classList.add('hidden');
       }
 
-      // Show already read checkbox
+      // Show reading status dropdown
       readStatusSection.classList.remove('hidden');
-      document.getElementById('modal-already-read-checkbox').checked = save.read_at !== null;
+      document.getElementById('modal-read-status-select').value = save.read_status || 'unread';
     } else {
       tldrSection.classList.add('hidden');
       readStatusSection.classList.add('hidden');
@@ -2499,10 +2494,10 @@ class StashApp {
 
     // Book-specific actions
     if (this.getSaveType(save) === 'book') {
-      const alreadyReadCheckbox = document.getElementById('modal-already-read-checkbox');
-      if (alreadyReadCheckbox) {
-        alreadyReadCheckbox.onchange = async (e) => {
-          await this.toggleBookReadStatus(save, e.target.checked);
+      const readStatusSelect = document.getElementById('modal-read-status-select');
+      if (readStatusSelect) {
+        readStatusSelect.onchange = async (e) => {
+          await this.updateBookReadStatus(save, e.target.value);
         };
       }
     }
@@ -2587,16 +2582,16 @@ class StashApp {
     }
   }
 
-  async toggleBookReadStatus(save, isRead) {
+  async updateBookReadStatus(save, status) {
     const { error } = await this.supabase
       .from('saves')
       .update({
-        read_at: isRead ? new Date().toISOString() : null
+        read_status: status
       })
       .eq('id', save.id);
 
     if (!error) {
-      save.read_at = isRead ? new Date().toISOString() : null;
+      save.read_status = status;
     }
   }
 
