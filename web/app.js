@@ -1945,8 +1945,13 @@ class StashApp {
   openReadingPane(save) {
     this.currentSave = save;
 
-    // Use unified modal for all save types
-    this.openUnifiedModal(save);
+    // Check if this is a note - open edit note modal instead of unified modal
+    if (this.getSaveType(save) === 'note') {
+      this.openEditNoteModal(save);
+    } else {
+      // Use unified modal for all other save types
+      this.openUnifiedModal(save);
+    }
   }
 
   // Legacy reading pane (kept for backward compatibility)
@@ -4432,7 +4437,8 @@ class StashApp {
   bindFormatBar() {
     const textareas = [
       document.getElementById('quick-note-textarea'),
-      document.getElementById('quick-note-modal-textarea')
+      document.getElementById('quick-note-modal-textarea'),
+      document.getElementById('edit-note-textarea')
     ].filter(Boolean);
 
     textareas.forEach(textarea => {
@@ -4536,6 +4542,21 @@ class StashApp {
         before = '\n- [ ] ';
         after = '';
         placeholder = 'task';
+        break;
+      case 'blockquote':
+        before = '\n> ';
+        after = '';
+        placeholder = 'quote text';
+        break;
+      case 'code':
+        before = '\n```\n';
+        after = '\n```\n';
+        placeholder = 'code';
+        break;
+      case 'divider':
+        before = '\n---\n';
+        after = '';
+        placeholder = '';
         break;
       default:
         return;
