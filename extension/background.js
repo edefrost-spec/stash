@@ -339,8 +339,8 @@ async function saveImage(tab, srcUrl, pageUrl) {
   }
 }
 
-// Save full page with folder, tags, notes, and product data (from popup)
-async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = null, productData = null) {
+// Save full page with folder, tags, notes, product data, and book data (from popup)
+async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = null, productData = null, bookData = null) {
   if (!supabase) await initSupabase();
 
   try {
@@ -393,8 +393,19 @@ async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = nu
       }
     }
 
-    // Add book fields if this is a book save
-    if (article.isBook) {
+    // Add book fields if this is a book save (from popup toggle or auto-detected)
+    if (bookData && bookData.isBook) {
+      saveData.is_book = true;
+      saveData.book_isbn = bookData.isbn;
+      saveData.book_publisher = bookData.publisher;
+      saveData.book_publication_date = bookData.publicationDate;
+      saveData.book_page_count = bookData.pageCount;
+      // Use author from bookData if provided
+      if (bookData.author) {
+        saveData.author = bookData.author;
+      }
+    } else if (article.isBook) {
+      // Fallback to auto-detected book data from article
       saveData.is_book = true;
       saveData.book_isbn = article.bookIsbn;
       saveData.book_publisher = article.bookPublisher;
@@ -461,7 +472,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           currency: request.productCurrency,
           availability: request.productAvailability,
         } : null;
-        await savePageWithOptions(tabs[0], request.folderId, request.tagIds, request.notes, productData);
+
+        const bookData = request.isBook ? {
+          isBook: request.isBook,
+          isbn: request.bookIsbn,
+          author: request.bookAuthor,
+          publisher: request.bookPublisher,
+          publicationDate: request.bookPublicationDate,
+          pageCount: request.bookPageCount,
+        } : null;
+
+        await savePageWithOptions(tabs[0], request.folderId, request.tagIds, request.notes, productData, bookData);
         sendResponse({ success: true });
       }
     });

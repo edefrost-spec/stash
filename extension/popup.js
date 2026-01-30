@@ -23,16 +23,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   const productPriceDisplay = document.getElementById('product-price-display');
   const saveAsProductCheckbox = document.getElementById('save-as-product');
 
+  // Book detection elements
+  const bookBanner = document.getElementById('book-banner');
+  const bookAuthorDisplay = document.getElementById('book-author-display');
+  const saveAsBookCheckbox = document.getElementById('save-as-book');
+
   // State
   let availableTags = [];
   let selectedTagIds = [];
   let detectedProduct = null;
+  let detectedBook = null;
 
   // Single-user mode - skip auth, go straight to main view
   showMainView();
   loadRecentSaves();
   loadFoldersAndTags();
-  detectProductOnPage();
+  detectProductAndBookOnPage();
 
   function showAuthView() {
     authView.classList.remove('hidden');
@@ -193,13 +199,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     tagsInput.value = '';
   }
 
-  // Detect product on current page
-  async function detectProductOnPage() {
+  // Detect product and book on current page
+  async function detectProductAndBookOnPage() {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (!tab) return;
 
-      // Try to get product data from content script
+      // Try to get article data from content script
       let article;
       try {
         article = await chrome.tabs.sendMessage(tab.id, { action: 'extractArticle' });
@@ -213,6 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         article = await chrome.tabs.sendMessage(tab.id, { action: 'extractArticle' });
       }
 
+      // Check for product
       if (article && article.isProduct) {
         detectedProduct = {
           isProduct: true,
@@ -232,8 +239,30 @@ document.addEventListener('DOMContentLoaded', async () => {
           productPriceDisplay.textContent = '';
         }
       }
+
+      // Check for book
+      if (article && article.isBook) {
+        detectedBook = {
+          isBook: true,
+          isbn: article.bookIsbn,
+          author: article.author,
+          publisher: article.bookPublisher,
+          publicationDate: article.bookPublicationDate,
+          pageCount: article.bookPageCount,
+        };
+
+        // Show book banner
+        bookBanner.classList.remove('hidden');
+
+        // Display author
+        if (detectedBook.author) {
+          bookAuthorDisplay.textContent = 'by ' + detectedBook.author;
+        } else {
+          bookAuthorDisplay.textContent = '';
+        }
+      }
     } catch (err) {
-      console.log('Product detection failed:', err);
+      console.log('Detection failed:', err);
     }
   }
 
@@ -244,6 +273,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Check if saving as product
     const saveAsProduct = detectedProduct && saveAsProductCheckbox.checked;
+
+    // Check if saving as book
+    const saveAsBook = detectedBook && saveAsBookCheckbox.checked;
 
     savePageBtn.disabled = true;
     savePageBtn.innerHTML = `
@@ -263,6 +295,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       productPrice: saveAsProduct ? detectedProduct.price : null,
       productCurrency: saveAsProduct ? detectedProduct.currency : null,
       productAvailability: saveAsProduct ? detectedProduct.availability : null,
+      // Book data
+      isBook: saveAsBook,
+      bookIsbn: saveAsBook ? detectedBook.isbn : null,
+      bookAuthor: saveAsBook ? detectedBook.author : null,
+      bookPublisher: saveAsBook ? detectedBook.publisher : null,
+      bookPublicationDate: saveAsBook ? detectedBook.publicationDate : null,
+      bookPageCount: saveAsBook ? detectedBook.pageCount : null,
     });
 
     // Reset form
