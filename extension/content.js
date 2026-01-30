@@ -507,6 +507,36 @@ function extractProductData() {
   return product;
 }
 
+// Clean author text by removing common noise patterns from book sites
+function cleanAuthorText(text) {
+  if (!text) return '';
+
+  let cleaned = text.trim();
+
+  // Take only the first line (author name is usually first)
+  cleaned = cleaned.split('\n')[0].trim();
+
+  // Remove follower counts (e.g., "15.3k followers", "1,234 followers")
+  cleaned = cleaned.replace(/[\d,.]+k?\s*followers?/gi, '');
+
+  // Remove book counts (e.g., "87 books", "12 books")
+  cleaned = cleaned.replace(/[\d,.]+\s*books?/gi, '');
+
+  // Remove rating counts
+  cleaned = cleaned.replace(/[\d,.]+\s*ratings?/gi, '');
+
+  // Remove "Follow" button text
+  cleaned = cleaned.replace(/\bFollow\b/gi, '');
+
+  // Remove parenthetical content like "(Goodreads Author)"
+  cleaned = cleaned.replace(/\([^)]*\)/g, '');
+
+  // Remove extra whitespace
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+  return cleaned;
+}
+
 // Extract book data from schema.org markup, meta tags, and URL patterns
 function extractBookData() {
   const book = {
@@ -573,26 +603,59 @@ function extractBookData() {
 
       // Try to extract author and other metadata from page
       if (!book.author) {
-        const authorSelectors = [
-          '[data-author]',
-          '.author',
-          '.book-author',
-          '[itemprop="author"]',
-          '.authorName a', // Goodreads - only get the link text, not stats
-          '.ContributorLink' // Goodreads updated selector
-        ];
+        // Goodreads-specific selectors (more precise)
+        if (pattern.site === 'goodreads') {
+          // Try to get author from the book header link specifically
+          const goodreadsAuthorSelectors = [
+            'a.ContributorLink[href*="/author/"]',
+            '[data-testid="name"] a[href*="/author/"]',
+            '.BookPageMetadataSection a[href*="/author/"]',
+            'h3.Text a[href*="/author/"]',
+            '.authorName a[href*="/author/"]'
+          ];
 
-        for (const selector of authorSelectors) {
-          const el = document.querySelector(selector);
-          if (el && el.textContent.trim()) {
-            // For Goodreads, extract only the clean author name without stats
-            let authorText = el.textContent.trim();
-            // Remove common noise patterns (follower counts, book counts, etc.)
-            authorText = authorText.split('\n')[0].trim(); // Take first line only
-            authorText = authorText.replace(/\d+\s*(followers?|books?|ratings?)/gi, '').trim();
-            if (authorText.length > 0) {
-              book.author = authorText;
-              break;
+          for (const selector of goodreadsAuthorSelectors) {
+            const el = document.querySelector(selector);
+            if (el) {
+              // Get only the direct text content of the link, not children
+              let authorText = '';
+              for (const node of el.childNodes) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                  authorText += node.textContent;
+                }
+              }
+              authorText = authorText.trim();
+              // If no direct text, fall back to innerText but clean it
+              if (!authorText) {
+                authorText = el.innerText.trim();
+              }
+              // Clean any remaining noise
+              authorText = cleanAuthorText(authorText);
+              if (authorText.length > 0 && authorText.length < 100) {
+                book.author = authorText;
+                break;
+              }
+            }
+          }
+        }
+
+        // Generic selectors for other book sites
+        if (!book.author) {
+          const authorSelectors = [
+            '[data-author]',
+            '.author',
+            '.book-author',
+            '[itemprop="author"]'
+          ];
+
+          for (const selector of authorSelectors) {
+            const el = document.querySelector(selector);
+            if (el && el.textContent.trim()) {
+              let authorText = cleanAuthorText(el.textContent);
+              if (authorText.length > 0 && authorText.length < 100) {
+                book.author = authorText;
+                break;
+              }
             }
           }
         }

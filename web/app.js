@@ -1026,8 +1026,20 @@ class StashApp {
     const loading = document.getElementById('loading');
     const empty = document.getElementById('empty-state');
 
+    // Preserve Quick Note input before clearing container
+    const quickNoteInput = document.getElementById('quick-note-input');
+    const tempHolder = document.createDocumentFragment();
+    if (quickNoteInput) {
+      tempHolder.appendChild(quickNoteInput);
+    }
+
     loading.classList.remove('hidden');
     container.innerHTML = '';
+
+    // Re-insert Quick Note input immediately
+    if (quickNoteInput) {
+      container.appendChild(quickNoteInput);
+    }
 
     const sortValue = document.getElementById('sort-select').value;
     const [column, direction] = sortValue.split('.');
@@ -1134,7 +1146,6 @@ class StashApp {
 
     // Save reference to quick note input before clearing
     const quickNoteInput = document.getElementById('quick-note-input');
-    const quickNoteParent = quickNoteInput ? quickNoteInput.parentNode : null;
 
     container.classList.toggle('mood-board', useMoodBoard);
 
@@ -1142,14 +1153,18 @@ class StashApp {
     const cardsHtml = savesToRender.map(save => this.renderSaveCard(save, { moodBoard: useMoodBoard })).join('');
     container.innerHTML = `<div class="grid-sizer"></div>${cardsHtml}`;
 
-    // Re-insert quick note input at the beginning (after grid-sizer)
-    if (quickNoteInput && quickNoteParent === container) {
+    // Re-insert quick note input at the beginning (after grid-sizer) for allowed views
+    if (quickNoteInput && viewAllows) {
       const gridSizer = container.querySelector('.grid-sizer');
-      if (gridSizer && gridSizer.nextSibling) {
+      if (gridSizer) {
         container.insertBefore(quickNoteInput, gridSizer.nextSibling);
       } else {
-        container.appendChild(quickNoteInput);
+        container.prepend(quickNoteInput);
       }
+      quickNoteInput.classList.remove('hidden');
+    } else if (quickNoteInput) {
+      // Hide Quick Note for views that don't support it
+      quickNoteInput.classList.add('hidden');
     }
 
     if (useMoodBoard) {
