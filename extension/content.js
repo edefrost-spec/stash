@@ -31,13 +31,14 @@ async function extractArticle() {
 
     if (article && article.textContent && article.textContent.length > 200) {
       const productData = extractProductData();
+      const bookData = extractBookData();
       return {
         success: true,
         title: article.title || document.title,
         content: htmlToText(article.content),
         excerpt: article.excerpt || article.textContent?.substring(0, 300) + '...',
         siteName: article.siteName || extractSiteName(),
-        author: article.byline,
+        author: article.byline || bookData.author,
         publishedTime: extractPublishedTime(),
         imageUrl: extractMainImage(),
         // Product data
@@ -46,6 +47,12 @@ async function extractArticle() {
         productCurrency: productData.currency,
         productAvailability: productData.availability,
         productDescription: productData.description,
+        // Book data
+        isBook: bookData.isBook,
+        bookIsbn: bookData.isbn,
+        bookPublisher: bookData.publisher,
+        bookPublicationDate: bookData.publicationDate,
+        bookPageCount: bookData.pageCount,
       };
     }
   } catch (e) {
@@ -55,6 +62,7 @@ async function extractArticle() {
   // Fallback: try to find article content more intelligently
   const content = extractFallbackContent();
   const productData = extractProductData();
+  const bookData = extractBookData();
 
   return {
     success: true,
@@ -63,7 +71,7 @@ async function extractArticle() {
     excerpt: document.querySelector('meta[name="description"]')?.content ||
              content.substring(0, 300) + '...',
     siteName: extractSiteName(),
-    author: extractAuthor(),
+    author: extractAuthor() || bookData.author,
     publishedTime: extractPublishedTime(),
     imageUrl: extractMainImage(),
     // Product data
@@ -71,6 +79,12 @@ async function extractArticle() {
     productPrice: productData.price,
     productCurrency: productData.currency,
     productAvailability: productData.availability,
+    // Book data
+    isBook: bookData.isBook,
+    bookIsbn: bookData.isbn,
+    bookPublisher: bookData.publisher,
+    bookPublicationDate: bookData.publicationDate,
+    bookPageCount: bookData.pageCount,
   };
 }
 
@@ -497,6 +511,149 @@ function extractProductData() {
   }
 
   return product;
+}
+
+// Extract book data from schema.org markup, meta tags, and URL patterns
+function extractBookData() {
+  const book = {
+    isBook: false,
+    isbn: null,
+    author: null,
+    publisher: null,
+    publicationDate: null,
+    pageCount: null
+  };
+
+  // Strategy 1: Check JSON-LD Schema.org Book markup (highest priority)
+  const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+  for (const script of scripts) {
+    try {
+      let data = JSON.parse(script.textContent);
+
+      // Handle @graph arrays
+      if (data['@graph']) {
+        data = data['@graph'].find(item =>
+          item['@type'] === 'Book' ||
+          (Array.isArray(item['@type']) && item['@type'].includes('Book'))
+        );
+        if (!data) continue;
+      }
+
+      const type = data['@type'];
+      if (type === 'Book' || (Array.isArray(type) && type.includes('Book'))) {
+        book.isBook = true;
+
+        // Extract ISBN (can be isbn, workExample.isbn, or sameAs containing ISBN)
+        book.isbn = data.isbn || data.workExample?.isbn;
+        if (!book.isbn && data.sameAs) {
+          const sameAsArray = Array.isArray(data.sameAs) ? data.sameAs : [data.sameAs];
+          for (const url of sameAsArray) {
+            const isbnMatch = url.match(/isbn[\/:](\d{10}|\d{13})/i);
+            if (isbnMatch) {
+              book.isbn = isbnMatch[1];
+              break;
+            }
+          }
+        }
+
+        // Extract author (can be string or object)
+        if (data.author) {
+          if (typeof data.author === 'string') {
+            book.author = data.author;
+          } else if (Array.isArray(data.author)) {
+            book.author = data.author.map(a => a.name || a).join(', ');
+          } else {
+            book.author = data.author.name || data.author;
+          }
+        }
+
+        // Extract publisher (can be string or object)
+        if (data.publisher) {
+          book.publisher = typeof data.publisher === 'string' ? data.publisher : data.publisher.name;
+        }
+
+        // Extract publication date
+        book.publicationDate = data.datePublished;
+
+        // Extract page count
+        book.pageCount = data.numberOfPages;
+
+        break;
+      }
+    } catch (e) {
+      // JSON parse error, skip this script
+    }
+  }
+
+  // Strategy 2: URL pattern matching for book sites
+  const url = window.location.href;
+  const hostname = window.location.hostname.toLowerCase();
+
+  const bookPatterns = [
+    { regex: /amazon\.com\/.*\/dp\/([A-Z0-9]{10})/i, site: 'amazon' },
+    { regex: /goodreads\.com\/book\/show/i, site: 'goodreads' },
+    { regex: /google\.com\/books/i, site: 'google-books' },
+    { regex: /barnesandnoble\.com\/w\//i, site: 'bn' },
+    { regex: /bookshop\.org\/books/i, site: 'bookshop' }
+  ];
+
+  for (const pattern of bookPatterns) {
+    if (pattern.regex.test(url)) {
+      book.isBook = true;
+
+      // Extract ISBN from Amazon URL
+      if (pattern.site === 'amazon' && !book.isbn) {
+        const match = url.match(/\/dp\/([A-Z0-9]{10})/i);
+        if (match) {
+          book.isbn = match[1];
+        }
+      }
+
+      // Try to extract author and other metadata from page
+      if (!book.author) {
+        const authorSelectors = [
+          '[data-author]',
+          '.author',
+          '.book-author',
+          '[itemprop="author"]',
+          '.authorName', // Goodreads
+          '.contributorNameID' // Goodreads
+        ];
+
+        for (const selector of authorSelectors) {
+          const el = document.querySelector(selector);
+          if (el && el.textContent.trim()) {
+            book.author = el.textContent.trim();
+            break;
+          }
+        }
+      }
+
+      break;
+    }
+  }
+
+  // Strategy 3: Check Open Graph book meta tags (fallback)
+  if (!book.isBook) {
+    const ogType = document.querySelector('meta[property="og:type"]');
+    if (ogType?.content === 'book' || ogType?.content === 'books.book') {
+      book.isBook = true;
+
+      const isbnMeta = document.querySelector('meta[property="books:isbn"]') ||
+                       document.querySelector('meta[name="isbn"]');
+      if (isbnMeta) {
+        book.isbn = isbnMeta.content;
+      }
+
+      const authorMeta = document.querySelector('meta[property="books:author"]') ||
+                         document.querySelector('meta[name="author"]');
+      if (authorMeta) {
+        book.author = authorMeta.content;
+      }
+    }
+  }
+
+  return book;
 }
 
 // Show save confirmation toast

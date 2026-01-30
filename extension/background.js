@@ -393,6 +393,15 @@ async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = nu
       }
     }
 
+    // Add book fields if this is a book save
+    if (article.isBook) {
+      saveData.is_book = true;
+      saveData.book_isbn = article.bookIsbn;
+      saveData.book_publisher = article.bookPublisher;
+      saveData.book_publication_date = article.bookPublicationDate;
+      saveData.book_page_count = article.bookPageCount;
+    }
+
     const result = await supabase.insert('saves', saveData);
 
     // Handle tags

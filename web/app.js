@@ -1044,6 +1044,20 @@ class StashApp {
       query = query.is('highlight', null).neq('source', 'upload');
     } else if (this.currentView === 'images') {
       query = query.eq('source', 'upload');
+    } else if (this.currentView === 'products') {
+      query = query.eq('is_product', true).eq('is_archived', false);
+    } else if (this.currentView === 'books') {
+      query = query.eq('is_book', true).eq('is_archived', false);
+    } else if (this.currentView === 'notes') {
+      query = query.eq('is_archived', false).or('site_name.eq.Note,and(url.is.null,or(notes.not.is.null,content.not.is.null))');
+    } else if (this.currentView === 'links') {
+      query = query
+        .eq('is_archived', false)
+        .not('url', 'is', null)
+        .is('content', null)
+        .is('excerpt', null)
+        .eq('is_product', false)
+        .eq('is_book', false);
     } else if (this.currentView === 'archived') {
       query = query.eq('is_archived', true);
     } else if (this.currentView === 'weekly') {
@@ -1380,6 +1394,7 @@ class StashApp {
    * @returns {'highlight'|'image'|'note'|'link'|'article'} - The save type
    */
   getSaveType(save) {
+    if (save.is_book) return 'book';
     if (save.is_product) return 'product';
     if (save.highlight) return 'highlight';
     if (save.source === 'upload' && save.image_url) return 'image';
@@ -1431,6 +1446,21 @@ class StashApp {
 
     // Type-specific card templates
     switch (saveType) {
+      case 'book':
+        // Book card - cover image with 3D effect
+        return `
+          <div class="save-card book-save" data-id="${save.id}">
+            <div class="book-cover-container">
+              <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}" class="book-cover">
+            </div>
+            <div class="save-card-content">
+              <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
+              ${save.author ? `<div class="book-author">by ${this.escapeHtml(save.author)}</div>` : ''}
+              ${annotations}
+            </div>
+          </div>
+        `;
+
       case 'product':
         // Product card - like image save with price badge
         const priceDisplay = this.formatPrice(save.product_price, save.product_currency);
@@ -1915,21 +1945,12 @@ class StashApp {
   openReadingPane(save) {
     this.currentSave = save;
 
-    // For image saves, show lightbox instead
-    const isImageSave = save.source === 'upload' && save.image_url;
-    if (isImageSave) {
-      this.openImageLightbox(save);
-      return;
-    }
+    // Use unified modal for all save types
+    this.openUnifiedModal(save);
+  }
 
-    // For note saves (Quick Notes), show edit modal instead
-    const isNoteSave = save.site_name === 'Note' ||
-                       (save.source === 'manual' && !save.url && !save.highlight);
-    if (isNoteSave) {
-      this.openEditNoteModal(save);
-      return;
-    }
-
+  // Legacy reading pane (kept for backward compatibility)
+  openLegacyReadingPane(save) {
     const pane = document.getElementById('reading-pane');
 
     // Stop any existing audio
@@ -2094,6 +2115,490 @@ class StashApp {
       }
     }, 300);
     this.currentSave = null;
+  }
+
+  // ==========================================
+  // Unified Modal System
+  // ==========================================
+
+  openUnifiedModal(save) {
+    const modal = document.getElementById('unified-modal');
+    const saveType = this.getSaveType(save);
+
+    // Stop any existing audio
+    this.stopAudio();
+
+    // Populate header
+    document.getElementById('modal-title').textContent = save.title || 'Untitled';
+    document.getElementById('modal-meta').innerHTML = `
+      ${save.site_name || ''} ${save.author ? `· ${save.author}` : ''} · ${new Date(save.created_at).toLocaleDateString()}
+    `;
+
+    // Render body based on save type
+    const modalBody = document.getElementById('modal-body');
+    modalBody.className = `modal-body modal-body-${saveType}`;
+
+    switch(saveType) {
+      case 'book':
+        modalBody.innerHTML = this.renderBookModalBody(save);
+        this.initBookCoverColor(save);
+        break;
+      case 'image':
+        modalBody.innerHTML = this.renderImageModalBody(save);
+        break;
+      case 'product':
+        modalBody.innerHTML = this.renderProductModalBody(save);
+        break;
+      case 'note':
+        modalBody.innerHTML = this.renderNoteModalBody(save);
+        break;
+      case 'highlight':
+        modalBody.innerHTML = this.renderHighlightModalBody(save);
+        break;
+      default: // article, link
+        modalBody.innerHTML = this.renderArticleModalBody(save);
+    }
+
+    // Populate sidebar
+    this.populateModalSidebar(save);
+
+    // Show modal
+    modal.classList.remove('hidden');
+
+    // Attach event listeners
+    this.attachModalEventListeners(save);
+  }
+
+  renderArticleModalBody(save) {
+    const content = save.content || save.excerpt || 'No content available.';
+    return `
+      ${save.image_url ? `<img src="${save.image_url}" class="modal-hero-image" alt="">` : ''}
+      <div class="modal-article-content">
+        ${this.renderMarkdown(content)}
+      </div>
+    `;
+  }
+
+  renderImageModalBody(save) {
+    return `
+      <div class="modal-image-container">
+        <img src="${save.image_url}" alt="${this.escapeHtml(save.title || 'Image')}" class="modal-full-image">
+        <div class="modal-image-actions">
+          <button id="modal-image-similar" class="btn">Find Similar</button>
+          <button id="modal-image-autotag" class="btn">Auto-tag</button>
+          <a href="${save.image_url}" download class="btn">Download</a>
+        </div>
+      </div>
+    `;
+  }
+
+  renderHighlightModalBody(save) {
+    return `
+      <blockquote class="modal-highlight">
+        "${this.escapeHtml(save.highlight)}"
+      </blockquote>
+      ${save.url ? `<p><a href="${save.url}" target="_blank" class="modal-source-link">View original →</a></p>` : ''}
+    `;
+  }
+
+  renderNoteModalBody(save) {
+    return `
+      <div class="modal-note-editor">
+        <textarea id="modal-note-content" class="note-content-editor">${this.escapeHtml(save.content || save.notes || '')}</textarea>
+        <div class="note-color-picker">
+          <label>Background Color:</label>
+          <input type="color" id="modal-note-color" value="${save.note_color || '#ffffff'}">
+        </div>
+      </div>
+    `;
+  }
+
+  renderProductModalBody(save) {
+    return `
+      <div class="modal-article-content">
+        ${save.image_url ? `<img src="${save.image_url}" class="modal-hero-image" alt="">` : ''}
+        ${save.product_price ? `
+          <div class="product-price-badge" style="font-size: 24px; font-weight: bold; color: var(--primary); margin-bottom: 16px;">
+            ${save.product_currency === 'USD' ? '$' : save.product_currency} ${save.product_price}
+          </div>
+        ` : ''}
+        ${save.excerpt ? `<p>${this.escapeHtml(save.excerpt)}</p>` : ''}
+        ${save.content ? this.renderMarkdown(save.content) : ''}
+      </div>
+    `;
+  }
+
+  renderBookModalBody(save) {
+    return `
+      <div class="book-modal-layout">
+        <div class="book-cover-large">
+          <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}">
+        </div>
+        <div class="book-info-panel">
+          <div class="book-info-row">
+            <span class="book-info-label">Author</span>
+            <span class="book-info-value">${this.escapeHtml(save.author || 'Unknown')}</span>
+          </div>
+          ${save.book_publication_date ? `
+            <div class="book-info-row">
+              <span class="book-info-label">Published</span>
+              <span class="book-info-value">${new Date(save.book_publication_date).getFullYear()}</span>
+            </div>
+          ` : ''}
+          ${save.book_page_count ? `
+            <div class="book-info-row">
+              <span class="book-info-label">Pages</span>
+              <span class="book-info-value">${save.book_page_count}</span>
+            </div>
+          ` : ''}
+          ${save.book_publisher ? `
+            <div class="book-info-row">
+              <span class="book-info-label">Publisher</span>
+              <span class="book-info-value">${this.escapeHtml(save.book_publisher)}</span>
+            </div>
+          ` : ''}
+          ${save.book_isbn ? `
+            <div class="book-info-row">
+              <span class="book-info-label">ISBN</span>
+              <span class="book-info-value">${save.book_isbn}</span>
+            </div>
+          ` : ''}
+          ${save.excerpt ? `
+            <div class="book-description">
+              <h3>Description</h3>
+              <p>${this.escapeHtml(save.excerpt)}</p>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  async initBookCoverColor(save) {
+    if (!save.image_url) return;
+
+    try {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.src = save.image_url;
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const dominantColor = this.extractDominantColor(imageData);
+
+      // Apply subtle tinted overlay to modal
+      const modalContainer = document.querySelector('.modal-container');
+      modalContainer.style.background = `linear-gradient(135deg, ${dominantColor}15, var(--bg))`;
+    } catch (e) {
+      console.error('Failed to extract book cover color:', e);
+    }
+  }
+
+  extractDominantColor(imageData) {
+    const data = imageData.data;
+    const colorCounts = {};
+
+    // Sample every 10th pixel for performance
+    for (let i = 0; i < data.length; i += 40) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+
+      // Skip very light or very dark colors
+      if (r > 240 && g > 240 && b > 240) continue;
+      if (r < 20 && g < 20 && b < 20) continue;
+
+      const key = `${Math.floor(r/10)*10},${Math.floor(g/10)*10},${Math.floor(b/10)*10}`;
+      colorCounts[key] = (colorCounts[key] || 0) + 1;
+    }
+
+    // Find most common color
+    let maxCount = 0;
+    let dominantColor = '0,0,0';
+    for (const [color, count] of Object.entries(colorCounts)) {
+      if (count > maxCount) {
+        maxCount = count;
+        dominantColor = color;
+      }
+    }
+
+    return `rgb(${dominantColor})`;
+  }
+
+  populateModalSidebar(save) {
+    // Update button states
+    document.getElementById('modal-pin-btn').classList.toggle('active', save.is_pinned);
+    document.getElementById('modal-favorite-btn').classList.toggle('active', save.is_favorite);
+    document.getElementById('modal-archive-btn').classList.toggle('active', save.is_archived);
+
+    // Set open link
+    const openBtn = document.getElementById('modal-open-btn');
+    if (save.url) {
+      openBtn.href = save.url;
+      openBtn.style.display = '';
+    } else {
+      openBtn.style.display = 'none';
+    }
+
+    // Populate folder dropdown
+    const folderSelect = document.getElementById('modal-folder-select');
+    folderSelect.innerHTML = '<option value="">No folder</option>' +
+      this.folders.map(f => `<option value="${f.id}"${save.folder_id === f.id ? ' selected' : ''}>${this.escapeHtml(f.name)}</option>`).join('');
+
+    // Load and display tags
+    this.loadModalTags(save.id);
+
+    // Populate notes
+    document.getElementById('modal-notes-textarea').value = save.notes || '';
+    document.getElementById('modal-notes-status').textContent = '';
+  }
+
+  async loadModalTags(saveId) {
+    const tagsList = document.getElementById('modal-tags-list');
+    const saveTags = this.saveTagMap[saveId] || [];
+
+    tagsList.innerHTML = saveTags.map(tag => `
+      <span class="tag" style="background: ${tag.color}20; border: 1px solid ${tag.color}; color: ${tag.color}">
+        ${this.escapeHtml(tag.name)}
+      </span>
+    `).join('');
+  }
+
+  attachModalEventListeners(save) {
+    // Close button
+    const closeBtn = document.getElementById('unified-modal-close');
+    const overlay = document.querySelector('.modal-overlay');
+
+    const closeModal = () => this.closeUnifiedModal();
+
+    closeBtn.onclick = closeModal;
+    overlay.onclick = closeModal;
+
+    // Escape key to close
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+
+    // Action buttons
+    document.getElementById('modal-pin-btn').onclick = () => this.toggleModalPin(save);
+    document.getElementById('modal-favorite-btn').onclick = () => this.toggleModalFavorite(save);
+    document.getElementById('modal-archive-btn').onclick = () => this.toggleModalArchive(save);
+    document.getElementById('modal-delete-btn').onclick = () => this.deleteModalSave(save);
+
+    // Folder selector
+    document.getElementById('modal-folder-select').onchange = (e) => this.updateModalFolder(save, e.target.value);
+
+    // Notes textarea with auto-save
+    const notesTextarea = document.getElementById('modal-notes-textarea');
+    let notesTimeout;
+    notesTextarea.oninput = () => {
+      clearTimeout(notesTimeout);
+      notesTimeout = setTimeout(() => this.saveModalNotes(save), 1000);
+    };
+
+    // Add tag button
+    document.getElementById('modal-add-tag-btn').onclick = () => this.showAddTagModal(save.id);
+
+    // Image-specific actions
+    if (this.getSaveType(save) === 'image') {
+      const similarBtn = document.getElementById('modal-image-similar');
+      const autotagBtn = document.getElementById('modal-image-autotag');
+
+      if (similarBtn) {
+        similarBtn.onclick = () => this.findSimilarImages(save);
+      }
+
+      if (autotagBtn) {
+        autotagBtn.onclick = async () => {
+          autotagBtn.textContent = 'Tagging...';
+          autotagBtn.disabled = true;
+
+          const { data, error } = await this.supabase.functions.invoke('auto-tag-image', {
+            body: {
+              save_id: save.id,
+              user_id: this.user.id,
+              image_url: save.image_url
+            }
+          });
+
+          if (!error) {
+            await this.loadModalTags(save.id);
+            autotagBtn.textContent = 'Auto-tag';
+          } else {
+            autotagBtn.textContent = 'Error';
+          }
+          autotagBtn.disabled = false;
+        };
+      }
+    }
+
+    // Note-specific actions
+    if (this.getSaveType(save) === 'note') {
+      const noteContent = document.getElementById('modal-note-content');
+      const noteColor = document.getElementById('modal-note-color');
+
+      if (noteContent) {
+        noteContent.oninput = () => {
+          clearTimeout(notesTimeout);
+          notesTimeout = setTimeout(() => this.saveModalNoteContent(save), 1000);
+        };
+      }
+
+      if (noteColor) {
+        noteColor.onchange = (e) => this.updateNoteColor(save, e.target.value);
+      }
+    }
+  }
+
+  closeUnifiedModal() {
+    const modal = document.getElementById('unified-modal');
+    modal.classList.add('hidden');
+
+    // Reset modal container background
+    const modalContainer = document.querySelector('.modal-container');
+    modalContainer.style.background = '';
+
+    // Stop audio
+    this.stopAudio();
+
+    this.currentSave = null;
+  }
+
+  async toggleModalPin(save) {
+    const newPinState = !save.is_pinned;
+
+    const { error } = await this.supabase
+      .from('saves')
+      .update({
+        is_pinned: newPinState,
+        pinned_at: newPinState ? new Date().toISOString() : null
+      })
+      .eq('id', save.id);
+
+    if (!error) {
+      save.is_pinned = newPinState;
+      document.getElementById('modal-pin-btn').classList.toggle('active', newPinState);
+      this.loadPinnedSaves();
+      this.loadSaves();
+    }
+  }
+
+  async toggleModalFavorite(save) {
+    const newFavState = !save.is_favorite;
+
+    const { error } = await this.supabase
+      .from('saves')
+      .update({ is_favorite: newFavState })
+      .eq('id', save.id);
+
+    if (!error) {
+      save.is_favorite = newFavState;
+      document.getElementById('modal-favorite-btn').classList.toggle('active', newFavState);
+      this.loadSaves();
+    }
+  }
+
+  async toggleModalArchive(save) {
+    const newArchiveState = !save.is_archived;
+
+    const { error } = await this.supabase
+      .from('saves')
+      .update({ is_archived: newArchiveState })
+      .eq('id', save.id);
+
+    if (!error) {
+      save.is_archived = newArchiveState;
+      document.getElementById('modal-archive-btn').classList.toggle('active', newArchiveState);
+      this.closeUnifiedModal();
+      this.loadSaves();
+    }
+  }
+
+  async deleteModalSave(save) {
+    if (!confirm('Are you sure you want to delete this save?')) return;
+
+    const { error } = await this.supabase
+      .from('saves')
+      .delete()
+      .eq('id', save.id);
+
+    if (!error) {
+      this.closeUnifiedModal();
+      this.loadSaves();
+      this.loadPinnedSaves();
+    }
+  }
+
+  async updateModalFolder(save, folderId) {
+    const { error } = await this.supabase
+      .from('saves')
+      .update({ folder_id: folderId || null })
+      .eq('id', save.id);
+
+    if (!error) {
+      save.folder_id = folderId || null;
+      this.loadSaves();
+    }
+  }
+
+  async saveModalNotes(save) {
+    const notes = document.getElementById('modal-notes-textarea').value;
+    const status = document.getElementById('modal-notes-status');
+
+    status.textContent = 'Saving...';
+
+    const { error } = await this.supabase
+      .from('saves')
+      .update({ notes })
+      .eq('id', save.id);
+
+    if (!error) {
+      save.notes = notes;
+      status.textContent = 'Saved';
+      setTimeout(() => status.textContent = '', 2000);
+    } else {
+      status.textContent = 'Error saving';
+    }
+  }
+
+  async saveModalNoteContent(save) {
+    const content = document.getElementById('modal-note-content').value;
+
+    const { error } = await this.supabase
+      .from('saves')
+      .update({ content })
+      .eq('id', save.id);
+
+    if (!error) {
+      save.content = content;
+      this.loadSaves();
+    }
+  }
+
+  async updateNoteColor(save, color) {
+    const { error } = await this.supabase
+      .from('saves')
+      .update({ note_color: color })
+      .eq('id', save.id);
+
+    if (!error) {
+      save.note_color = color;
+      this.loadSaves();
+    }
   }
 
   // Reading Progress Bar
