@@ -53,6 +53,7 @@ async function extractArticle() {
         bookPublisher: bookData.publisher,
         bookPublicationDate: bookData.publicationDate,
         bookPageCount: bookData.pageCount,
+        bookEdition: bookData.edition,
       };
     }
   } catch (e) {
@@ -85,6 +86,7 @@ async function extractArticle() {
     bookPublisher: bookData.publisher,
     bookPublicationDate: bookData.publicationDate,
     bookPageCount: bookData.pageCount,
+    bookEdition: bookData.edition,
   };
 }
 
@@ -521,7 +523,8 @@ function extractBookData() {
     author: null,
     publisher: null,
     publicationDate: null,
-    pageCount: null
+    pageCount: null,
+    edition: null
   };
 
   // Strategy 1: Check JSON-LD Schema.org Book markup (highest priority)
@@ -578,6 +581,9 @@ function extractBookData() {
         // Extract page count
         book.pageCount = data.numberOfPages;
 
+        // Extract edition (bookEdition or bookFormat)
+        book.edition = data.bookEdition || data.bookFormat;
+
         break;
       }
     } catch (e) {
@@ -629,6 +635,40 @@ function extractBookData() {
         }
       }
 
+      // Try to extract edition from page
+      if (!book.edition) {
+        const editionSelectors = [
+          '#format',  // Amazon format dropdown
+          '.format',
+          '[data-selected-ebook-format-name]', // Amazon Kindle
+          '[itemprop="bookFormat"]',
+          '.bookFormat'
+        ];
+
+        for (const selector of editionSelectors) {
+          const el = document.querySelector(selector);
+          if (el && el.textContent.trim()) {
+            let edition = el.textContent.trim();
+            // Normalize common edition formats
+            if (edition.toLowerCase().includes('hardcover')) book.edition = 'Hardcover';
+            else if (edition.toLowerCase().includes('paperback')) book.edition = 'Paperback';
+            else if (edition.toLowerCase().includes('kindle')) book.edition = 'Kindle';
+            else if (edition.toLowerCase().includes('ebook')) book.edition = 'E-book';
+            else if (edition.toLowerCase().includes('audiobook')) book.edition = 'Audiobook';
+            else book.edition = edition;
+            break;
+          }
+        }
+
+        // Special handling for Amazon - check the selected format button
+        if (!book.edition && pattern.site === 'amazon') {
+          const selectedFormat = document.querySelector('[data-a-target="a-declarative"] .a-button-selected .a-button-text');
+          if (selectedFormat) {
+            book.edition = selectedFormat.textContent.trim();
+          }
+        }
+      }
+
       break;
     }
   }
@@ -649,6 +689,12 @@ function extractBookData() {
                          document.querySelector('meta[name="author"]');
       if (authorMeta) {
         book.author = authorMeta.content;
+      }
+
+      const editionMeta = document.querySelector('meta[property="books:edition"]') ||
+                          document.querySelector('meta[name="book:edition"]');
+      if (editionMeta) {
+        book.edition = editionMeta.content;
       }
     }
   }

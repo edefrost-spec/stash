@@ -771,6 +771,20 @@
             <a id="modal-open-btn" class="btn icon" title="Open original" target="_blank" href="#">🔗</a>
           </div>
 
+          <!-- TLDR (for books) -->
+          <div id="modal-tldr-section" class="modal-section hidden">
+            <label class="modal-section-header">TLDR</label>
+            <div id="modal-tldr-content" class="modal-tldr-content"></div>
+          </div>
+
+          <!-- Already read (for books) -->
+          <div id="modal-read-status-section" class="modal-section hidden">
+            <label class="modal-checkbox-label">
+              <input type="checkbox" id="modal-already-read-checkbox">
+              <span>Already read</span>
+            </label>
+          </div>
+
           <!-- Folder selector -->
           <div class="modal-section">
             <label>Folder</label>
@@ -778,16 +792,16 @@
           </div>
 
           <!-- Tags -->
-          <div class="modal-section">
-            <label>Tags</label>
+          <div class="modal-section" id="modal-tags-section">
+            <label class="modal-section-header">MIND TAGS <span class="modal-section-icon">🧠</span></label>
             <div id="modal-tags-list" class="modal-tags-list"></div>
             <button id="modal-add-tag-btn" class="btn-secondary">+ Add tag</button>
           </div>
 
           <!-- Notes -->
-          <div class="modal-section">
-            <label>Notes</label>
-            <textarea id="modal-notes-textarea" class="modal-notes-textarea" placeholder="Add your notes..."></textarea>
+          <div class="modal-section" id="modal-notes-section">
+            <label class="modal-section-header">MIND NOTES <span class="modal-section-icon">📝</span></label>
+            <textarea id="modal-notes-textarea" class="modal-notes-textarea" placeholder="Type here to add a note..."></textarea>
             <div id="modal-notes-status" class="modal-notes-status"></div>
           </div>
         </div>

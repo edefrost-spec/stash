@@ -4095,6 +4095,62 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   min-height: 16px;
 }
 
+/* Modal Section Headers */
+.modal-section-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-section-icon {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* TLDR Section */
+.modal-tldr-content {
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+/* Already Read Checkbox */
+.modal-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-checkbox-label:hover {
+  background: var(--bg-tertiary);
+}
+
+.modal-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.modal-checkbox-label span {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
 /* Modal Body Content Types */
 
 /* Article Content */
@@ -4303,64 +4359,78 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 /* Book Modal Body */
-.book-modal-layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 40px;
-  align-items: start;
-}
-
-.book-cover-large {
-  position: sticky;
-  top: 0;
-}
-
-.book-cover-large img {
-  width: 100%;
-  border-radius: var(--radius);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
-.book-info-panel {
+/* Book Modal Card Layout */
+.book-modal-card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 0;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 40px;
 }
 
-.book-info-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
+.book-cover-display {
+  width: 100%;
+  margin-bottom: 32px;
 }
 
-.book-info-label {
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.book-info-value {
-  color: var(--text);
-}
-
-.book-description {
-  margin-top: 24px;
-  padding: 20px;
-  background: var(--bg-secondary);
+.book-cover-display img {
+  width: 100%;
   border-radius: var(--radius);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-.book-description h3 {
-  margin: 0 0 12px 0;
-  font-size: 16px;
+.book-metadata {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.book-meta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.book-meta-item:last-child {
+  border-bottom: none;
+}
+
+.book-meta-icon {
+  font-size: 20px;
+  line-height: 1;
+  opacity: 0.6;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+.book-meta-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.book-meta-label {
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.6;
 }
 
-.book-description p {
-  margin: 0;
-  line-height: 1.6;
-  color: var(--text-secondary);
+.book-meta-value {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.4;
 }
 
 /* Mobile Responsive */
@@ -4399,17 +4469,12 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
     font-size: 16px;
   }
 
-  .book-modal-layout {
-    grid-template-columns: 1fr;
-    gap: 24px;
+  .book-modal-card {
+    padding: 24px 16px;
   }
 
-  .book-cover-large {
-    position: relative;
-  }
-
-  .book-cover-large img {
-    max-width: 200px;
+  .book-cover-display img {
+    max-width: 250px;
     margin: 0 auto;
     display: block;
   }

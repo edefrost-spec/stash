@@ -249,6 +249,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           publisher: article.bookPublisher,
           publicationDate: article.bookPublicationDate,
           pageCount: article.bookPageCount,
+          edition: article.bookEdition,
         };
 
         // Show book banner
@@ -302,6 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       bookPublisher: saveAsBook ? detectedBook.publisher : null,
       bookPublicationDate: saveAsBook ? detectedBook.publicationDate : null,
       bookPageCount: saveAsBook ? detectedBook.pageCount : null,
+      bookEdition: saveAsBook ? detectedBook.edition : null,
     });
 
     // Reset form

@@ -400,6 +400,7 @@ async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = nu
       saveData.book_publisher = bookData.publisher;
       saveData.book_publication_date = bookData.publicationDate;
       saveData.book_page_count = bookData.pageCount;
+      saveData.book_edition = bookData.edition;
       // Use author from bookData if provided
       if (bookData.author) {
         saveData.author = bookData.author;
@@ -411,6 +412,7 @@ async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = nu
       saveData.book_publisher = article.bookPublisher;
       saveData.book_publication_date = article.bookPublicationDate;
       saveData.book_page_count = article.bookPageCount;
+      saveData.book_edition = article.bookEdition;
     }
 
     const result = await supabase.insert('saves', saveData);
@@ -480,6 +482,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           publisher: request.bookPublisher,
           publicationDate: request.bookPublicationDate,
           pageCount: request.bookPageCount,
+          edition: request.bookEdition,
         } : null;
 
         await savePageWithOptions(tabs[0], request.folderId, request.tagIds, request.notes, productData, bookData);

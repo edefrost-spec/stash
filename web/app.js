@@ -2230,43 +2230,54 @@ class StashApp {
 
   renderBookModalBody(save) {
     return `
-      <div class="book-modal-layout">
-        <div class="book-cover-large">
+      <div class="book-modal-card">
+        <div class="book-cover-display">
           <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}">
         </div>
-        <div class="book-info-panel">
-          <div class="book-info-row">
-            <span class="book-info-label">Author</span>
-            <span class="book-info-value">${this.escapeHtml(save.author || 'Unknown')}</span>
-          </div>
-          ${save.book_publication_date ? `
-            <div class="book-info-row">
-              <span class="book-info-label">Published</span>
-              <span class="book-info-value">${new Date(save.book_publication_date).getFullYear()}</span>
+        <div class="book-metadata">
+          ${save.author ? `
+            <div class="book-meta-item">
+              <div class="book-meta-icon">👤</div>
+              <div class="book-meta-content">
+                <div class="book-meta-label">AUTHOR</div>
+                <div class="book-meta-value">${this.escapeHtml(save.author)}</div>
+              </div>
             </div>
           ` : ''}
           ${save.book_page_count ? `
-            <div class="book-info-row">
-              <span class="book-info-label">Pages</span>
-              <span class="book-info-value">${save.book_page_count}</span>
+            <div class="book-meta-item">
+              <div class="book-meta-icon">📖</div>
+              <div class="book-meta-content">
+                <div class="book-meta-label">PAGE COUNT</div>
+                <div class="book-meta-value">${save.book_page_count} Pages</div>
+              </div>
             </div>
           ` : ''}
           ${save.book_publisher ? `
-            <div class="book-info-row">
-              <span class="book-info-label">Publisher</span>
-              <span class="book-info-value">${this.escapeHtml(save.book_publisher)}</span>
+            <div class="book-meta-item">
+              <div class="book-meta-icon">📍</div>
+              <div class="book-meta-content">
+                <div class="book-meta-label">PUBLISHER</div>
+                <div class="book-meta-value">${this.escapeHtml(save.book_publisher)}</div>
+              </div>
+            </div>
+          ` : ''}
+          ${save.book_edition ? `
+            <div class="book-meta-item">
+              <div class="book-meta-icon">📚</div>
+              <div class="book-meta-content">
+                <div class="book-meta-label">EDITION</div>
+                <div class="book-meta-value">${this.escapeHtml(save.book_edition)}</div>
+              </div>
             </div>
           ` : ''}
           ${save.book_isbn ? `
-            <div class="book-info-row">
-              <span class="book-info-label">ISBN</span>
-              <span class="book-info-value">${save.book_isbn}</span>
-            </div>
-          ` : ''}
-          ${save.excerpt ? `
-            <div class="book-description">
-              <h3>Description</h3>
-              <p>${this.escapeHtml(save.excerpt)}</p>
+            <div class="book-meta-item">
+              <div class="book-meta-icon">🏷️</div>
+              <div class="book-meta-content">
+                <div class="book-meta-label">ISBN</div>
+                <div class="book-meta-value">${save.book_isbn}</div>
+              </div>
             </div>
           ` : ''}
         </div>
@@ -2336,6 +2347,8 @@ class StashApp {
   }
 
   populateModalSidebar(save) {
+    const saveType = this.getSaveType(save);
+
     // Update button states
     document.getElementById('modal-pin-btn').classList.toggle('active', save.is_pinned);
     document.getElementById('modal-favorite-btn').classList.toggle('active', save.is_favorite);
@@ -2348,6 +2361,27 @@ class StashApp {
       openBtn.style.display = '';
     } else {
       openBtn.style.display = 'none';
+    }
+
+    // Show/hide book-specific sections
+    const tldrSection = document.getElementById('modal-tldr-section');
+    const readStatusSection = document.getElementById('modal-read-status-section');
+
+    if (saveType === 'book') {
+      // Show TLDR section if excerpt exists
+      if (save.excerpt) {
+        tldrSection.classList.remove('hidden');
+        document.getElementById('modal-tldr-content').textContent = save.excerpt;
+      } else {
+        tldrSection.classList.add('hidden');
+      }
+
+      // Show already read checkbox
+      readStatusSection.classList.remove('hidden');
+      document.getElementById('modal-already-read-checkbox').checked = save.read_at !== null;
+    } else {
+      tldrSection.classList.add('hidden');
+      readStatusSection.classList.add('hidden');
     }
 
     // Populate folder dropdown
@@ -2462,6 +2496,16 @@ class StashApp {
         noteColor.onchange = (e) => this.updateNoteColor(save, e.target.value);
       }
     }
+
+    // Book-specific actions
+    if (this.getSaveType(save) === 'book') {
+      const alreadyReadCheckbox = document.getElementById('modal-already-read-checkbox');
+      if (alreadyReadCheckbox) {
+        alreadyReadCheckbox.onchange = async (e) => {
+          await this.toggleBookReadStatus(save, e.target.checked);
+        };
+      }
+    }
   }
 
   closeUnifiedModal() {
@@ -2540,6 +2584,19 @@ class StashApp {
       this.closeUnifiedModal();
       this.loadSaves();
       this.loadPinnedSaves();
+    }
+  }
+
+  async toggleBookReadStatus(save, isRead) {
+    const { error } = await this.supabase
+      .from('saves')
+      .update({
+        read_at: isRead ? new Date().toISOString() : null
+      })
+      .eq('id', save.id);
+
+    if (!error) {
+      save.read_at = isRead ? new Date().toISOString() : null;
     }
   }
 
