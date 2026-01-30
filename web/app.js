@@ -1959,14 +1959,8 @@ class StashApp {
 
   openReadingPane(save) {
     this.currentSave = save;
-
-    // Check if this is a note - open edit note modal instead of unified modal
-    if (this.getSaveType(save) === 'note') {
-      this.openEditNoteModal(save);
-    } else {
-      // Use unified modal for all other save types
-      this.openUnifiedModal(save);
-    }
+    // Use unified modal for all save types (including notes)
+    this.openUnifiedModal(save);
   }
 
   // Legacy reading pane (kept for backward compatibility)
@@ -2224,11 +2218,42 @@ class StashApp {
   renderNoteModalBody(save) {
     return `
       <div class="modal-note-editor">
-        <textarea id="modal-note-content" class="note-content-editor">${this.escapeHtml(save.content || save.notes || '')}</textarea>
-        <div class="note-color-picker">
-          <label>Background Color:</label>
-          <input type="color" id="modal-note-color" value="${save.note_color || '#ffffff'}">
+        <div class="modal-note-toolbar">
+          <button type="button" class="note-format-btn" data-format="bold" title="Bold">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg>
+          </button>
+          <button type="button" class="note-format-btn" data-format="italic" title="Italic">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>
+          </button>
+          <button type="button" class="note-format-btn" data-format="heading" title="Heading">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v16"></path><path d="M18 4v16"></path><path d="M6 12h12"></path></svg>
+          </button>
+          <span class="note-toolbar-divider"></span>
+          <button type="button" class="note-format-btn" data-format="bullet" title="Bullet List">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="4" cy="6" r="1" fill="currentColor"></circle><circle cx="4" cy="12" r="1" fill="currentColor"></circle><circle cx="4" cy="18" r="1" fill="currentColor"></circle></svg>
+          </button>
+          <button type="button" class="note-format-btn" data-format="todo" title="To-do List">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="6" height="6" rx="1"></rect><path d="M11 7h10"></path><rect x="3" y="13" width="6" height="6" rx="1"></rect><path d="M11 15h10"></path></svg>
+          </button>
+          <button type="button" class="note-format-btn" data-format="blockquote" title="Quote">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z"></path></svg>
+          </button>
+          <button type="button" class="note-format-btn" data-format="code" title="Code Block">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          </button>
+          <button type="button" class="note-format-btn" data-format="divider" title="Divider">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+          <span class="note-toolbar-divider"></span>
+          <button type="button" class="note-format-btn" id="modal-note-preview-toggle" title="Toggle Preview">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+          <button type="button" class="note-format-btn" id="modal-note-color-btn" title="Background Color">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+          </button>
         </div>
+        <textarea id="modal-note-content" class="modal-note-textarea" placeholder="Write your note...">${this.escapeHtml(save.content || save.notes || '')}</textarea>
+        <div id="modal-note-preview" class="modal-note-preview hidden"></div>
       </div>
     `;
   }
@@ -2498,7 +2523,14 @@ class StashApp {
     // Note-specific actions
     if (this.getSaveType(save) === 'note') {
       const noteContent = document.getElementById('modal-note-content');
-      const noteColor = document.getElementById('modal-note-color');
+      const notePreview = document.getElementById('modal-note-preview');
+      const previewToggle = document.getElementById('modal-note-preview-toggle');
+      const colorBtn = document.getElementById('modal-note-color-btn');
+
+      // Store note state for color updates
+      this.editingNote = save;
+      this.editNoteColor = save.note_color || null;
+      this.editNoteGradient = save.note_gradient || null;
 
       if (noteContent) {
         noteContent.oninput = () => {
@@ -2507,8 +2539,35 @@ class StashApp {
         };
       }
 
-      if (noteColor) {
-        noteColor.onchange = (e) => this.updateNoteColor(save, e.target.value);
+      // Formatting buttons
+      document.querySelectorAll('.note-format-btn[data-format]').forEach(btn => {
+        btn.onclick = () => {
+          const format = btn.dataset.format;
+          if (noteContent && format) {
+            this.insertNoteFormatting(noteContent, format);
+          }
+        };
+      });
+
+      // Preview toggle
+      if (previewToggle) {
+        previewToggle.onclick = () => {
+          const isShowingPreview = !notePreview.classList.contains('hidden');
+          if (isShowingPreview) {
+            notePreview.classList.add('hidden');
+            noteContent.classList.remove('hidden');
+            noteContent.focus();
+          } else {
+            notePreview.innerHTML = this.renderMarkdown(noteContent.value || '');
+            notePreview.classList.remove('hidden');
+            noteContent.classList.add('hidden');
+          }
+        };
+      }
+
+      // Color button
+      if (colorBtn) {
+        colorBtn.onclick = () => this.showEditNoteColorPicker();
       }
     }
 
@@ -2652,12 +2711,43 @@ class StashApp {
 
     const { error } = await this.supabase
       .from('saves')
-      .update({ content })
+      .update({
+        content,
+        notes: content,
+        excerpt: content.slice(0, 180),
+        note_color: this.editNoteColor,
+        note_gradient: this.editNoteGradient,
+      })
       .eq('id', save.id);
 
     if (!error) {
       save.content = content;
+      save.notes = content;
+      save.excerpt = content.slice(0, 180);
+      save.note_color = this.editNoteColor;
+      save.note_gradient = this.editNoteGradient;
       this.loadSaves();
+    }
+  }
+
+  insertNoteFormatting(textarea, format) {
+    // Map format names to markdown actions
+    const formatMap = {
+      'bold': 'bold',
+      'italic': 'italic',
+      'heading': 'heading',
+      'bullet': 'list',
+      'todo': 'task',
+      'blockquote': 'blockquote',
+      'code': 'code',
+      'divider': 'divider'
+    };
+
+    const action = formatMap[format];
+    if (action) {
+      this.insertMarkdownFormatting(textarea, action);
+      // Trigger auto-save after formatting
+      textarea.dispatchEvent(new Event('input'));
     }
   }
 

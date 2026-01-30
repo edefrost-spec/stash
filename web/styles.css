@@ -4315,10 +4315,95 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 .modal-note-editor {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  height: 100%;
+  min-height: 400px;
+}
+
+.modal-note-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.note-format-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.note-format-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+.note-format-btn:active {
+  background: var(--primary);
+  color: white;
+}
+
+.note-toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 6px;
+}
+
+.modal-note-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 20px;
+  border: none;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  font-family: inherit;
+  line-height: 1.7;
+  resize: none;
+  min-height: 300px;
+}
+
+.modal-note-textarea:focus {
+  outline: none;
+}
+
+.modal-note-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.modal-note-preview {
+  flex: 1;
+  width: 100%;
+  padding: 20px;
+  overflow-y: auto;
+  background: var(--bg);
+  min-height: 300px;
+}
+
+.modal-note-preview.hidden {
+  display: none;
+}
+
+.modal-body-note {
+  padding: 0;
+}
+
+.modal-body-note .modal-note-editor {
   height: 100%;
 }
 
+/* Legacy note content editor (for compatibility) */
 .note-content-editor {
   flex: 1;
   width: 100%;

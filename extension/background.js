@@ -401,10 +401,18 @@ async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = nu
       if (bookData.author) {
         saveData.author = bookData.author;
       }
+      // Use book description for excerpt if available
+      if (article.bookDescription) {
+        saveData.excerpt = article.bookDescription;
+      }
     } else if (article.isBook) {
       // Fallback to auto-detected book data from article
       saveData.is_book = true;
       saveData.book_page_count = article.bookPageCount;
+      // Use book description for excerpt if available
+      if (article.bookDescription) {
+        saveData.excerpt = article.bookDescription;
+      }
     }
 
     const result = await supabase.insert('saves', saveData);

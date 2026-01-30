@@ -36,9 +36,11 @@ async function extractArticle() {
         success: true,
         title: article.title || document.title,
         content: htmlToText(article.content),
-        excerpt: article.excerpt || article.textContent?.substring(0, 300) + '...',
+        excerpt: bookData.isBook && bookData.description
+          ? bookData.description
+          : (article.excerpt || article.textContent?.substring(0, 300) + '...'),
         siteName: article.siteName || extractSiteName(),
-        author: article.byline || bookData.author,
+        author: bookData.author || article.byline,
         publishedTime: extractPublishedTime(),
         imageUrl: extractMainImage(),
         // Product data
@@ -50,6 +52,7 @@ async function extractArticle() {
         // Book data
         isBook: bookData.isBook,
         bookPageCount: bookData.pageCount,
+        bookDescription: bookData.description,
       };
     }
   } catch (e) {
@@ -65,10 +68,12 @@ async function extractArticle() {
     success: true,
     title: document.title,
     content: cleanContent(content),
-    excerpt: document.querySelector('meta[name="description"]')?.content ||
-             content.substring(0, 300) + '...',
+    excerpt: bookData.isBook && bookData.description
+      ? bookData.description
+      : (document.querySelector('meta[name="description"]')?.content ||
+         content.substring(0, 300) + '...'),
     siteName: extractSiteName(),
-    author: extractAuthor() || bookData.author,
+    author: bookData.author || extractAuthor(),
     publishedTime: extractPublishedTime(),
     imageUrl: extractMainImage(),
     // Product data
@@ -79,6 +84,7 @@ async function extractArticle() {
     // Book data
     isBook: bookData.isBook,
     bookPageCount: bookData.pageCount,
+    bookDescription: bookData.description,
   };
 }
 
@@ -537,12 +543,90 @@ function cleanAuthorText(text) {
   return cleaned;
 }
 
+// Extract book description - separate from product description
+function extractBookDescription() {
+  // Try JSON-LD first
+  const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+  for (const script of scripts) {
+    try {
+      let data = JSON.parse(script.textContent);
+      if (data['@graph']) {
+        data = data['@graph'].find(item =>
+          item['@type'] === 'Book' ||
+          (Array.isArray(item['@type']) && item['@type'].includes('Book'))
+        );
+      }
+      if (data?.description) {
+        return data.description;
+      }
+    } catch (e) {}
+  }
+
+  // Try Goodreads-specific selectors
+  const hostname = window.location.hostname.toLowerCase();
+  if (hostname.includes('goodreads.com')) {
+    // Goodreads description selectors - try multiple options
+    const descSelectors = [
+      '.BookPageMetadataSection__description .Formatted',
+      '[data-testid="description"] .Formatted',
+      '.DetailsLayoutRightParagraph__widthConstrained .Formatted',
+      '#description span[style*="display"]',
+      '.readable.stacked span[style*="display: none"]', // Hidden full description
+      '.readable.stacked span:not([style])', // Visible description
+      '[data-testid="description"]',
+      '#description'
+    ];
+
+    for (const selector of descSelectors) {
+      const el = document.querySelector(selector);
+      if (el) {
+        let text = el.textContent?.trim();
+        // Clean up the description
+        if (text && text.length > 50) {
+          // Remove "...more" or "...less" buttons
+          text = text.replace(/\.\.\.more$/i, '').replace(/\.\.\.less$/i, '').trim();
+          return text;
+        }
+      }
+    }
+  }
+
+  // Try meta description
+  const metaDesc = document.querySelector('meta[property="og:description"]')?.content ||
+                   document.querySelector('meta[name="description"]')?.content;
+  if (metaDesc && metaDesc.length > 50) {
+    return metaDesc;
+  }
+
+  // Generic book description selectors
+  const descSelectors = [
+    '[itemprop="description"]',
+    '.book-description',
+    '#book-description',
+    '.synopsis',
+    '.summary'
+  ];
+
+  for (const selector of descSelectors) {
+    const el = document.querySelector(selector);
+    if (el) {
+      const text = el.textContent?.trim();
+      if (text && text.length > 50) {
+        return text;
+      }
+    }
+  }
+
+  return null;
+}
+
 // Extract book data from schema.org markup, meta tags, and URL patterns
 function extractBookData() {
   const book = {
     isBook: false,
     author: null,
-    pageCount: null
+    pageCount: null,
+    description: null
   };
 
   // Strategy 1: Check JSON-LD Schema.org Book markup (highest priority)
@@ -601,39 +685,49 @@ function extractBookData() {
     if (pattern.regex.test(url)) {
       book.isBook = true;
 
-      // Try to extract author and other metadata from page
+      // Try to extract author if not already found
       if (!book.author) {
-        // Goodreads-specific selectors (more precise)
+        // Goodreads-specific: Try meta tag FIRST (cleanest source)
         if (pattern.site === 'goodreads') {
-          // Try to get author from the book header link specifically
-          const goodreadsAuthorSelectors = [
-            'a.ContributorLink[href*="/author/"]',
-            '[data-testid="name"] a[href*="/author/"]',
-            '.BookPageMetadataSection a[href*="/author/"]',
-            'h3.Text a[href*="/author/"]',
-            '.authorName a[href*="/author/"]'
-          ];
+          // Check for Twitter/OG meta with author info
+          const twitterCreator = document.querySelector('meta[name="twitter:creator"]')?.content;
+          if (twitterCreator && !twitterCreator.startsWith('@')) {
+            book.author = twitterCreator;
+          }
 
-          for (const selector of goodreadsAuthorSelectors) {
-            const el = document.querySelector(selector);
-            if (el) {
-              // Get only the direct text content of the link, not children
-              let authorText = '';
-              for (const node of el.childNodes) {
-                if (node.nodeType === Node.TEXT_NODE) {
-                  authorText += node.textContent;
+          // Try the specific author name span INSIDE the contributor link
+          if (!book.author) {
+            const nameSpan = document.querySelector('.ContributorLink__name');
+            if (nameSpan) {
+              book.author = nameSpan.textContent.trim();
+            }
+          }
+
+          // Try contributor link but ONLY get the name data attribute or aria-label
+          if (!book.author) {
+            const contributorLink = document.querySelector('a.ContributorLink[href*="/author/"]');
+            if (contributorLink) {
+              // Try aria-label first (usually cleanest)
+              const ariaLabel = contributorLink.getAttribute('aria-label');
+              if (ariaLabel) {
+                book.author = ariaLabel.replace(/^by\s+/i, '').trim();
+              } else {
+                // Get innerText but only from name span child
+                const nameChild = contributorLink.querySelector('[class*="name"], span:first-child');
+                if (nameChild) {
+                  book.author = nameChild.textContent.trim();
                 }
               }
-              authorText = authorText.trim();
-              // If no direct text, fall back to innerText but clean it
-              if (!authorText) {
-                authorText = el.innerText.trim();
-              }
-              // Clean any remaining noise
-              authorText = cleanAuthorText(authorText);
-              if (authorText.length > 0 && authorText.length < 100) {
-                book.author = authorText;
-                break;
+            }
+          }
+
+          // Last resort: try to parse from title which often has "by Author"
+          if (!book.author) {
+            const ogTitle = document.querySelector('meta[property="og:title"]')?.content;
+            if (ogTitle) {
+              const byMatch = ogTitle.match(/\s+by\s+(.+)$/i);
+              if (byMatch) {
+                book.author = byMatch[1].trim();
               }
             }
           }
@@ -665,7 +759,8 @@ function extractBookData() {
       if (!book.pageCount && pattern.site === 'goodreads') {
         const pageCountSelectors = [
           '[itemprop="numberOfPages"]',
-          '.PageText'
+          '[data-testid="pagesFormat"]',
+          'p[data-testid="pagesFormat"]'
         ];
         for (const selector of pageCountSelectors) {
           const el = document.querySelector(selector);
@@ -695,6 +790,11 @@ function extractBookData() {
         book.author = authorMeta.content;
       }
     }
+  }
+
+  // Extract book description
+  if (book.isBook) {
+    book.description = extractBookDescription();
   }
 
   return book;
