@@ -388,6 +388,7 @@ input, select {
   z-index: 50;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  transition: padding 0.2s ease;
 }
 
 [data-theme="dark"] .search-bar-redesigned {
@@ -408,6 +409,7 @@ input, select {
   border: none;
   background: transparent;
   outline: none;
+  transition: font-size 0.2s ease;
 }
 
 .search-bar-redesigned input::placeholder {
@@ -424,7 +426,7 @@ input, select {
   font-size: 48px;
   color: #99a1af;
   pointer-events: none;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, font-size 0.2s ease;
 }
 
 .search-bar-redesigned input:focus + .search-placeholder,
@@ -449,6 +451,27 @@ input, select {
 .search-icon-btn:hover {
   background: var(--bg-tertiary);
   color: var(--text);
+}
+
+/* Scrolled state - compact search bar */
+.search-bar-redesigned.scrolled {
+  padding: 12px 48px;
+  border-bottom: 1px solid rgba(229,231,235,0.6);
+}
+
+.search-bar-redesigned.scrolled input,
+.search-bar-redesigned.scrolled .search-placeholder {
+  font-size: 20px;
+}
+
+.search-bar-redesigned.scrolled .search-icon-btn {
+  width: 32px;
+  height: 32px;
+}
+
+.search-bar-redesigned.scrolled .search-icon-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* Mobile Menu Button Floating */
@@ -4073,14 +4096,14 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 /* Unpin button (X) */
 .focus-bar-item-unpin {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: 8px;
+  right: 8px;
   width: 24px;
   height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #364153;
+  background: rgba(54, 65, 83, 0.9);
   border: none;
   border-radius: 50%;
   color: white;
@@ -4089,6 +4112,7 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
   opacity: 0;
   transition: opacity 0.15s ease;
   z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .focus-bar-item:hover .focus-bar-item-unpin {
@@ -4096,7 +4120,7 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 }
 
 .focus-bar-item-unpin:hover {
-  background: #1e2939;
+  background: rgba(30, 41, 57, 0.95);
 }
 
 /* Empty state */
@@ -5548,6 +5572,15 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   .search-placeholder {
     font-size: 32px;
   }
+
+  .search-bar-redesigned.scrolled {
+    padding: 12px 24px;
+  }
+
+  .search-bar-redesigned.scrolled input,
+  .search-bar-redesigned.scrolled .search-placeholder {
+    font-size: 18px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -5578,5 +5611,14 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   .search-bar-redesigned input,
   .search-placeholder {
     font-size: 24px;
+  }
+
+  .search-bar-redesigned.scrolled {
+    padding: 10px 16px;
+  }
+
+  .search-bar-redesigned.scrolled input,
+  .search-bar-redesigned.scrolled .search-placeholder {
+    font-size: 16px;
   }
 }

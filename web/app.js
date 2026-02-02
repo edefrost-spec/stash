@@ -302,6 +302,27 @@ class StashApp {
       }, 300);
     });
 
+    // Sticky search bar scroll detection
+    const searchBar = document.querySelector('.search-bar-redesigned');
+    const content = document.querySelector('.content');
+    if (searchBar && content) {
+      content.addEventListener('scroll', () => {
+        if (content.scrollTop > 50) {
+          searchBar.classList.add('scrolled');
+        } else {
+          searchBar.classList.remove('scrolled');
+        }
+      });
+      // Also listen on window scroll for cases where content doesn't scroll
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+          searchBar.classList.add('scrolled');
+        } else {
+          searchBar.classList.remove('scrolled');
+        }
+      });
+    }
+
     // Sort
     document.getElementById('sort-select').addEventListener('change', (e) => {
       this.loadSaves();
