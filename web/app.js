@@ -86,6 +86,9 @@ class StashApp {
     this.bindPinButton();
     this.bindProductModal();
     this.bindEditNoteModal();
+    this.bindContextMenu();
+    this.bindNavTabs();
+    this.bindDropZone();
     this.loadPinnedSaves();
   }
 
@@ -1172,14 +1175,24 @@ class StashApp {
       this.prepareColorData();
     }
 
-    // Bind click events
+    // Bind click events and make cards draggable
     container.querySelectorAll('.save-card').forEach(card => {
+      // Make card draggable for Focus Bar
+      card.setAttribute('draggable', 'true');
+
       card.addEventListener('click', (e) => {
         // Don't open reading pane if clicking a checkbox
         if (e.target.classList.contains('task-checkbox')) return;
         const id = card.dataset.id;
         const save = this.saves.find(s => s.id === id);
         if (save) this.openReadingPane(save);
+      });
+
+      // Right-click context menu
+      card.addEventListener('contextmenu', (e) => {
+        const id = card.dataset.id;
+        const save = this.saves.find(s => s.id === id);
+        if (save) this.showContextMenu(e, save);
       });
     });
 
@@ -1414,6 +1427,21 @@ class StashApp {
     if (save.highlight) return 'highlight';
     if (save.source === 'upload' && save.image_url) return 'image';
     if (save.site_name === 'Note' || (!save.url && (save.notes || save.content))) return 'note';
+
+    // Detect music from URL patterns
+    if (save.url) {
+      const url = save.url.toLowerCase();
+      if (url.includes('spotify.com') || url.includes('music.apple.com') ||
+          url.includes('soundcloud.com') || url.includes('bandcamp.com')) {
+        return 'music';
+      }
+      // Detect video from URL patterns
+      if (url.includes('youtube.com') || url.includes('youtu.be') ||
+          url.includes('vimeo.com') || url.includes('tiktok.com')) {
+        return 'video';
+      }
+    }
+
     if (save.url && !save.content && !save.excerpt) return 'link';
     return 'article';
   }
@@ -1547,6 +1575,43 @@ class StashApp {
               <div class="save-card-url">${this.escapeHtml(save.url || '')}</div>
               ${annotations}
             </div>
+          </div>
+        `;
+
+      case 'music':
+        // Music card - album art with track info
+        const musicDomain = save.url ? new URL(save.url).hostname.replace('www.', '') : '';
+        return `
+          <div class="save-card music-card" data-id="${save.id}">
+            ${save.image_url ? `<img class="album-art" src="${save.image_url}" alt="">` : ''}
+            <div class="music-info">
+              <div>
+                <div class="music-title">${this.escapeHtml(save.title || 'Untitled')}</div>
+                <div class="music-artist">${this.escapeHtml(save.site_name || musicDomain)}</div>
+              </div>
+              <span class="track-count">${this.escapeHtml(musicDomain)}</span>
+            </div>
+            ${annotations}
+          </div>
+        `;
+
+      case 'video':
+        // Video card - thumbnail with play button
+        return `
+          <div class="save-card video-card" data-id="${save.id}">
+            <div class="video-thumbnail">
+              ${save.image_url ? `<img src="${save.image_url}" alt="">` : ''}
+              <div class="play-button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+              </div>
+            </div>
+            <div class="video-info">
+              <div class="video-title">${this.escapeHtml(save.title || 'Untitled')}</div>
+              <div class="video-channel">${this.escapeHtml(save.site_name || '')}</div>
+            </div>
+            ${annotations}
           </div>
         `;
 
@@ -3905,13 +3970,25 @@ class StashApp {
     const colorBtn = document.getElementById('quick-note-color-btn');
     const colorPicker = document.getElementById('quick-note-color-picker');
     const charCount = document.getElementById('quick-note-char-count');
+    const quickNoteInput = document.getElementById('quick-note-input');
+    const quickNoteFooter = document.querySelector('.quick-note-footer');
 
-    // Textarea input - update char count
+    // Textarea input - show/hide save button based on content
     if (textarea) {
       textarea.addEventListener('input', () => {
         const len = textarea.value.length;
         if (charCount) {
           charCount.textContent = len > 0 ? `${len}` : '';
+        }
+        // Show/hide footer based on content
+        if (quickNoteFooter) {
+          if (len > 0) {
+            quickNoteFooter.classList.remove('hidden');
+            quickNoteInput?.classList.add('has-content');
+          } else {
+            quickNoteFooter.classList.add('hidden');
+            quickNoteInput?.classList.remove('has-content');
+          }
         }
         // Auto-resize textarea
         textarea.style.height = 'auto';
@@ -4703,6 +4780,183 @@ class StashApp {
   }
 
   // ===================================
+  // Navigation Tabs
+  // ===================================
+
+  bindNavTabs() {
+    // Nav tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        const view = tab.dataset.view;
+
+        // Update active state
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // Handle view switching
+        if (view === 'everything') {
+          this.setView('all');
+        } else if (view === 'spaces') {
+          // Could be used for folders/collections view
+          this.setView('all');
+        } else if (view === 'serendipity') {
+          this.setView('weekly');
+        }
+      });
+    });
+
+    // Nav add button (+)
+    const navAddBtn = document.getElementById('nav-add-btn');
+    if (navAddBtn) {
+      navAddBtn.addEventListener('click', () => {
+        this.showQuickAddModal();
+      });
+    }
+  }
+
+  // ===================================
+  // Focus Bar Drop Zone Functionality
+  // ===================================
+
+  bindDropZone() {
+    const focusBar = document.getElementById('focus-bar');
+    if (!focusBar) return;
+
+    // Dragover event - show drop zone state
+    focusBar.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      focusBar.classList.add('drag-over');
+    });
+
+    // Dragleave event
+    focusBar.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Only remove if leaving the focus bar entirely
+      if (!focusBar.contains(e.relatedTarget)) {
+        focusBar.classList.remove('drag-over');
+      }
+    });
+
+    // Drop event - pin the dropped card
+    focusBar.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      focusBar.classList.remove('drag-over');
+
+      // Get the save ID from the dragged card
+      const saveId = e.dataTransfer.getData('text/plain');
+      if (saveId && !saveId.startsWith('http')) {
+        this.pinSaveById(saveId);
+      }
+    });
+
+    // Click on empty state to open quick add
+    const emptyState = document.getElementById('focus-bar-empty');
+    if (emptyState) {
+      emptyState.addEventListener('click', () => {
+        this.showQuickAddModal();
+      });
+    }
+
+    // Make cards draggable
+    this.bindCardDragging();
+  }
+
+  bindCardDragging() {
+    // Add drag functionality to save cards
+    document.addEventListener('dragstart', (e) => {
+      const card = e.target.closest('.save-card');
+      if (card && card.dataset.id) {
+        e.dataTransfer.setData('text/plain', card.dataset.id);
+        e.dataTransfer.effectAllowed = 'move';
+      }
+    });
+  }
+
+  async pinSaveById(saveId) {
+    // Check pin limit
+    if (this.pinnedSaves.length >= 5) {
+      this.showToast('Maximum 5 pinned items allowed', 'error');
+      return;
+    }
+
+    try {
+      await this.supabase
+        .from('saves')
+        .update({
+          is_pinned: true,
+          pinned_at: new Date().toISOString()
+        })
+        .eq('id', saveId);
+
+      this.showToast('Card pinned to Focus Bar!', 'success');
+      await this.loadPinnedSaves();
+      this.loadSaves();
+    } catch (err) {
+      console.error('Error pinning save:', err);
+    }
+  }
+
+  async uploadDroppedImage(file) {
+    try {
+      // Upload to Supabase storage
+      const fileName = `${Date.now()}-${file.name}`;
+      const { data: uploadData, error: uploadError } = await this.supabase.storage
+        .from('saves')
+        .upload(`${this.user.id}/${fileName}`, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = this.supabase.storage
+        .from('saves')
+        .getPublicUrl(`${this.user.id}/${fileName}`);
+
+      // Create save entry
+      const { error: saveError } = await this.supabase
+        .from('saves')
+        .insert({
+          user_id: this.user.id,
+          title: file.name,
+          image_url: urlData.publicUrl,
+          source: 'upload',
+          created_at: new Date().toISOString()
+        });
+
+      if (saveError) throw saveError;
+
+      this.showToast('Image saved!', 'success');
+      this.loadSaves();
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      this.showToast('Failed to upload image', 'error');
+    }
+  }
+
+  async saveDroppedUrl(url) {
+    try {
+      // Call the save URL function
+      const { data, error } = await this.supabase.functions.invoke('save-url', {
+        body: {
+          url: url,
+          user_id: this.user.id
+        }
+      });
+
+      if (error) throw error;
+
+      this.showToast('URL saved!', 'success');
+      this.loadSaves();
+    } catch (err) {
+      console.error('Error saving URL:', err);
+      this.showToast('Failed to save URL', 'error');
+    }
+  }
+
+  // ===================================
   // Focus Bar (Pinned Items)
   // ===================================
 
@@ -4725,21 +4979,26 @@ class StashApp {
   renderFocusBar() {
     const focusBar = document.getElementById('focus-bar');
     const container = document.getElementById('focus-bar-items');
+    const emptyState = document.getElementById('focus-bar-empty');
 
     if (!focusBar || !container) return;
 
+    // Always show focus bar, toggle empty state based on items
     if (!this.pinnedSaves.length) {
-      focusBar.classList.add('hidden');
+      container.innerHTML = '';
+      if (emptyState) emptyState.style.display = 'flex';
       return;
     }
 
-    focusBar.classList.remove('hidden');
+    // Hide empty state when we have items
+    if (emptyState) emptyState.style.display = 'none';
+
     container.innerHTML = this.pinnedSaves.map(save => `
       <div class="focus-bar-item" data-id="${save.id}">
-        ${save.image_url ? `<img class="focus-bar-item-image" src="${save.image_url}" alt="">` : ''}
+        ${save.image_url ? `<img class="focus-bar-item-image" src="${save.image_url}" alt="">` : `<div class="focus-bar-item-image"></div>`}
         <span class="focus-bar-item-title">${this.escapeHtml(save.title || 'Untitled')}</span>
         <button class="focus-bar-item-unpin" title="Unpin">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -4755,7 +5014,7 @@ class StashApp {
           this.unpinSave(item.dataset.id);
         } else {
           const save = this.pinnedSaves.find(s => s.id === item.dataset.id);
-          if (save) this.openReadingPane(save);
+          if (save) this.openUnifiedModal(save);
         }
       });
     });
@@ -4855,6 +5114,246 @@ class StashApp {
 
   hideProductModal() {
     document.getElementById('product-modal')?.classList.add('hidden');
+  }
+
+  // ===================================
+  // Context Menu
+  // ===================================
+
+  bindContextMenu() {
+    const contextMenu = document.getElementById('card-context-menu');
+    const deleteDialog = document.getElementById('delete-confirm-dialog');
+    if (!contextMenu) return;
+
+    // Store reference to current context menu save
+    this.contextMenuSave = null;
+    this.contextMenuPosition = { x: 0, y: 0 };
+
+    // Close context menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!contextMenu.contains(e.target) && !deleteDialog?.contains(e.target)) {
+        this.hideContextMenu();
+      }
+    });
+
+    // Close on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.hideContextMenu();
+      }
+    });
+
+    // Bind context menu actions
+    contextMenu.querySelectorAll('.context-menu-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        const action = item.dataset.action;
+        if (action === 'add-to-space') return; // Has submenu, don't close
+        this.handleContextMenuAction(action);
+      });
+    });
+
+    // Bind delete confirmation actions
+    if (deleteDialog) {
+      deleteDialog.querySelector('[data-action="cancel"]')?.addEventListener('click', () => {
+        this.hideContextMenu();
+      });
+      deleteDialog.querySelector('[data-action="confirm"]')?.addEventListener('click', () => {
+        this.confirmDeleteCard();
+      });
+    }
+  }
+
+  showContextMenu(e, save) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const contextMenu = document.getElementById('card-context-menu');
+    const deleteDialog = document.getElementById('delete-confirm-dialog');
+    if (!contextMenu) return;
+
+    this.contextMenuSave = save;
+
+    // Hide delete dialog if open
+    deleteDialog?.classList.add('hidden');
+
+    // Update "Top of Mind" text based on pin status
+    const pinItem = contextMenu.querySelector('[data-action="pin"] span');
+    if (pinItem) {
+      pinItem.textContent = save.is_pinned ? 'Remove from Top of Mind' : 'Top of Mind';
+    }
+
+    // Populate spaces submenu
+    this.populateSpacesSubmenu();
+
+    // Position menu at cursor
+    let x = e.clientX;
+    let y = e.clientY;
+
+    // Show menu to measure dimensions
+    contextMenu.classList.remove('hidden');
+    contextMenu.style.visibility = 'hidden';
+    contextMenu.style.left = '0';
+    contextMenu.style.top = '0';
+
+    const menuRect = contextMenu.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Adjust position to stay within viewport
+    if (x + menuRect.width > viewportWidth) {
+      x = viewportWidth - menuRect.width - 10;
+    }
+    if (y + menuRect.height > viewportHeight) {
+      y = viewportHeight - menuRect.height - 10;
+    }
+
+    this.contextMenuPosition = { x, y };
+    contextMenu.style.left = `${x}px`;
+    contextMenu.style.top = `${y}px`;
+    contextMenu.style.visibility = 'visible';
+  }
+
+  hideContextMenu() {
+    document.getElementById('card-context-menu')?.classList.add('hidden');
+    document.getElementById('delete-confirm-dialog')?.classList.add('hidden');
+    this.contextMenuSave = null;
+  }
+
+  populateSpacesSubmenu() {
+    const submenu = document.getElementById('spaces-submenu');
+    if (!submenu) return;
+
+    // Placeholder spaces - will be populated from database when spaces feature is implemented
+    const spaces = [
+      { id: 'reading', name: 'Reading List', color: '#22c55e' },
+      { id: 'wishlist', name: 'Wishlist', color: '#a855f7' },
+      { id: 'coding', name: 'Vibecoding', color: '#06b6d4' }
+    ];
+
+    submenu.innerHTML = spaces.map(space => `
+      <button class="context-submenu-item" data-space-id="${space.id}">
+        <span class="space-color-dot" style="background: ${space.color}"></span>
+        <span>${space.name}</span>
+      </button>
+    `).join('');
+
+    // Bind click events
+    submenu.querySelectorAll('.context-submenu-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const spaceId = item.dataset.spaceId;
+        this.addToSpace(spaceId);
+      });
+    });
+  }
+
+  handleContextMenuAction(action) {
+    const save = this.contextMenuSave;
+    if (!save) return;
+
+    switch (action) {
+      case 'add-tags':
+        this.hideContextMenu();
+        this.openUnifiedModal(save);
+        // Focus on tags section after modal opens
+        setTimeout(() => {
+          document.getElementById('modal-add-tag-btn')?.click();
+        }, 100);
+        break;
+
+      case 'copy':
+        this.copyCardToClipboard(save);
+        break;
+
+      case 'pin':
+        this.togglePinFromContextMenu(save);
+        break;
+
+      case 'delete':
+        this.showDeleteConfirmation();
+        break;
+    }
+  }
+
+  async copyCardToClipboard(save) {
+    try {
+      const text = save.url || save.title || save.content || '';
+      await navigator.clipboard.writeText(text);
+      this.showToast('Copied to clipboard!', 'success');
+      this.hideContextMenu();
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      this.showToast('Failed to copy', 'error');
+    }
+  }
+
+  async togglePinFromContextMenu(save) {
+    const newPinState = !save.is_pinned;
+
+    // Check pin limit
+    if (newPinState && this.pinnedSaves.length >= 5) {
+      this.showToast('Maximum 5 pinned items allowed', 'error');
+      this.hideContextMenu();
+      return;
+    }
+
+    try {
+      await this.supabase
+        .from('saves')
+        .update({
+          is_pinned: newPinState,
+          pinned_at: newPinState ? new Date().toISOString() : null
+        })
+        .eq('id', save.id);
+
+      this.showToast(newPinState ? 'Added to Top of Mind!' : 'Removed from Top of Mind', 'success');
+      this.hideContextMenu();
+      await this.loadPinnedSaves();
+      this.loadSaves();
+    } catch (err) {
+      console.error('Error toggling pin:', err);
+      this.showToast('Failed to update', 'error');
+    }
+  }
+
+  addToSpace(spaceId) {
+    // Placeholder - will be implemented when spaces feature is added
+    this.showToast('Spaces feature coming soon!', 'info');
+    this.hideContextMenu();
+  }
+
+  showDeleteConfirmation() {
+    const contextMenu = document.getElementById('card-context-menu');
+    const deleteDialog = document.getElementById('delete-confirm-dialog');
+    if (!deleteDialog) return;
+
+    // Hide context menu, show delete confirmation at same position
+    contextMenu?.classList.add('hidden');
+    deleteDialog.classList.remove('hidden');
+    deleteDialog.style.left = `${this.contextMenuPosition.x}px`;
+    deleteDialog.style.top = `${this.contextMenuPosition.y}px`;
+  }
+
+  async confirmDeleteCard() {
+    const save = this.contextMenuSave;
+    if (!save) return;
+
+    try {
+      const { error } = await this.supabase
+        .from('saves')
+        .delete()
+        .eq('id', save.id);
+
+      if (error) throw error;
+
+      this.showToast('Card deleted', 'success');
+      this.hideContextMenu();
+      this.loadSaves();
+      this.loadPinnedSaves();
+    } catch (err) {
+      console.error('Error deleting save:', err);
+      this.showToast('Failed to delete', 'error');
+    }
   }
 }
 
