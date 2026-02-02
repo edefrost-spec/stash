@@ -4003,6 +4003,7 @@ class StashApp {
         }
         // Show/hide footer based on content
         if (quickNoteFooter) {
+          const wasHidden = quickNoteFooter.classList.contains('hidden');
           if (len > 0) {
             quickNoteFooter.classList.remove('hidden');
             quickNoteInput?.classList.add('has-content');
@@ -4010,10 +4011,26 @@ class StashApp {
             quickNoteFooter.classList.add('hidden');
             quickNoteInput?.classList.remove('has-content');
           }
+          // Trigger Masonry layout update if footer visibility changed
+          const isHidden = quickNoteFooter.classList.contains('hidden');
+          if (wasHidden !== isHidden && this.masonry) {
+            setTimeout(() => this.masonry.layout(), 10);
+          }
         }
         // Auto-resize textarea
         textarea.style.height = 'auto';
         textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+        // Also trigger Masonry layout for height changes
+        if (this.masonry) {
+          setTimeout(() => this.masonry.layout(), 10);
+        }
+      });
+
+      // Also handle focus to ensure layout updates
+      textarea.addEventListener('focus', () => {
+        if (this.masonry) {
+          setTimeout(() => this.masonry.layout(), 50);
+        }
       });
     }
 
