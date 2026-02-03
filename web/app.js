@@ -2224,19 +2224,44 @@ class StashApp {
   openUnifiedModal(save) {
     const modal = document.getElementById('unified-modal');
     const saveType = this.getSaveType(save);
+    const modalLayout = modal.querySelector('.modal-layout');
+    const modalMain = modal.querySelector('.modal-main');
+    const modalSidebar = modal.querySelector('.modal-sidebar');
+    const modalHeader = modal.querySelector('.modal-header');
 
     // Stop any existing audio
     this.stopAudio();
 
+    // Reset modal layout classes
+    modalLayout.classList.remove('book-modal-active');
+    modalMain.style.display = '';
+    modalSidebar.style.display = '';
+    if (modalHeader) modalHeader.style.display = '';
+
+    // Render body based on save type
+    const modalBody = document.getElementById('modal-body');
+    modalBody.className = `modal-body modal-body-${saveType}`;
+
+    // Special handling for books - use full-width custom layout
+    if (saveType === 'book') {
+      modalLayout.classList.add('book-modal-active');
+      if (modalHeader) modalHeader.style.display = 'none';
+      modalSidebar.style.display = 'none';
+      modalBody.innerHTML = this.renderBookModalBody(save);
+      this.initBookCoverColor(save);
+      this.attachBookModalEventListeners(save);
+
+      // Show modal
+      modal.classList.remove('hidden');
+      return;
+    }
+
+    // Regular modal flow for other save types
     // Populate header
     document.getElementById('modal-title').textContent = save.title || 'Untitled';
     document.getElementById('modal-meta').innerHTML = `
       ${save.site_name || ''} ${save.author ? `· ${save.author}` : ''} · ${new Date(save.created_at).toLocaleDateString()}
     `;
-
-    // Render body based on save type
-    const modalBody = document.getElementById('modal-body');
-    modalBody.className = `modal-body modal-body-${saveType}`;
 
     switch(saveType) {
       case 'book':
@@ -2360,38 +2385,125 @@ class StashApp {
   }
 
   renderBookModalBody(save) {
+    const description = save.excerpt || save.content || '';
     return `
-      <div class="book-modal-card">
-        <div class="book-cover-display">
-          <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}">
+      <div class="book-modal-layout">
+        <!-- Left panel: Metadata on dominant color background -->
+        <div class="book-modal-left" id="book-modal-left">
+          <div class="book-meta-list">
+            ${save.author ? `
+              <div class="book-meta-item">
+                <svg class="book-meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <div class="book-meta-content">
+                  <div class="book-meta-label">AUTHOR</div>
+                  <div class="book-meta-value">${this.escapeHtml(save.author)}</div>
+                </div>
+              </div>
+            ` : ''}
+            ${save.book_page_count ? `
+              <div class="book-meta-item">
+                <svg class="book-meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                <div class="book-meta-content">
+                  <div class="book-meta-label">PAGE COUNT</div>
+                  <div class="book-meta-value">${save.book_page_count} Pages</div>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+          <button class="book-read-btn${save.read_status === 'finished' ? ' finished' : ''}" id="book-read-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              ${save.read_status === 'finished' ?
+                '<polyline points="20 6 9 17 4 12"></polyline>' :
+                '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>'
+              }
+            </svg>
+            <span>${save.read_status === 'finished' ? 'Finished' : "I've read this book"}</span>
+          </button>
         </div>
-        <div class="book-metadata">
-          ${save.author ? `
-            <div class="book-meta-item">
-              <div class="book-meta-icon">👤</div>
-              <div class="book-meta-content">
-                <div class="book-meta-label">AUTHOR</div>
-                <div class="book-meta-value">${this.escapeHtml(save.author)}</div>
+
+        <!-- Center: Book cover with 3D effect -->
+        <div class="book-modal-center">
+          <div class="book-cover-3d">
+            <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}" id="book-modal-cover">
+          </div>
+        </div>
+
+        <!-- Right panel: Title, TLDR, Tags, Notes -->
+        <div class="book-modal-right">
+          <button class="book-modal-close" id="book-modal-close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+
+          <div class="book-modal-header">
+            <h1 class="book-modal-title">${this.escapeHtml(save.title || 'Untitled')}</h1>
+            ${save.site_name ? `
+              <a href="${save.url || '#'}" target="_blank" class="book-modal-source">
+                ${this.escapeHtml(save.site_name)}
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 17L17 7"></path>
+                  <path d="M7 7h10v10"></path>
+                </svg>
+              </a>
+            ` : ''}
+          </div>
+
+          ${description ? `
+            <div class="book-tldr-section">
+              <label class="book-section-label">TLDR</label>
+              <div class="book-tldr-content">
+                ${this.escapeHtml(description)}
               </div>
             </div>
           ` : ''}
-          ${save.book_page_count ? `
-            <div class="book-meta-item">
-              <div class="book-meta-icon">📖</div>
-              <div class="book-meta-content">
-                <div class="book-meta-label">PAGE COUNT</div>
-                <div class="book-meta-value">${save.book_page_count} Pages</div>
-              </div>
+
+          <div class="book-tags-section">
+            <label class="book-section-label">MIND TAGS <span class="book-section-icon">🧠</span></label>
+            <div id="book-modal-tags" class="book-modal-tags"></div>
+            <button class="book-add-tag-btn" id="book-add-tag-btn">+ Add tag</button>
+            <div class="book-tag-input-wrapper hidden" id="book-tag-input-wrapper">
+              <input type="text" class="book-tag-input" id="book-tag-input" placeholder="Enter tag name...">
+              <button class="book-tag-add-btn" id="book-tag-submit-btn">Add</button>
             </div>
-          ` : ''}
-          ${save.excerpt || save.content ? `
-            <div class="book-description">
-              <div class="book-meta-label">DESCRIPTION</div>
-              <div class="book-description-text">
-                ${save.excerpt ? this.escapeHtml(save.excerpt) : this.renderMarkdown(save.content)}
-              </div>
-            </div>
-          ` : ''}
+          </div>
+
+          <div class="book-notes-section">
+            <label class="book-section-label">MIND NOTES <span class="book-section-icon">📝</span></label>
+            <textarea id="book-modal-notes" class="book-modal-notes" placeholder="Type here to add a note...">${this.escapeHtml(save.notes || '')}</textarea>
+          </div>
+
+          <div class="book-modal-actions">
+            <button class="book-action-btn" id="book-delete-btn" title="Delete">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+            <button class="book-action-btn" id="book-share-btn" title="Share">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+            </button>
+            <button class="book-action-btn" id="book-more-btn" title="More">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="19" cy="12" r="1"></circle>
+                <circle cx="5" cy="12" r="1"></circle>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -2432,12 +2544,45 @@ class StashApp {
         save.dominant_color = dominantColor;
       }
 
-      // Apply subtle tinted overlay to modal
-      const modalContainer = document.querySelector('.modal-container');
-      modalContainer.style.background = `linear-gradient(135deg, ${dominantColor}15, var(--bg))`;
+      // Apply dominant color (toned down 30%) to the left panel
+      const leftPanel = document.getElementById('book-modal-left');
+      if (leftPanel && dominantColor) {
+        // Tone down the color by mixing with dark gray
+        const tonedColor = this.toneDownColor(dominantColor, 0.3);
+        leftPanel.style.background = tonedColor;
+      }
+
+      // Also apply subtle tint to center area
+      const centerPanel = document.querySelector('.book-modal-center');
+      if (centerPanel && dominantColor) {
+        centerPanel.style.background = `${dominantColor}15`;
+      }
     } catch (e) {
       console.error('Failed to extract book cover color:', e);
     }
+  }
+
+  // Tone down a color by mixing it with a dark base
+  toneDownColor(hexColor, amount) {
+    // Parse hex color
+    const r = parseInt(hexColor.slice(1, 3), 16);
+    const g = parseInt(hexColor.slice(3, 5), 16);
+    const b = parseInt(hexColor.slice(5, 7), 16);
+
+    // Mix with dark gray (#2d3748) - tone down by amount
+    const darkR = 45, darkG = 55, darkB = 72;
+    const newR = Math.round(r * (1 - amount) + darkR * amount);
+    const newG = Math.round(g * (1 - amount) + darkG * amount);
+    const newB = Math.round(b * (1 - amount) + darkB * amount);
+
+    // Ensure the result is not too bright - cap at 60% brightness
+    const brightness = (newR + newG + newB) / 3;
+    if (brightness > 100) {
+      const factor = 100 / brightness;
+      return `rgb(${Math.round(newR * factor)}, ${Math.round(newG * factor)}, ${Math.round(newB * factor)})`;
+    }
+
+    return `rgb(${newR}, ${newG}, ${newB})`;
   }
 
   extractDominantColor(imageData) {
@@ -2469,6 +2614,150 @@ class StashApp {
     }
 
     return `rgb(${dominantColor})`;
+  }
+
+  attachBookModalEventListeners(save) {
+    this.currentSave = save;
+
+    // Populate tags
+    this.populateBookModalTags(save);
+
+    // Close button
+    document.getElementById('book-modal-close')?.addEventListener('click', () => {
+      this.closeUnifiedModal();
+    });
+
+    // Click outside to close (on center panel)
+    document.querySelector('.book-modal-center')?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        this.closeUnifiedModal();
+      }
+    });
+
+    // Escape key
+    const escHandler = (e) => {
+      if (e.key === 'Escape') {
+        this.closeUnifiedModal();
+        document.removeEventListener('keydown', escHandler);
+      }
+    };
+    document.addEventListener('keydown', escHandler);
+
+    // Delete button
+    document.getElementById('book-delete-btn')?.addEventListener('click', async () => {
+      if (confirm('Delete this book?')) {
+        await this.supabase.from('saves').delete().eq('id', save.id);
+        this.closeUnifiedModal();
+        this.loadSaves();
+        this.showToast('Book deleted', 'success');
+      }
+    });
+
+    // Read status button
+    document.getElementById('book-read-btn')?.addEventListener('click', async () => {
+      const newStatus = save.read_status === 'finished' ? 'unread' : 'finished';
+      await this.supabase
+        .from('saves')
+        .update({ read_status: newStatus })
+        .eq('id', save.id);
+      save.read_status = newStatus;
+
+      const btn = document.getElementById('book-read-btn');
+      if (btn) {
+        btn.classList.toggle('finished', newStatus === 'finished');
+        const iconSvg = btn.querySelector('svg');
+        const textSpan = btn.querySelector('span');
+        if (newStatus === 'finished') {
+          iconSvg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+          textSpan.textContent = 'Finished';
+        } else {
+          iconSvg.innerHTML = '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>';
+          textSpan.textContent = "I've read this book";
+        }
+      }
+      this.showToast(newStatus === 'finished' ? 'Marked as read!' : 'Marked as unread', 'success');
+    });
+
+    // Add tag button - toggle input form
+    const addTagBtn = document.getElementById('book-add-tag-btn');
+    const tagInputWrapper = document.getElementById('book-tag-input-wrapper');
+    const tagInput = document.getElementById('book-tag-input');
+    const tagSubmitBtn = document.getElementById('book-tag-submit-btn');
+
+    addTagBtn?.addEventListener('click', () => {
+      tagInputWrapper?.classList.toggle('hidden');
+      if (!tagInputWrapper?.classList.contains('hidden')) {
+        tagInput?.focus();
+      }
+    });
+
+    // Submit tag
+    const submitTag = async () => {
+      const tagName = tagInput?.value?.trim();
+      if (tagName) {
+        await this.addTagByName(save, tagName);
+        tagInput.value = '';
+        tagInputWrapper?.classList.add('hidden');
+        this.populateBookModalTags(save);
+      }
+    };
+
+    tagSubmitBtn?.addEventListener('click', submitTag);
+    tagInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitTag();
+      }
+    });
+
+    // Notes auto-save
+    const notesTextarea = document.getElementById('book-modal-notes');
+    if (notesTextarea) {
+      let saveTimeout;
+      notesTextarea.addEventListener('input', () => {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(async () => {
+          await this.supabase
+            .from('saves')
+            .update({ notes: notesTextarea.value })
+            .eq('id', save.id);
+          save.notes = notesTextarea.value;
+        }, 500);
+      });
+    }
+
+    // Share button
+    document.getElementById('book-share-btn')?.addEventListener('click', async () => {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: save.title,
+            url: save.url || window.location.href
+          });
+        } catch (e) {
+          // User cancelled or share failed
+        }
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(save.url || save.title);
+        this.showToast('Link copied!', 'success');
+      }
+    });
+
+    // Populate tags
+    this.renderBookModalTags(save);
+  }
+
+  async renderBookModalTags(save) {
+    const container = document.getElementById('book-modal-tags');
+    if (!container) return;
+
+    const tags = this.saveTagMap[save.id] || [];
+    container.innerHTML = tags.map(tag => `
+      <span class="book-tag" style="background: ${tag.color || '#94a3b8'}20; border-color: ${tag.color || '#94a3b8'}">
+        ${this.escapeHtml(tag.name)}
+      </span>
+    `).join('');
   }
 
   populateModalSidebar(save) {
@@ -3085,6 +3374,69 @@ class StashApp {
     this.loadSaveTags(saveId);
     await this.loadSaveTagMapForSaves(this.saves);
     if (this.showAnnotations) this.renderSaves();
+  }
+
+  async addTagByName(save, tagName) {
+    if (!tagName?.trim()) return;
+
+    // Get or create tag
+    let { data: existingTag } = await this.supabase
+      .from('tags')
+      .select('*')
+      .eq('name', tagName.trim())
+      .single();
+
+    if (!existingTag) {
+      const { data: newTag } = await this.supabase
+        .from('tags')
+        .insert({ user_id: this.user.id, name: tagName.trim() })
+        .select()
+        .single();
+      existingTag = newTag;
+    }
+
+    if (existingTag) {
+      // Check if tag already added
+      const { data: existing } = await this.supabase
+        .from('save_tags')
+        .select('*')
+        .eq('save_id', save.id)
+        .eq('tag_id', existingTag.id)
+        .single();
+
+      if (!existing) {
+        await this.supabase
+          .from('save_tags')
+          .insert({ save_id: save.id, tag_id: existingTag.id });
+      }
+
+      this.loadTags();
+      await this.loadSaveTagMapForSaves(this.saves);
+      if (this.showAnnotations) this.renderSaves();
+      this.showToast('Tag added', 'success');
+    }
+  }
+
+  async populateBookModalTags(save) {
+    const container = document.getElementById('book-modal-tags');
+    if (!container) return;
+
+    // Fetch tags for this save
+    const { data } = await this.supabase
+      .from('save_tags')
+      .select('tag_id, tags(id, name, color)')
+      .eq('save_id', save.id);
+
+    const tags = data || [];
+
+    if (tags.length === 0) {
+      container.innerHTML = '<span class="no-tags" style="color: var(--text-muted); font-size: 13px;">No tags yet</span>';
+      return;
+    }
+
+    container.innerHTML = tags.map(st => `
+      <span class="book-tag" data-tag-id="${st.tags.id}">${this.escapeHtml(st.tags.name)}</span>
+    `).join('');
   }
 
   async updateSaveFolder(folderId) {
