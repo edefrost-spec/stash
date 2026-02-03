@@ -4992,7 +4992,8 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 /* Modal-specific label color for legibility on dark background */
 .book-modal-left .book-meta-label {
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.5) !important;
+  opacity: 1 !important;
 }
 
 .book-meta-value {
@@ -5003,7 +5004,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 /* Modal-specific meta value color for legibility on dark background */
 .book-modal-left .book-meta-value {
-  color: rgba(255,255,255,0.9);
+  color: rgba(255,255,255,0.9) !important;
 }
 
 /* Book Cover Section - right side of left panel (for modal) */
