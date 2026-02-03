@@ -4920,9 +4920,9 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 .book-modal-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;  /* 2:1 ratio */
-  width: 90vw;
-  max-width: 1400px;
+  grid-template-columns: 780px 400px;  /* Fixed widths matching Figma */
+  width: 1180px;
+  max-width: 90vw;
   min-height: 500px;
   max-height: 85vh;
   border-radius: 16px;
@@ -4934,18 +4934,27 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   background: #3E3D52;
   padding: 48px;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 256px 1fr;
   grid-template-rows: 1fr auto;
   gap: 32px;
   color: white;
+  overflow: hidden;
 }
 
-/* Meta section - left side of left panel */
+/* Meta section - left side of left panel (for modal) */
 .book-meta-section {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
   align-self: start;
+}
+
+/* Meta list - for main grid cards (NOT the modal) */
+.book-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 24px;
 }
 
 .book-meta-item {
@@ -4956,32 +4965,48 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 .book-meta-icon {
   flex-shrink: 0;
-  color: #9E9EA8;
-  stroke: #9E9EA8;
+  opacity: 0.5;
   margin-top: 2px;
+}
+
+/* In the modal, use specific colors for legibility */
+.book-modal-left .book-meta-icon {
+  opacity: 1;
+  color: rgba(255,255,255,0.5);
+  stroke: rgba(255,255,255,0.5);
 }
 
 .book-meta-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .book-meta-label {
   font-size: 12px;
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #9E9EA8;
+  letter-spacing: 0.6px;
+  color: rgba(255,255,255,0.5);
 }
 
 .book-meta-value {
   font-size: 16px;
   font-weight: 400;
-  color: #ECECEE;
+  color: rgba(255,255,255,0.9);
+  line-height: 24px;
 }
 
-/* Book Cover Section - right side of left panel */
+/* Book Cover Container - for main grid cards */
+.book-cover-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+/* Book Cover Section - right side of left panel (for modal) */
 .book-cover-section {
   display: flex;
   align-items: center;
@@ -4989,15 +5014,21 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   grid-row: span 2;
 }
 
-.book-cover-section img {
-  width: 420px;
+.book-cover-section .book-cover-3d {
+  transform: none;
+}
+
+.book-cover-section .book-cover-3d:hover {
+  transform: none;
+}
+
+.book-cover-section .book-cover-3d img {
+  max-width: 363px;
+  max-height: 544px;
+  width: auto;
   height: auto;
-  max-height: 560px;
-  object-fit: contain;
-  border-radius: 8px;
-  box-shadow:
-    0 25px 50px rgba(0,0,0,0.25),
-    0 10px 20px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  box-shadow: 0 4px 4px rgba(0,0,0,0.25);
 }
 
 .book-read-btn {
@@ -5008,35 +5039,32 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 20px;
-  background: white;
-  border: 1px solid rgba(229,231,235,0.8);
-  border-radius: 10px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.9);
+  border: none;
+  border-radius: 9999px;
   font-size: 14px;
   font-weight: 500;
-  color: #1e2939;
+  color: #364153;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .book-read-btn:hover {
-  background: #f9fafb;
-  border-color: rgba(229,231,235,1);
+  background: white;
 }
 
 .book-read-btn.finished {
   background: var(--primary);
-  border-color: var(--primary);
   color: white;
 }
 
 .book-read-btn.finished:hover {
   background: var(--primary-dark);
-  border-color: var(--primary-dark);
 }
 
-/* Book Cover 3D Effect (legacy, kept for backwards compatibility) */
+/* Book Cover 3D Effect - used in main grid */
 .book-cover-3d {
   position: relative;
   transform: perspective(1000px) rotateY(-8deg);
@@ -5059,33 +5087,26 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
     -2px 2px 5px rgba(0, 0, 0, 0.15);
 }
 
-/* Legacy book-cover-container (not used in new layout) */
-.book-cover-container {
-  display: none;
-}
-
-.book-meta-list {
-  display: none;
-}
-
 /* Right Panel - Details (scrollable) */
 .book-modal-right {
-  background: white;
+  background: #f5f5f7;
+  border-left: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  min-width: 0;
 }
 
 [data-theme="dark"] .book-modal-right {
   background: var(--bg-secondary);
+  border-left-color: var(--border);
 }
 
 .book-modal-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
-  padding-right: 20px;
+  padding: 32px;
 }
 
 .book-modal-close {
@@ -5116,11 +5137,15 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .book-modal-title {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 500;
+  color: #1e2939;
+  margin-bottom: 4px;
+  line-height: 28px;
+}
+
+[data-theme="dark"] .book-modal-title {
   color: var(--text);
-  margin-bottom: 8px;
-  line-height: 1.3;
 }
 
 .book-modal-source {
@@ -5128,12 +5153,17 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   align-items: center;
   gap: 4px;
   font-size: 14px;
-  color: var(--text-secondary);
+  color: #6a7282;
   text-decoration: none;
+  line-height: 20px;
 }
 
 .book-modal-source:hover {
   color: var(--primary);
+}
+
+[data-theme="dark"] .book-modal-source {
+  color: var(--text-secondary);
 }
 
 /* TLDR Section */
@@ -5144,13 +5174,13 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 .book-section-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 600;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  margin-bottom: 10px;
+  letter-spacing: 0.6px;
+  color: #99a1af;
+  margin-bottom: 12px;
 }
 
 .book-section-icon {
@@ -5160,18 +5190,14 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 .book-tldr-content {
   position: relative;
   background: white;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 16px;
   font-size: 14px;
-  line-height: 1.7;
-  color: #364153;
+  line-height: 22.75px;
+  color: #4a5565;
   cursor: pointer;
   transition: all 0.2s ease;
-  /* Gradient border using pseudo-element */
-  border: 2px solid transparent;
-  background:
-    linear-gradient(white, white) padding-box,
-    linear-gradient(135deg, #60a5fa 0%, #34d399 50%, #a78bfa 100%) border-box;
+  border: 1px solid #fbc2eb;
 }
 
 .book-tldr-content:hover {
@@ -5192,9 +5218,8 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 [data-theme="dark"] .book-tldr-content {
-  background:
-    linear-gradient(var(--bg-tertiary), var(--bg-tertiary)) padding-box,
-    linear-gradient(135deg, #60a5fa 0%, #34d399 50%, #a78bfa 100%) border-box;
+  background: var(--bg-tertiary);
+  border-color: #a78bfa;
   color: var(--text);
 }
 
@@ -5303,20 +5328,26 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 .book-modal-notes {
   flex: 1;
-  min-height: 100px;
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  min-height: 128px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 20px;
   resize: none;
-  background: var(--bg);
-  color: var(--text);
+  background: white;
+  color: #364153;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+[data-theme="dark"] .book-modal-notes {
+  background: var(--bg-tertiary);
+  border-color: var(--border);
+  color: var(--text);
+}
+
 .book-modal-notes::placeholder {
-  color: var(--text-muted);
+  color: #364153;
 }
 
 .book-modal-notes:focus {
@@ -5328,22 +5359,22 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 /* Action Buttons */
 .book-modal-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+  justify-content: center;
+  gap: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
   margin-top: auto;
 }
 
 .book-action-btn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: 9999px;
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -5355,6 +5386,22 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 /* Responsive Book Modal */
+@media (max-width: 1200px) {
+  .book-modal-layout {
+    grid-template-columns: 1fr 350px;
+    width: 95vw;
+  }
+
+  .book-modal-left {
+    grid-template-columns: 200px 1fr;
+  }
+
+  .book-cover-section .book-cover-3d img {
+    max-width: 280px;
+    max-height: 420px;
+  }
+}
+
 @media (max-width: 900px) {
   .book-modal-layout {
     grid-template-columns: 1fr;
@@ -5380,9 +5427,9 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
     grid-row: auto;
   }
 
-  .book-cover-section img {
-    width: 280px;
-    max-height: 400px;
+  .book-cover-section .book-cover-3d img {
+    max-width: 240px;
+    max-height: 360px;
   }
 
   .book-read-btn {

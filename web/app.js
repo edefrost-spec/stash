@@ -2418,7 +2418,9 @@ class StashApp {
           </div>
 
           <div class="book-cover-section">
-            <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}" id="book-modal-cover">
+            <div class="book-cover-3d">
+              <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}" id="book-modal-cover">
+            </div>
           </div>
 
           <button class="book-read-btn${save.read_status === 'finished' ? ' finished' : ''}" id="book-read-btn">
