@@ -4939,6 +4939,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   gap: 32px;
   color: white;
   overflow: hidden;
+  min-height: 0;
 }
 
 /* Meta section - left side of left panel (for modal) */
@@ -4987,23 +4988,22 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.6px;
+}
+
+/* Modal-specific label color for legibility on dark background */
+.book-modal-left .book-meta-label {
   color: rgba(255,255,255,0.5);
 }
 
 .book-meta-value {
   font-size: 16px;
   font-weight: 400;
-  color: rgba(255,255,255,0.9);
   line-height: 24px;
 }
 
-/* Book Cover Container - for main grid cards */
-.book-cover-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 0;
+/* Modal-specific meta value color for legibility on dark background */
+.book-modal-left .book-meta-value {
+  color: rgba(255,255,255,0.9);
 }
 
 /* Book Cover Section - right side of left panel (for modal) */
@@ -5012,10 +5012,16 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   align-items: center;
   justify-content: center;
   grid-row: span 2;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .book-cover-section .book-cover-3d {
   transform: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: 100%;
 }
 
 .book-cover-section .book-cover-3d:hover {
@@ -5024,11 +5030,12 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 .book-cover-section .book-cover-3d img {
   max-width: 363px;
-  max-height: 544px;
+  max-height: calc(85vh - 150px);
   width: auto;
   height: auto;
   border-radius: 4px;
   box-shadow: 0 4px 4px rgba(0,0,0,0.25);
+  object-fit: contain;
 }
 
 .book-read-btn {
@@ -5096,6 +5103,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   position: relative;
   overflow: hidden;
   min-width: 0;
+  min-height: 0;
 }
 
 [data-theme="dark"] .book-modal-right {
@@ -5106,7 +5114,9 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 .book-modal-scroll {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 32px;
+  min-height: 0;
 }
 
 .book-modal-close {
