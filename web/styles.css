@@ -4923,7 +4923,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   grid-template-columns: 780px 400px;  /* Fixed widths matching Figma */
   width: 1180px;
   max-width: 90vw;
-  min-height: 500px;
+  height: 639px;
   max-height: 85vh;
   border-radius: 16px;
   overflow: hidden;
@@ -4933,13 +4933,13 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 .book-modal-left {
   background: #3E3D52;
   padding: 48px;
-  display: grid;
-  grid-template-columns: 256px 1fr;
-  grid-template-rows: 1fr auto;
+  display: flex;
   gap: 32px;
   color: white;
   overflow: hidden;
-  min-height: 0;
+  height: 100%;
+  box-sizing: border-box;
+  position: relative;
 }
 
 /* Meta section - left side of left panel (for modal) */
@@ -4947,7 +4947,8 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   display: flex;
   flex-direction: column;
   gap: 32px;
-  align-self: start;
+  width: 256px;
+  flex-shrink: 0;
 }
 
 /* Meta list - for main grid cards (NOT the modal) */
@@ -5009,11 +5010,11 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 /* Book Cover Section - right side of left panel (for modal) */
 .book-cover-section {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  grid-row: span 2;
-  min-height: 0;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -5022,7 +5023,6 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   display: flex;
   align-items: center;
   justify-content: center;
-  max-height: 100%;
 }
 
 .book-cover-section .book-cover-3d:hover {
@@ -5031,7 +5031,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 .book-cover-section .book-cover-3d img {
   max-width: 363px;
-  max-height: calc(85vh - 150px);
+  max-height: 100%;
   width: auto;
   height: auto;
   border-radius: 4px;
@@ -5040,9 +5040,9 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .book-read-btn {
-  grid-column: 1;
-  align-self: end;
-  justify-self: start;
+  position: absolute;
+  bottom: 48px;
+  left: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5102,9 +5102,8 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   display: flex;
   flex-direction: column;
   position: relative;
+  height: 100%;
   overflow: hidden;
-  min-width: 0;
-  min-height: 0;
 }
 
 [data-theme="dark"] .book-modal-right {
@@ -5117,7 +5116,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 32px;
-  min-height: 0;
+  height: 100%;
 }
 
 .book-modal-close {
@@ -5401,15 +5400,16 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   .book-modal-layout {
     grid-template-columns: 1fr 350px;
     width: 95vw;
+    height: auto;
+    max-height: 85vh;
   }
 
-  .book-modal-left {
-    grid-template-columns: 200px 1fr;
+  .book-meta-section {
+    width: 200px;
   }
 
   .book-cover-section .book-cover-3d img {
     max-width: 280px;
-    max-height: 420px;
   }
 }
 
@@ -5418,24 +5418,27 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
     width: 95vw;
+    height: auto;
     max-height: 90vh;
   }
 
   .book-modal-left {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    flex-direction: column;
     padding: 24px;
+    padding-bottom: 80px;
     gap: 20px;
+    height: auto;
   }
 
   .book-meta-section {
     flex-direction: row;
     flex-wrap: wrap;
+    width: 100%;
     gap: 16px;
   }
 
   .book-cover-section {
-    grid-row: auto;
+    justify-content: center;
   }
 
   .book-cover-section .book-cover-3d img {
@@ -5444,8 +5447,10 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   }
 
   .book-read-btn {
-    grid-column: 1;
-    justify-self: center;
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .book-modal-right {
