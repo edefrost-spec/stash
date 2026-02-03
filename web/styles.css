@@ -4920,26 +4920,32 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 .book-modal-layout {
   display: grid;
-  grid-template-columns: 220px 1fr 340px;
+  grid-template-columns: 256px 1fr;
   min-height: 500px;
+  max-height: 85vh;
   border-radius: 16px;
   overflow: hidden;
 }
 
-/* Left Panel - Metadata */
+/* Left Panel - Metadata + Book Cover + Read Button */
 .book-modal-left {
-  background: #2d3748;
-  padding: 32px 24px;
+  background: #3E3D52;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   color: white;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100%;
+  max-height: 85vh;
 }
 
 .book-meta-list {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+  margin-bottom: 24px;
 }
 
 .book-meta-item {
@@ -4950,7 +4956,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 .book-meta-icon {
   flex-shrink: 0;
-  opacity: 0.7;
+  opacity: 0.5;
   margin-top: 2px;
 }
 
@@ -4961,16 +4967,26 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .book-meta-label {
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  opacity: 0.6;
+  color: rgba(255,255,255,0.5);
 }
 
 .book-meta-value {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.9);
+}
+
+/* Book Cover Container */
+.book-cover-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
 }
 
 .book-read-btn {
@@ -5006,49 +5022,47 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   border-color: var(--primary-dark);
 }
 
-/* Center Panel - Book Cover */
-.book-modal-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  background: #f5f5f4;
-}
-
+/* Book Cover 3D Effect */
 .book-cover-3d {
   position: relative;
-  transform: perspective(1000px) rotateY(-5deg);
+  transform: perspective(1000px) rotateY(-8deg);
   transition: transform 0.3s ease;
 }
 
 .book-cover-3d:hover {
-  transform: perspective(1000px) rotateY(-2deg);
+  transform: perspective(1000px) rotateY(-4deg);
 }
 
 .book-cover-3d img {
-  max-width: 280px;
-  max-height: 420px;
+  max-width: 180px;
+  max-height: 280px;
   width: auto;
   height: auto;
   border-radius: 4px;
   box-shadow:
-    -5px 5px 15px rgba(0, 0, 0, 0.2),
-    -10px 10px 30px rgba(0, 0, 0, 0.15),
-    -2px 2px 5px rgba(0, 0, 0, 0.1);
+    -5px 5px 15px rgba(0, 0, 0, 0.3),
+    -10px 10px 30px rgba(0, 0, 0, 0.2),
+    -2px 2px 5px rgba(0, 0, 0, 0.15);
 }
 
-/* Right Panel - Details */
+/* Right Panel - Details (scrollable) */
 .book-modal-right {
   background: white;
-  padding: 24px;
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 [data-theme="dark"] .book-modal-right {
   background: var(--bg-secondary);
+}
+
+.book-modal-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  padding-right: 20px;
 }
 
 .book-modal-close {
@@ -5121,18 +5135,43 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .book-tldr-content {
-  background: #f5f5f4;
-  border: 1px solid rgba(229,231,235,0.6);
+  position: relative;
+  background: white;
   border-radius: 12px;
   padding: 16px;
   font-size: 14px;
-  line-height: 1.6;
-  color: #1e2939;
+  line-height: 1.7;
+  color: #364153;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* Gradient border using pseudo-element */
+  border: 2px solid transparent;
+  background:
+    linear-gradient(white, white) padding-box,
+    linear-gradient(135deg, #60a5fa 0%, #34d399 50%, #a78bfa 100%) border-box;
+}
+
+.book-tldr-content:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.book-tldr-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-tldr-content.expanded .book-tldr-text {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 [data-theme="dark"] .book-tldr-content {
-  background: var(--bg-tertiary);
-  border-color: var(--border);
+  background:
+    linear-gradient(var(--bg-tertiary), var(--bg-tertiary)) padding-box,
+    linear-gradient(135deg, #60a5fa 0%, #34d399 50%, #a78bfa 100%) border-box;
   color: var(--text);
 }
 
@@ -5293,37 +5332,48 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 /* Responsive Book Modal */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .book-modal-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto 1fr;
+    max-height: 90vh;
   }
 
   .book-modal-left {
-    order: 2;
-    padding: 20px;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    padding: 16px;
+    gap: 16px;
+    position: static;
+    height: auto;
+    max-height: none;
   }
 
   .book-meta-list {
     flex-direction: row;
-    gap: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 0;
   }
 
-  .book-modal-center {
-    order: 1;
-    padding: 24px;
+  .book-cover-container {
+    display: none;
+  }
+
+  .book-read-btn {
+    flex-shrink: 0;
   }
 
   .book-cover-3d img {
-    max-width: 200px;
-    max-height: 300px;
+    max-width: 120px;
+    max-height: 180px;
   }
 
   .book-modal-right {
-    order: 3;
+    order: 2;
+  }
+
+  .book-modal-scroll {
+    padding: 16px;
   }
 }
 

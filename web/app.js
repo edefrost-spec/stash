@@ -2388,7 +2388,7 @@ class StashApp {
     const description = save.excerpt || save.content || '';
     return `
       <div class="book-modal-layout">
-        <!-- Left panel: Metadata on dominant color background -->
+        <!-- Left panel: Metadata + Book cover + Read button -->
         <div class="book-modal-left" id="book-modal-left">
           <div class="book-meta-list">
             ${save.author ? `
@@ -2416,6 +2416,13 @@ class StashApp {
               </div>
             ` : ''}
           </div>
+
+          <div class="book-cover-container">
+            <div class="book-cover-3d">
+              <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}" id="book-modal-cover">
+            </div>
+          </div>
+
           <button class="book-read-btn${save.read_status === 'finished' ? ' finished' : ''}" id="book-read-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               ${save.read_status === 'finished' ?
@@ -2427,14 +2434,7 @@ class StashApp {
           </button>
         </div>
 
-        <!-- Center: Book cover with 3D effect -->
-        <div class="book-modal-center">
-          <div class="book-cover-3d">
-            <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}" id="book-modal-cover">
-          </div>
-        </div>
-
-        <!-- Right panel: Title, TLDR, Tags, Notes -->
+        <!-- Right panel: Title, TLDR, Tags, Notes (scrollable) -->
         <div class="book-modal-right">
           <button class="book-modal-close" id="book-modal-close">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2443,66 +2443,66 @@ class StashApp {
             </svg>
           </button>
 
-          <div class="book-modal-header">
-            <h1 class="book-modal-title">${this.escapeHtml(save.title || 'Untitled')}</h1>
-            ${save.site_name ? `
-              <a href="${save.url || '#'}" target="_blank" class="book-modal-source">
-                ${this.escapeHtml(save.site_name)}
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M7 17L17 7"></path>
-                  <path d="M7 7h10v10"></path>
-                </svg>
-              </a>
-            ` : ''}
-          </div>
+          <div class="book-modal-scroll">
+            <div class="book-modal-header">
+              <h1 class="book-modal-title">${this.escapeHtml(save.title || 'Untitled')}</h1>
+              ${save.site_name ? `
+                <a href="${save.url || '#'}" target="_blank" class="book-modal-source">
+                  ${this.escapeHtml(save.site_name)}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 17L17 7"></path>
+                    <path d="M7 7h10v10"></path>
+                  </svg>
+                </a>
+              ` : ''}
+            </div>
 
-          ${description ? `
-            <div class="book-tldr-section">
-              <label class="book-section-label">TLDR</label>
-              <div class="book-tldr-content">
-                ${this.escapeHtml(description)}
+            ${description ? `
+              <div class="book-tldr-section">
+                <label class="book-section-label">TLDR</label>
+                <div class="book-tldr-content" id="book-tldr-content">
+                  <div class="book-tldr-text">${this.escapeHtml(description)}</div>
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="book-tags-section">
+              <label class="book-section-label">MIND TAGS <span class="book-section-icon">🧠</span></label>
+              <div id="book-modal-tags" class="book-modal-tags"></div>
+              <button class="book-add-tag-btn" id="book-add-tag-btn">+ Add tag</button>
+              <div class="book-tag-input-wrapper hidden" id="book-tag-input-wrapper">
+                <input type="text" class="book-tag-input" id="book-tag-input" placeholder="Enter tag name...">
+                <button class="book-tag-add-btn" id="book-tag-submit-btn">Add</button>
               </div>
             </div>
-          ` : ''}
 
-          <div class="book-tags-section">
-            <label class="book-section-label">MIND TAGS <span class="book-section-icon">🧠</span></label>
-            <div id="book-modal-tags" class="book-modal-tags"></div>
-            <button class="book-add-tag-btn" id="book-add-tag-btn">+ Add tag</button>
-            <div class="book-tag-input-wrapper hidden" id="book-tag-input-wrapper">
-              <input type="text" class="book-tag-input" id="book-tag-input" placeholder="Enter tag name...">
-              <button class="book-tag-add-btn" id="book-tag-submit-btn">Add</button>
+            <div class="book-notes-section">
+              <label class="book-section-label">MIND NOTES <span class="book-section-icon">📝</span></label>
+              <textarea id="book-modal-notes" class="book-modal-notes" placeholder="Type here to add a note...">${this.escapeHtml(save.notes || '')}</textarea>
             </div>
-          </div>
 
-          <div class="book-notes-section">
-            <label class="book-section-label">MIND NOTES <span class="book-section-icon">📝</span></label>
-            <textarea id="book-modal-notes" class="book-modal-notes" placeholder="Type here to add a note...">${this.escapeHtml(save.notes || '')}</textarea>
-          </div>
-
-          <div class="book-modal-actions">
-            <button class="book-action-btn" id="book-delete-btn" title="Delete">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-            </button>
-            <button class="book-action-btn" id="book-share-btn" title="Share">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="18" cy="5" r="3"></circle>
-                <circle cx="6" cy="12" r="3"></circle>
-                <circle cx="18" cy="19" r="3"></circle>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-              </svg>
-            </button>
-            <button class="book-action-btn" id="book-more-btn" title="More">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="1"></circle>
-                <circle cx="19" cy="12" r="1"></circle>
-                <circle cx="5" cy="12" r="1"></circle>
-              </svg>
-            </button>
+            <div class="book-modal-actions">
+              <button class="book-action-btn" id="book-delete-btn" title="Delete">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+              <button class="book-action-btn" id="book-share-btn" title="Share">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                  <polyline points="16 6 12 2 8 6"></polyline>
+                  <line x1="12" y1="2" x2="12" y2="15"></line>
+                </svg>
+              </button>
+              <button class="book-action-btn" id="book-more-btn" title="More">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="1"></circle>
+                  <circle cx="19" cy="12" r="1"></circle>
+                  <circle cx="5" cy="12" r="1"></circle>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -2551,12 +2551,6 @@ class StashApp {
         const tonedColor = this.toneDownColor(dominantColor, 0.3);
         leftPanel.style.background = tonedColor;
       }
-
-      // Also apply subtle tint to center area
-      const centerPanel = document.querySelector('.book-modal-center');
-      if (centerPanel && dominantColor) {
-        centerPanel.style.background = `${dominantColor}15`;
-      }
     } catch (e) {
       console.error('Failed to extract book cover color:', e);
     }
@@ -2569,8 +2563,8 @@ class StashApp {
     const g = parseInt(hexColor.slice(3, 5), 16);
     const b = parseInt(hexColor.slice(5, 7), 16);
 
-    // Mix with dark gray (#2d3748) - tone down by amount
-    const darkR = 45, darkG = 55, darkB = 72;
+    // Mix with dark base (#3E3D52) - tone down by amount
+    const darkR = 62, darkG = 61, darkB = 82;
     const newR = Math.round(r * (1 - amount) + darkR * amount);
     const newG = Math.round(g * (1 - amount) + darkG * amount);
     const newB = Math.round(b * (1 - amount) + darkB * amount);
@@ -2625,13 +2619,6 @@ class StashApp {
     // Close button
     document.getElementById('book-modal-close')?.addEventListener('click', () => {
       this.closeUnifiedModal();
-    });
-
-    // Click outside to close (on center panel)
-    document.querySelector('.book-modal-center')?.addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) {
-        this.closeUnifiedModal();
-      }
     });
 
     // Escape key
@@ -2710,6 +2697,14 @@ class StashApp {
       }
     });
 
+    // TLDR click to expand/collapse
+    const tldrContent = document.getElementById('book-tldr-content');
+    if (tldrContent) {
+      tldrContent.addEventListener('click', () => {
+        tldrContent.classList.toggle('expanded');
+      });
+    }
+
     // Notes auto-save
     const notesTextarea = document.getElementById('book-modal-notes');
     if (notesTextarea) {
@@ -2743,9 +2738,6 @@ class StashApp {
         this.showToast('Link copied!', 'success');
       }
     });
-
-    // Populate tags
-    this.renderBookModalTags(save);
   }
 
   async renderBookModalTags(save) {
@@ -2753,10 +2745,12 @@ class StashApp {
     if (!container) return;
 
     const tags = this.saveTagMap[save.id] || [];
+    if (tags.length === 0) {
+      container.innerHTML = '<span class="no-tags" style="color: var(--text-muted); font-size: 13px;">No tags yet</span>';
+      return;
+    }
     container.innerHTML = tags.map(tag => `
-      <span class="book-tag" style="background: ${tag.color || '#94a3b8'}20; border-color: ${tag.color || '#94a3b8'}">
-        ${this.escapeHtml(tag.name)}
-      </span>
+      <span class="book-tag" data-tag-id="${tag.id}">${this.escapeHtml(tag.name)}</span>
     `).join('');
   }
 
