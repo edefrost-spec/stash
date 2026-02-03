@@ -2248,7 +2248,7 @@ class StashApp {
       if (modalHeader) modalHeader.style.display = 'none';
       modalSidebar.style.display = 'none';
       modalBody.innerHTML = this.renderBookModalBody(save);
-      this.initBookCoverColor(save);
+      // Fixed background color #3E3D52 - no dominant color extraction needed
       this.attachBookModalEventListeners(save);
 
       // Show modal
@@ -2266,7 +2266,7 @@ class StashApp {
     switch(saveType) {
       case 'book':
         modalBody.innerHTML = this.renderBookModalBody(save);
-        this.initBookCoverColor(save);
+        // Fixed background color #3E3D52 - no dominant color extraction needed
         break;
       case 'image':
         modalBody.innerHTML = this.renderImageModalBody(save);
@@ -2388,9 +2388,9 @@ class StashApp {
     const description = save.excerpt || save.content || '';
     return `
       <div class="book-modal-layout">
-        <!-- Left panel: Metadata + Book cover + Read button -->
+        <!-- Left panel: Metadata on left side, Book cover on right side -->
         <div class="book-modal-left" id="book-modal-left">
-          <div class="book-meta-list">
+          <div class="book-meta-section">
             ${save.author ? `
               <div class="book-meta-item">
                 <svg class="book-meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2417,10 +2417,8 @@ class StashApp {
             ` : ''}
           </div>
 
-          <div class="book-cover-container">
-            <div class="book-cover-3d">
-              <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}" id="book-modal-cover">
-            </div>
+          <div class="book-cover-section">
+            <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}" id="book-modal-cover">
           </div>
 
           <button class="book-read-btn${save.read_status === 'finished' ? ' finished' : ''}" id="book-read-btn">
