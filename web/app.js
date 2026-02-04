@@ -1746,9 +1746,9 @@ class StashApp {
       default:
         // Article card - new design with optional image
         return `
-          <div class="save-card article-card${save.image_url ? ' article-card-image' : ' article-card-text'}" data-id="${save.id}">
+          <div class="save-card article-card${save.image_url ? ' article-card--image' : ' article-card--text'}" data-id="${save.id}">
             ${save.image_url ? `
-              <div class="article-card-image">
+              <div class="article-card-media">
                 <img src="${save.image_url}" alt="" onerror="this.style.display='none'">
               </div>
             ` : ''}
