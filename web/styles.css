@@ -6353,10 +6353,13 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .article-card-body {
+  background: #ffffff;
   padding: 16px 24px 24px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
+  z-index: 1;
 }
 
 .article-card-text .article-card-body {
