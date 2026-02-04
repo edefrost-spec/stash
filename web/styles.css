@@ -5207,27 +5207,28 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   gap: 12px;
 }
 
-.modal-image-actions .btn {
-  padding: 8px 18px;
-  background: #ffffff;
-  border: 1.5px solid #121212;
+.modal-image-actions .image-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 7px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
   border-radius: 999px;
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.35px;
   text-transform: uppercase;
-  color: #121212;
+  color: #364153;
   text-decoration: none;
-  box-shadow: 0 2px 0 #121212;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.modal-image-actions .btn:hover {
-  background: #121212;
-  color: #ffffff;
-  box-shadow: 0 1px 0 #121212;
-  transform: translateY(1px);
+.modal-image-actions .image-action-btn img {
+  width: 16px;
+  height: 16px;
 }
 
 /* Highlight Modal Body */
@@ -6334,6 +6335,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   overflow: hidden;
   background: #ffffff;
   transition: box-shadow 0.2s ease;
+  font-style: normal;
 }
 
 .save-card.article-card:hover {
@@ -6360,6 +6362,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   gap: 4px;
   position: relative;
   z-index: 1;
+  font-style: normal;
 }
 
 .article-card--text .article-card-body {

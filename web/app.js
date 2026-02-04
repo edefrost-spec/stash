@@ -2453,9 +2453,16 @@ class StashApp {
       <div class="modal-image-container">
         <img src="${save.image_url}" alt="${this.escapeHtml(save.title || 'Image')}" class="modal-full-image">
         <div class="modal-image-actions">
-          <button id="modal-image-similar" class="btn">SAME VIBE</button>
-          <button id="modal-image-autotag" class="btn">AUTO-TAG</button>
-          <a href="${save.image_url}" download class="btn">DOWNLOAD</a>
+          <button id="modal-image-similar" class="image-action-btn">
+            <img src="https://www.figma.com/api/mcp/asset/09ace2b5-c661-462c-ae60-3e2ce5952d28" alt="">
+            <span>Same Vibe</span>
+          </button>
+          <button id="modal-image-autotag" class="image-action-btn">
+            <span>Auto-tag</span>
+          </button>
+          <a href="${save.image_url}" download class="image-action-btn">
+            <span>Download</span>
+          </a>
         </div>
       </div>
     `;
