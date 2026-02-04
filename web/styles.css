@@ -6371,6 +6371,8 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   font-weight: 600;
   font-size: 18px;
   color: #000000;
+  font-style: normal;
+  text-transform: uppercase;
 }
 
 .article-card-headline {
@@ -6378,6 +6380,11 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   font-weight: 400;
   font-size: 14px;
   color: #3c3c43;
+  font-style: normal;
+}
+
+.article-card-publisher.is-url {
+  text-transform: lowercase;
 }
 
 /* ===================================

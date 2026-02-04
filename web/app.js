@@ -1753,12 +1753,28 @@ class StashApp {
               </div>
             ` : ''}
             <div class="article-card-body">
-              <div class="article-card-publisher">${this.escapeHtml(save.site_name || '')}</div>
+              ${this.renderArticlePublisher(save)}
               <div class="article-card-headline">${this.escapeHtml(save.title || '')}</div>
             </div>
           </div>
         `;
     }
+  }
+
+  renderArticlePublisher(save) {
+    const publisher = (save.site_name || '').trim();
+    if (publisher) {
+      return `<div class="article-card-publisher">${this.escapeHtml(publisher)}</div>`;
+    }
+
+    if (save.url) {
+      const sourceLabel = this.getSourceLabel(save.url);
+      if (sourceLabel) {
+        return `<div class="article-card-publisher is-url">${this.escapeHtml(sourceLabel)}</div>`;
+      }
+    }
+
+    return `<div class="article-card-publisher"></div>`;
   }
 
   renderCardAnnotations(save, options = {}) {
