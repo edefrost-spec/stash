@@ -1744,14 +1744,17 @@ class StashApp {
 
       case 'article':
       default:
-        // Article card - standard with image and title
+        // Article card - new design with optional image
         return `
-          <div class="save-card article-save" data-id="${save.id}">
-            ${save.image_url ? `<img class="save-card-image" src="${save.image_url}" alt="" onerror="this.style.display='none'">` : ''}
-            <div class="save-card-content">
-              <div class="save-card-site">${this.escapeHtml(save.site_name || '')}</div>
-              <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
-              ${annotations}
+          <div class="save-card article-card${save.image_url ? ' article-card-image' : ' article-card-text'}" data-id="${save.id}">
+            ${save.image_url ? `
+              <div class="article-card-image">
+                <img src="${save.image_url}" alt="" onerror="this.style.display='none'">
+              </div>
+            ` : ''}
+            <div class="article-card-body">
+              <div class="article-card-publisher">${this.escapeHtml(save.site_name || '')}</div>
+              <div class="article-card-headline">${this.escapeHtml(save.title || '')}</div>
             </div>
           </div>
         `;

@@ -6326,44 +6326,55 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 /* ===================================
-   Article Card Styles Updated
+   Article Card Styles
    =================================== */
 
 .save-card.article-card {
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(229,231,235,0.6);
+  background: #ffffff;
+  transition: box-shadow 0.2s ease;
 }
 
-[data-theme="dark"] .save-card.article-card {
-  border-color: var(--border);
+.save-card.article-card:hover {
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 }
 
-.article-card img {
+.article-card-image {
   width: 100%;
-  height: auto;
+  height: 280px;
+  overflow: hidden;
 }
 
-.article-card .article-content {
-  padding: 20px;
+.article-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.article-card .article-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: #1e2939;
+.article-card-body {
+  padding: 16px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-[data-theme="dark"] .article-card .article-title {
-  color: var(--text);
+.article-card-text .article-card-body {
+  padding: 24px;
 }
 
-.article-card .article-category {
-  font-size: 12px;
-  color: #99a1af;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-top: 8px;
+.article-card-publisher {
+  font-family: 'Crimson Pro', serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #000000;
+}
+
+.article-card-headline {
+  font-family: 'Crimson Pro', serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #3c3c43;
 }
 
 /* ===================================
