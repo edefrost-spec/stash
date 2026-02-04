@@ -131,6 +131,21 @@
           </button>
         </div>
 
+        <div id="space-title-bar" class="space-title-bar hidden">
+          <h1 id="space-title-text"></h1>
+        </div>
+
+        <section id="spaces-page" class="spaces-page hidden">
+          <div class="spaces-header">
+            <h1>All Spaces</h1>
+            <button id="create-space-btn" class="spaces-create-btn" type="button">
+              <img src="https://www.figma.com/api/mcp/asset/76ec6194-2339-476b-a690-af79525ce811" alt="">
+              CREATE NEW SPACE
+            </button>
+          </div>
+          <div id="spaces-grid" class="spaces-grid"></div>
+        </section>
+
         <!-- Mobile Menu Button (hidden on desktop) -->
         <button class="btn icon mobile-menu-btn-floating" id="mobile-menu-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -620,8 +635,6 @@
         <div class="modal-main">
           <div class="modal-header">
             <button class="modal-close" id="unified-modal-close" title="Close">×</button>
-            <h1 id="modal-title"></h1>
-            <div id="modal-meta" class="modal-meta"></div>
           </div>
           <div id="modal-body" class="modal-body">
             <!-- Content rendered here based on save type -->
@@ -630,13 +643,16 @@
 
         <!-- Sidebar (right/bottom) -->
         <div class="modal-sidebar">
-          <!-- Action buttons -->
-          <div class="modal-actions">
-            <button id="modal-pin-btn" class="btn icon" title="Pin">📌</button>
-            <button id="modal-favorite-btn" class="btn icon" title="Favorite">❤️</button>
-            <button id="modal-archive-btn" class="btn icon" title="Archive">📦</button>
-            <button id="modal-delete-btn" class="btn icon" title="Delete">🗑️</button>
-            <a id="modal-open-btn" class="btn icon" title="Open original" target="_blank" href="#">🔗</a>
+          <div class="modal-save-summary">
+            <div id="modal-save-title" class="modal-save-title" contenteditable="true" spellcheck="false"></div>
+            <div class="modal-save-meta">
+              <span id="modal-save-date" class="modal-save-date"></span>
+              <span id="modal-save-separator" class="modal-save-separator">•</span>
+              <a id="modal-save-source" class="modal-save-source" href="#" target="_blank" rel="noopener">
+                <span id="modal-save-source-text"></span>
+                <img id="modal-save-source-icon" src="https://www.figma.com/api/mcp/asset/7c9eca86-ebbf-445f-810e-313430fcd056" alt="">
+              </a>
+            </div>
           </div>
 
           <!-- TLDR (for books) -->
@@ -663,16 +679,40 @@
 
           <!-- Tags -->
           <div class="modal-section" id="modal-tags-section">
-            <label class="modal-section-header">MIND TAGS <span class="modal-section-icon">🧠</span></label>
+            <div class="modal-tags-header">
+              <span class="modal-tags-title">MIND TAGS</span>
+              <img class="modal-tags-icon" src="https://www.figma.com/api/mcp/asset/5a465314-225b-486e-adc5-e875b6af7a6c" alt="">
+            </div>
             <div id="modal-tags-list" class="modal-tags-list"></div>
-            <button id="modal-add-tag-btn" class="btn-secondary">+ Add tag</button>
+            <div class="modal-tag-action-row">
+              <button id="modal-tag-action-btn" class="modal-tag-action-btn" type="button">+ Add tag</button>
+              <div id="modal-tag-input-wrapper" class="modal-tag-input-wrapper hidden">
+                <input id="modal-tag-input" class="modal-tag-input" type="text" placeholder="Enter tag name..." />
+              </div>
+            </div>
           </div>
 
           <!-- Notes -->
           <div class="modal-section" id="modal-notes-section">
-            <label class="modal-section-header">MIND NOTES <span class="modal-section-icon">📝</span></label>
+            <div class="modal-notes-header">
+              <span class="modal-notes-title">MIND NOTES</span>
+              <img class="modal-notes-icon" src="https://www.figma.com/api/mcp/asset/0e2714da-57f6-4d4e-8254-ded8db3ba758" alt="">
+            </div>
             <textarea id="modal-notes-textarea" class="modal-notes-textarea" placeholder="Type here to add a note..."></textarea>
             <div id="modal-notes-status" class="modal-notes-status"></div>
+          </div>
+
+          <!-- Action buttons (bottom) -->
+          <div class="modal-actions">
+            <button id="modal-archive-btn" class="modal-action-btn" title="Archive">
+              <img src="https://www.figma.com/api/mcp/asset/4f6d0472-0689-47b0-b1da-5c4ca609af01" alt="">
+            </button>
+            <button id="modal-share-btn" class="modal-action-btn" title="Share">
+              <img src="https://www.figma.com/api/mcp/asset/48c9f6a3-ffd4-4609-b57f-9cbbdc8776ec" alt="">
+            </button>
+            <button id="modal-more-btn" class="modal-action-btn" title="More options">
+              <img src="https://www.figma.com/api/mcp/asset/64ea1cd5-22e4-473e-bf33-bb59376f7dd6" alt="">
+            </button>
           </div>
         </div>
       </div>
@@ -723,6 +763,99 @@
         <line x1="3" y1="12" x2="21" y2="12"></line>
       </svg>
     </button>
+  </div>
+
+  <!-- Unified Modal Context Menu -->
+  <div id="modal-context-menu" class="context-menu hidden">
+    <button class="context-menu-item has-submenu" data-action="add-to-space">
+      <img src="https://www.figma.com/api/mcp/asset/c6e82564-e323-4574-b5c5-0aad001c8357" alt="">
+      <span>Add to space</span>
+      <div class="context-submenu" id="modal-spaces-submenu">
+        <!-- Populated by JS -->
+      </div>
+    </button>
+    <button class="context-menu-item" data-action="copy">
+      <img src="https://www.figma.com/api/mcp/asset/abd20669-a3b0-46c3-964f-64fc13b69750" alt="">
+      <span>Add to clipboard</span>
+    </button>
+    <button class="context-menu-item" data-action="pin">
+      <img src="https://www.figma.com/api/mcp/asset/4265f3f2-4e11-42aa-81a7-fd76c7bb3fe4" alt="">
+      <span id="modal-menu-pin-label">Stick a pin in it</span>
+    </button>
+    <button class="context-menu-item" data-action="favorite">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 21s-7-4.35-9.5-8.55C.92 9.2 2.5 6 5.5 6c1.74 0 3.41 1 4.5 2.57C11.09 7 12.76 6 14.5 6c3 0 4.58 3.2 3 6.45C19 16.65 12 21 12 21z"></path>
+      </svg>
+      <span id="modal-menu-favorite-label">Favorite</span>
+    </button>
+    <button class="context-menu-item" data-action="open-original" id="modal-menu-open-original">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 3h7v7"></path>
+        <path d="M10 14L21 3"></path>
+        <path d="M21 14v7h-7"></path>
+        <path d="M3 10V3h7"></path>
+        <path d="M3 21h7"></path>
+        <path d="M3 21L14 10"></path>
+      </svg>
+      <span>Open original</span>
+    </button>
+    <button class="context-menu-item danger" data-action="delete">
+      <img src="https://www.figma.com/api/mcp/asset/5d968283-c9cf-45d9-9b6c-2f6e8f1f9400" alt="">
+      <span>Delete card</span>
+    </button>
+  </div>
+
+  <!-- Unified Modal Share Panel -->
+  <div id="modal-share-panel" class="context-menu hidden">
+    <button class="context-menu-item" data-action="share-system">
+      <span>Share...</span>
+    </button>
+    <button class="context-menu-item" data-action="share-copy">
+      <span>Copy link</span>
+    </button>
+  </div>
+
+  <!-- Create Space Modal -->
+  <div id="create-space-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content create-space-modal">
+      <button class="create-space-close" id="create-space-close" type="button">
+        <img src="https://www.figma.com/api/mcp/asset/a854fb1f-6a17-44f4-8ec1-384de39a9fb7" alt="">
+      </button>
+      <div class="create-space-icon">
+        <img src="https://www.figma.com/api/mcp/asset/99efa77c-8cdb-4862-87a0-05414b3160e3" alt="">
+      </div>
+      <h2>Create new space</h2>
+      <p>A space is an organized playground for your wildest thoughts.</p>
+      <label class="create-space-label" for="create-space-name">Name</label>
+      <input id="create-space-name" class="create-space-input" type="text" placeholder="Holding space..." />
+      <button id="create-space-next" class="create-space-next" type="button" disabled>Next Step</button>
+    </div>
+  </div>
+
+  <!-- Choose Color Modal -->
+  <div id="choose-color-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content choose-color-modal">
+      <button class="create-space-close" id="choose-color-close" type="button">
+        <img src="https://www.figma.com/api/mcp/asset/a854fb1f-6a17-44f4-8ec1-384de39a9fb7" alt="">
+      </button>
+      <h2>Pick a color</h2>
+      <p>Color coding your space helps you to spot it a lot easier when you need it.</p>
+      <div class="color-wheel" id="color-wheel">
+        <div class="color-wheel-glow" id="color-wheel-glow"></div>
+      </div>
+      <button id="choose-color-confirm" class="choose-color-confirm" type="button" disabled>CHOOSE COLOR</button>
+    </div>
+  </div>
+
+  <!-- Unified Modal Delete Confirmation -->
+  <div id="modal-delete-confirm" class="context-menu delete-confirm hidden">
+    <p class="delete-confirm-message">Delete this card?</p>
+    <div class="delete-confirm-actions">
+      <button class="delete-confirm-btn cancel" data-action="cancel">No</button>
+      <button class="delete-confirm-btn confirm" data-action="confirm">Yes</button>
+    </div>
   </div>
 
   <!-- Card Context Menu -->

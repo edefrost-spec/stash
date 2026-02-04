@@ -59,6 +59,27 @@ class StashApp {
     // Focus Bar state
     this.pinnedSaves = [];
 
+    // Spaces modal state
+    this.pendingSpaceName = '';
+    this.pendingSpaceColor = '';
+    this.spaceColorOptions = [
+      '#FFADDE',
+      '#54BA6E',
+      '#00203E',
+      '#F3FFB2',
+      '#FF2E2E',
+      '#CFEDD3',
+      '#ADFFFF',
+      '#670626',
+      '#B2CDFF',
+      '#F7DEED',
+      '#D8EB27',
+      '#DBBDDC',
+      '#F47358',
+      '#CFD357',
+      '#FFBDC5',
+    ];
+
     this.init();
   }
 
@@ -87,6 +108,8 @@ class StashApp {
     this.bindProductModal();
     this.bindEditNoteModal();
     this.bindContextMenu();
+    this.bindModalContextMenu();
+    this.bindSpacesPage();
     this.bindNavTabs();
     this.bindDropZone();
     this.loadPinnedSaves();
@@ -1086,6 +1109,10 @@ class StashApp {
       query = query.eq('is_book', true).eq('is_archived', false);
     } else if (this.currentView === 'notes') {
       query = query.eq('is_archived', false).or('site_name.eq.Note,and(url.is.null,or(notes.not.is.null,content.not.is.null))');
+    } else if (this.currentView === 'music') {
+      query = query.eq('is_archived', false).or('url.ilike.%spotify.com%,url.ilike.%music.apple.com%,url.ilike.%soundcloud.com%,url.ilike.%bandcamp.com%');
+    } else if (this.currentView === 'video') {
+      query = query.eq('is_archived', false).or('url.ilike.%youtube.com%,url.ilike.%youtu.be%,url.ilike.%vimeo.com%,url.ilike.%tiktok.com%');
     } else if (this.currentView === 'links') {
       query = query
         .eq('is_archived', false)
@@ -1465,6 +1492,85 @@ class StashApp {
 
     if (save.url && !save.content && !save.excerpt) return 'link';
     return 'article';
+  }
+
+  viewForSaveType(saveType) {
+    const map = {
+      article: 'articles',
+      link: 'links',
+      highlight: 'highlights',
+      image: 'images',
+      product: 'products',
+      book: 'books',
+      note: 'notes',
+      music: 'music',
+      video: 'video',
+    };
+    return map[saveType] || 'all';
+  }
+
+  filterBySaveType(saveType) {
+    const view = this.viewForSaveType(saveType);
+    this.setView(view);
+  }
+
+  renderModalSaveTypePill(saveType) {
+    const assets = {
+      article: {
+        label: 'Article',
+        icon: 'https://www.figma.com/api/mcp/asset/1a54443f-4827-4074-badb-996d3b8c57bb',
+      },
+      book: {
+        label: 'Book',
+        icon: 'https://www.figma.com/api/mcp/asset/9802b23e-c945-4860-90cc-468366c6125b',
+      },
+      video: {
+        label: 'Video',
+        icon: 'https://www.figma.com/api/mcp/asset/85cc0732-dca9-4e01-bfea-95c450267ace',
+      },
+      image: {
+        label: 'Image',
+        icon: 'https://www.figma.com/api/mcp/asset/38fe092f-1b69-4eee-bca6-4c3b0b41c2ce',
+      },
+      product: {
+        label: 'Product',
+        icon: 'https://www.figma.com/api/mcp/asset/76271c4a-5763-4e85-80b8-0b770d15b8ec',
+      },
+      music: {
+        label: 'Music',
+        icon: 'https://www.figma.com/api/mcp/asset/5c6f3cb0-8ee1-44d3-be16-866d232c3ca8',
+      },
+      highlight: {
+        label: 'Quote',
+        icon: 'https://www.figma.com/api/mcp/asset/c0b5076d-49c0-4ed5-a055-aac131df5a90',
+      },
+      note: {
+        label: 'Note',
+        icon: 'https://www.figma.com/api/mcp/asset/6daf2b0c-3754-4e98-8909-d164673e319a',
+      },
+      link: {
+        label: 'Link',
+        icon: 'https://www.figma.com/api/mcp/asset/1a54443f-4827-4074-badb-996d3b8c57bb',
+      },
+    };
+
+    const data = assets[saveType] || assets.article;
+    return `
+      <span class="modal-save-type-pill" data-save-type="${saveType}">
+        <img src="${data.icon}" alt="">
+        <span>${data.label}</span>
+      </span>
+    `;
+  }
+
+  hexToRgba(hex, alpha) {
+    if (!hex) return `rgba(0,0,0,${alpha})`;
+    const normalized = hex.replace('#', '');
+    if (normalized.length !== 6) return `rgba(0,0,0,${alpha})`;
+    const r = parseInt(normalized.substring(0, 2), 16);
+    const g = parseInt(normalized.substring(2, 4), 16);
+    const b = parseInt(normalized.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
   renderSaveCard(save, options = {}) {
@@ -1942,6 +2048,7 @@ class StashApp {
     const tag = this.tags.find(t => t.id === tagId);
     document.getElementById('view-title').textContent = tag?.name ? `#${tag.name}` : 'Tag';
     this.updateColorFilterVisibility();
+    this.updateMainViewVisibility();
 
     this.loadSaves();
   }
@@ -1987,6 +2094,8 @@ class StashApp {
     const folder = this.folders.find(f => f.id === folderId);
     document.getElementById('view-title').textContent = folder?.name || 'Folder';
     this.updateColorFilterVisibility();
+    this.updateMainViewVisibility();
+    this.updateSpaceTitleBar(folder?.name || 'Folder');
 
     this.loadSaves();
   }
@@ -2010,18 +2119,28 @@ class StashApp {
       all: 'All Saves',
       highlights: 'Highlights',
       articles: 'Articles',
+      books: 'Books',
+      products: 'Products',
       images: 'Images',
+      notes: 'Notes',
+      links: 'Links',
+      music: 'Music',
+      video: 'Video',
       kindle: 'Kindle Highlights',
       archived: 'Archived',
       stats: 'Stats',
+      weekly: 'This Week',
     };
     document.getElementById('view-title').textContent = titles[view] || 'Saves';
     this.updateColorFilterVisibility();
+    this.updateMainViewVisibility();
 
     if (view === 'stats') {
       this.showStats();
     } else if (view === 'kindle') {
       this.loadKindleHighlights();
+    } else if (view === 'spaces') {
+      this.loadSpacesPage();
     } else {
       this.loadSaves();
     }
@@ -2134,7 +2253,7 @@ class StashApp {
         </svg>
       </button>
       <div class="image-lightbox-actions">
-        <button class="btn icon lightbox-similar" title="Find Similar">
+        <button class="btn icon lightbox-similar" title="SAME VIBE">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7"></rect>
             <rect x="14" y="3" width="7" height="7"></rect>
@@ -2148,7 +2267,7 @@ class StashApp {
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
           </svg>
         </button>
-        <a class="btn icon" href="${save.image_url}" download="${save.title || 'image'}" title="Download">
+        <a class="btn icon" href="${save.image_url}" download="${save.title || 'image'}" title="DOWNLOAD">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
@@ -2258,10 +2377,16 @@ class StashApp {
 
     // Regular modal flow for other save types
     // Populate header
-    document.getElementById('modal-title').textContent = save.title || 'Untitled';
-    document.getElementById('modal-meta').innerHTML = `
-      ${save.site_name || ''} ${save.author ? `· ${save.author}` : ''} · ${new Date(save.created_at).toLocaleDateString()}
-    `;
+    const modalTitle = document.getElementById('modal-title');
+    if (modalTitle) {
+      modalTitle.textContent = save.title || 'Untitled';
+    }
+    const modalMeta = document.getElementById('modal-meta');
+    if (modalMeta) {
+      modalMeta.innerHTML = `
+        ${save.site_name || ''} ${save.author ? `· ${save.author}` : ''} · ${new Date(save.created_at).toLocaleDateString()}
+      `;
+    }
 
     switch(saveType) {
       case 'book':
@@ -2309,9 +2434,9 @@ class StashApp {
       <div class="modal-image-container">
         <img src="${save.image_url}" alt="${this.escapeHtml(save.title || 'Image')}" class="modal-full-image">
         <div class="modal-image-actions">
-          <button id="modal-image-similar" class="btn">Find Similar</button>
-          <button id="modal-image-autotag" class="btn">Auto-tag</button>
-          <a href="${save.image_url}" download class="btn">Download</a>
+          <button id="modal-image-similar" class="btn">SAME VIBE</button>
+          <button id="modal-image-autotag" class="btn">AUTO-TAG</button>
+          <a href="${save.image_url}" download class="btn">DOWNLOAD</a>
         </div>
       </div>
     `;
@@ -2757,19 +2882,11 @@ class StashApp {
   populateModalSidebar(save) {
     const saveType = this.getSaveType(save);
 
-    // Update button states
-    document.getElementById('modal-pin-btn').classList.toggle('active', save.is_pinned);
-    document.getElementById('modal-favorite-btn').classList.toggle('active', save.is_favorite);
-    document.getElementById('modal-archive-btn').classList.toggle('active', save.is_archived);
+    this.updateModalSaveSummary(save);
 
-    // Set open link
-    const openBtn = document.getElementById('modal-open-btn');
-    if (save.url) {
-      openBtn.href = save.url;
-      openBtn.style.display = '';
-    } else {
-      openBtn.style.display = 'none';
-    }
+    // Update button states
+    document.getElementById('modal-archive-btn').classList.toggle('active', save.is_archived);
+    this.updateModalContextMenuState(save);
 
     // Show/hide book-specific sections
     const tldrSection = document.getElementById('modal-tldr-section');
@@ -2799,33 +2916,164 @@ class StashApp {
       this.folders.map(f => `<option value="${f.id}"${save.folder_id === f.id ? ' selected' : ''}>${this.escapeHtml(f.name)}</option>`).join('');
 
     // Load and display tags
-    this.loadModalTags(save.id);
+    this.loadModalTags(save);
 
     // Populate notes
     document.getElementById('modal-notes-textarea').value = save.notes || '';
     document.getElementById('modal-notes-status').textContent = '';
   }
 
-  async loadModalTags(saveId) {
+  async loadModalTags(save) {
     const tagsList = document.getElementById('modal-tags-list');
-    const saveTags = this.saveTagMap[saveId] || [];
+    if (!tagsList) return;
 
-    tagsList.innerHTML = saveTags.map(tag => `
-      <span class="tag" style="background: ${tag.color}20; border: 1px solid ${tag.color}; color: ${tag.color}">
-        ${this.escapeHtml(tag.name)}
-      </span>
-    `).join('');
+    const saveTags = this.saveTagMap[save.id] || [];
+    const saveType = this.getSaveType(save);
+    const saveTypePill = this.renderModalSaveTypePill(saveType);
+
+    const tagPills = saveTags.map(tag => {
+      const color = '#FF794E';
+      const bg = '#FF9A7A';
+      return `
+        <span class="modal-tag-pill" style="--tag-color: ${color}; --tag-bg: ${bg}">
+          <span class="modal-tag-text">${this.escapeHtml(tag.name)}</span>
+          <button class="modal-tag-remove" data-tag-id="${tag.id}" title="Remove tag">×</button>
+        </span>
+      `;
+    }).join('');
+
+    tagsList.innerHTML = saveTypePill + tagPills;
+
+    tagsList.querySelector('.modal-save-type-pill')?.addEventListener('click', () => {
+      this.filterBySaveType(saveType);
+      this.closeUnifiedModal();
+    });
+
+    tagsList.querySelectorAll('.modal-tag-remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.removeTagFromSave(save.id, btn.dataset.tagId);
+      });
+    });
+  }
+
+  updateModalSaveSummary(save) {
+    const titleEl = document.getElementById('modal-save-title');
+    const dateEl = document.getElementById('modal-save-date');
+    const sourceEl = document.getElementById('modal-save-source');
+    const sourceTextEl = document.getElementById('modal-save-source-text');
+    const separatorEl = document.getElementById('modal-save-separator');
+    if (!titleEl || !dateEl || !sourceEl || !sourceTextEl || !separatorEl) return;
+
+    const displayTitle = this.getSaveDisplayTitle(save);
+    titleEl.textContent = displayTitle;
+    titleEl.dataset.originalTitle = displayTitle;
+
+    const saveDate = new Date(save.created_at);
+    dateEl.textContent = saveDate.toLocaleDateString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+    });
+
+    if (save.url) {
+      const sourceLabel = this.getSourceLabel(save.url);
+      sourceTextEl.textContent = sourceLabel;
+      sourceEl.href = save.url;
+      sourceEl.classList.remove('hidden');
+      separatorEl.classList.remove('hidden');
+    } else {
+      sourceEl.classList.add('hidden');
+      separatorEl.classList.add('hidden');
+    }
+
+    titleEl.onfocus = () => {
+      titleEl.dataset.originalTitle = titleEl.textContent.trim();
+    };
+
+    titleEl.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        titleEl.blur();
+      }
+    };
+
+    titleEl.onblur = async () => {
+      const nextTitle = titleEl.textContent.trim() || 'Untitled';
+      const original = titleEl.dataset.originalTitle || '';
+      if (nextTitle !== original) {
+        await this.updateSaveTitle(save, nextTitle);
+        titleEl.dataset.originalTitle = nextTitle;
+      } else {
+        titleEl.textContent = nextTitle;
+      }
+    };
+  }
+
+  getSaveDisplayTitle(save) {
+    if (save?.title?.trim()) return save.title.trim();
+
+    const saveType = this.getSaveType(save);
+    if (saveType === 'product' && save.product_name) {
+      return save.product_name;
+    }
+    if (saveType === 'book' && save.book_title) {
+      return save.book_title;
+    }
+    if (saveType === 'image') {
+      const filename = this.getFilenameFromUrl(save.image_url || save.url);
+      if (filename) return filename;
+    }
+
+    return 'Untitled';
+  }
+
+  getFilenameFromUrl(url) {
+    if (!url) return '';
+    try {
+      const parsed = new URL(url);
+      const parts = parsed.pathname.split('/').filter(Boolean);
+      const filename = parts[parts.length - 1];
+      return filename ? decodeURIComponent(filename) : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  getSourceLabel(url) {
+    try {
+      const host = new URL(url).hostname;
+      return host.replace(/^www\./, '');
+    } catch (e) {
+      return '';
+    }
+  }
+
+  async updateSaveTitle(save, title) {
+    const { error } = await this.supabase
+      .from('saves')
+      .update({ title })
+      .eq('id', save.id);
+
+    if (!error) {
+      save.title = title;
+      const modalTitle = document.getElementById('modal-title');
+      if (modalTitle) modalTitle.textContent = title;
+      this.loadSaves();
+    }
   }
 
   attachModalEventListeners(save) {
     // Close button
     const closeBtn = document.getElementById('unified-modal-close');
-    const overlay = document.querySelector('.modal-overlay');
+    const modal = document.getElementById('unified-modal');
+    const overlay = modal?.querySelector('.modal-overlay');
+    const modalContainer = modal?.querySelector('.modal-container');
 
     const closeModal = () => this.closeUnifiedModal();
 
     closeBtn.onclick = closeModal;
-    overlay.onclick = closeModal;
+    if (overlay) overlay.onclick = closeModal;
 
     // Escape key to close
     const handleEscape = (e) => {
@@ -2836,11 +3084,33 @@ class StashApp {
     };
     document.addEventListener('keydown', handleEscape);
 
+    if (this.modalOutsideClickHandler) {
+      document.removeEventListener('click', this.modalOutsideClickHandler);
+      this.modalOutsideClickHandler = null;
+    }
+
+    let ignoreOutsideClick = true;
+    setTimeout(() => {
+      ignoreOutsideClick = false;
+    }, 0);
+
+    this.modalOutsideClickHandler = (e) => {
+      if (ignoreOutsideClick) return;
+      if (!modal || modal.classList.contains('hidden')) return;
+      if (e.target.closest('.context-menu')) return;
+      if (modalContainer && !modalContainer.contains(e.target)) {
+        closeModal();
+      }
+    };
+    document.addEventListener('click', this.modalOutsideClickHandler);
+
     // Action buttons
-    document.getElementById('modal-pin-btn').onclick = () => this.toggleModalPin(save);
-    document.getElementById('modal-favorite-btn').onclick = () => this.toggleModalFavorite(save);
     document.getElementById('modal-archive-btn').onclick = () => this.toggleModalArchive(save);
-    document.getElementById('modal-delete-btn').onclick = () => this.deleteModalSave(save);
+    document.getElementById('modal-share-btn').onclick = () => this.showModalSharePanel(save);
+    document.getElementById('modal-more-btn').onclick = (e) => {
+      e.stopPropagation();
+      this.showModalContextMenu(save);
+    };
 
     // Folder selector
     document.getElementById('modal-folder-select').onchange = (e) => this.updateModalFolder(save, e.target.value);
@@ -2854,7 +3124,7 @@ class StashApp {
     };
 
     // Add tag button
-    document.getElementById('modal-add-tag-btn').onclick = () => this.showAddTagModal(save.id);
+    this.bindModalTagInput(save);
 
     // Image-specific actions
     if (this.getSaveType(save) === 'image') {
@@ -2867,7 +3137,7 @@ class StashApp {
 
       if (autotagBtn) {
         autotagBtn.onclick = async () => {
-          autotagBtn.textContent = 'Tagging...';
+          autotagBtn.textContent = 'TAGGING...';
           autotagBtn.disabled = true;
 
           const { data, error } = await this.supabase.functions.invoke('auto-tag-image', {
@@ -2879,8 +3149,8 @@ class StashApp {
           });
 
           if (!error) {
-            await this.loadModalTags(save.id);
-            autotagBtn.textContent = 'Auto-tag';
+            await this.loadModalTags(save);
+            autotagBtn.textContent = 'AUTO-TAG';
           } else {
             autotagBtn.textContent = 'Error';
           }
@@ -2962,6 +3232,15 @@ class StashApp {
     // Stop audio
     this.stopAudio();
 
+    this.hideModalContextMenu();
+    this.hideModalSharePanel();
+    this.closeModalTagInput();
+
+    if (this.modalOutsideClickHandler) {
+      document.removeEventListener('click', this.modalOutsideClickHandler);
+      this.modalOutsideClickHandler = null;
+    }
+
     this.currentSave = null;
   }
 
@@ -2978,7 +3257,7 @@ class StashApp {
 
     if (!error) {
       save.is_pinned = newPinState;
-      document.getElementById('modal-pin-btn').classList.toggle('active', newPinState);
+      this.updateModalContextMenuState(save);
       this.loadPinnedSaves();
       this.loadSaves();
     }
@@ -2994,9 +3273,105 @@ class StashApp {
 
     if (!error) {
       save.is_favorite = newFavState;
-      document.getElementById('modal-favorite-btn').classList.toggle('active', newFavState);
+      this.updateModalContextMenuState(save);
       this.loadSaves();
     }
+  }
+
+  bindModalTagInput(save) {
+    const actionBtn = document.getElementById('modal-tag-action-btn');
+    const inputWrapper = document.getElementById('modal-tag-input-wrapper');
+    const input = document.getElementById('modal-tag-input');
+    if (!actionBtn || !inputWrapper || !input) return;
+
+    this.modalTagSave = save;
+
+    actionBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (inputWrapper.classList.contains('hidden')) {
+        this.openModalTagInput();
+        return;
+      }
+
+      if (input.value.trim()) {
+        this.saveModalTag();
+      } else {
+        input.focus();
+      }
+    };
+
+    input.oninput = () => {
+      this.updateModalTagActionLabel();
+    };
+
+    input.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (input.value.trim()) {
+          this.saveModalTag();
+        }
+      }
+    };
+  }
+
+  openModalTagInput() {
+    const inputWrapper = document.getElementById('modal-tag-input-wrapper');
+    const input = document.getElementById('modal-tag-input');
+    if (!inputWrapper || !input) return;
+
+    inputWrapper.classList.remove('hidden');
+    input.value = '';
+    input.focus();
+    this.updateModalTagActionLabel();
+
+    if (!this.modalTagOutsideHandler) {
+      this.modalTagOutsideHandler = (e) => {
+        const container = document.getElementById('modal-tags-section');
+        if (!container || container.contains(e.target)) return;
+        this.closeModalTagInput();
+      };
+      document.addEventListener('click', this.modalTagOutsideHandler);
+    }
+  }
+
+  closeModalTagInput() {
+    const inputWrapper = document.getElementById('modal-tag-input-wrapper');
+    const input = document.getElementById('modal-tag-input');
+    if (inputWrapper) inputWrapper.classList.add('hidden');
+    if (input) input.value = '';
+    this.updateModalTagActionLabel();
+
+    if (this.modalTagOutsideHandler) {
+      document.removeEventListener('click', this.modalTagOutsideHandler);
+      this.modalTagOutsideHandler = null;
+    }
+  }
+
+  updateModalTagActionLabel() {
+    const actionBtn = document.getElementById('modal-tag-action-btn');
+    const inputWrapper = document.getElementById('modal-tag-input-wrapper');
+    const input = document.getElementById('modal-tag-input');
+    if (!actionBtn || !inputWrapper || !input) return;
+
+    if (inputWrapper.classList.contains('hidden')) {
+      actionBtn.textContent = '+ Add tag';
+      return;
+    }
+
+    actionBtn.textContent = input.value.trim() ? '+ Save tag' : '+ Add tag';
+  }
+
+  async saveModalTag() {
+    const input = document.getElementById('modal-tag-input');
+    const save = this.modalTagSave;
+    if (!input || !save) return;
+
+    const tagName = input.value.trim();
+    if (!tagName) return;
+
+    await this.addTagByName(save, tagName);
+    await this.loadModalTags(save);
+    this.closeModalTagInput();
   }
 
   async toggleModalArchive(save) {
@@ -3016,8 +3391,6 @@ class StashApp {
   }
 
   async deleteModalSave(save) {
-    if (!confirm('Are you sure you want to delete this save?')) return;
-
     const { error } = await this.supabase
       .from('saves')
       .delete()
@@ -3368,6 +3741,10 @@ class StashApp {
     this.loadSaveTags(saveId);
     await this.loadSaveTagMapForSaves(this.saves);
     if (this.showAnnotations) this.renderSaves();
+
+    if (this.currentSave?.id === saveId) {
+      this.loadModalTags(this.currentSave);
+    }
   }
 
   async addTagByName(save, tagName) {
@@ -3408,6 +3785,10 @@ class StashApp {
       await this.loadSaveTagMapForSaves(this.saves);
       if (this.showAnnotations) this.renderSaves();
       this.showToast('Tag added', 'success');
+
+      if (this.currentSave?.id === save.id) {
+        this.loadModalTags(this.currentSave);
+      }
     }
   }
 
@@ -5182,8 +5563,7 @@ class StashApp {
         if (view === 'everything') {
           this.setView('all');
         } else if (view === 'spaces') {
-          // Could be used for folders/collections view
-          this.setView('all');
+          this.setView('spaces');
         } else if (view === 'serendipity') {
           this.setView('weekly');
         }
@@ -5197,6 +5577,245 @@ class StashApp {
         this.showQuickAddModal();
       });
     }
+  }
+
+  // ===================================
+  // Spaces Page
+  // ===================================
+
+  bindSpacesPage() {
+    const createBtn = document.getElementById('create-space-btn');
+    if (createBtn) {
+      createBtn.addEventListener('click', () => this.showCreateSpaceModal());
+    }
+
+    const createModal = document.getElementById('create-space-modal');
+    const createOverlay = createModal?.querySelector('.modal-overlay');
+    const createClose = document.getElementById('create-space-close');
+    const createInput = document.getElementById('create-space-name');
+    const createNext = document.getElementById('create-space-next');
+
+    createOverlay?.addEventListener('click', () => this.hideCreateSpaceModal());
+    createClose?.addEventListener('click', () => this.hideCreateSpaceModal());
+
+    createInput?.addEventListener('input', () => {
+      this.pendingSpaceName = createInput.value.trim();
+      if (this.pendingSpaceName) {
+        createNext.disabled = false;
+        createNext.classList.add('enabled');
+      } else {
+        createNext.disabled = true;
+        createNext.classList.remove('enabled');
+      }
+    });
+
+    createNext?.addEventListener('click', () => {
+      if (!this.pendingSpaceName) return;
+      this.hideCreateSpaceModal();
+      this.showChooseColorModal();
+    });
+
+    const colorModal = document.getElementById('choose-color-modal');
+    const colorOverlay = colorModal?.querySelector('.modal-overlay');
+    const colorClose = document.getElementById('choose-color-close');
+    const colorConfirm = document.getElementById('choose-color-confirm');
+
+    colorOverlay?.addEventListener('click', () => this.hideChooseColorModal());
+    colorClose?.addEventListener('click', () => this.hideChooseColorModal());
+    colorConfirm?.addEventListener('click', () => this.createSpace());
+
+    this.renderColorWheel();
+  }
+
+  updateMainViewVisibility() {
+    const isSpaces = this.currentView === 'spaces';
+    const isFolder = this.currentView === 'folder';
+
+    const spacesPage = document.getElementById('spaces-page');
+    const searchBar = document.querySelector('.search-bar-redesigned');
+    const spaceTitleBar = document.getElementById('space-title-bar');
+    const focusBar = document.getElementById('focus-bar');
+    const savesContainer = document.getElementById('saves-container');
+    const loading = document.getElementById('loading');
+    const empty = document.getElementById('empty-state');
+
+    spacesPage?.classList.toggle('hidden', !isSpaces);
+    searchBar?.classList.toggle('hidden', isSpaces || isFolder);
+    spaceTitleBar?.classList.toggle('hidden', !isFolder);
+    focusBar?.classList.toggle('hidden', isSpaces);
+    savesContainer?.classList.toggle('hidden', isSpaces);
+    loading?.classList.toggle('hidden', isSpaces || loading.classList.contains('hidden'));
+    empty?.classList.toggle('hidden', isSpaces || empty.classList.contains('hidden'));
+
+    const spacesTab = document.querySelector('.nav-tab[data-view="spaces"]');
+    if (spacesTab) {
+      if (isSpaces || isFolder) {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        spacesTab.classList.add('active');
+      }
+    }
+  }
+
+  updateSpaceTitleBar(title) {
+    const spaceTitleText = document.getElementById('space-title-text');
+    if (spaceTitleText) {
+      spaceTitleText.textContent = title;
+    }
+  }
+
+  async loadSpacesPage() {
+    await this.loadFolders();
+
+    const spacesGrid = document.getElementById('spaces-grid');
+    if (!spacesGrid) return;
+
+    if (!this.folders.length) {
+      spacesGrid.innerHTML = '<p>No spaces yet.</p>';
+      return;
+    }
+
+    const folderIds = this.folders.map(folder => folder.id);
+    const { data } = await this.supabase
+      .from('saves')
+      .select('id, folder_id, image_url, created_at')
+      .in('folder_id', folderIds)
+      .order('created_at', { ascending: false });
+
+    const grouped = {};
+    (data || []).forEach(save => {
+      if (!grouped[save.folder_id]) grouped[save.folder_id] = [];
+      grouped[save.folder_id].push(save);
+    });
+
+    spacesGrid.innerHTML = this.folders.map(folder => {
+      const previews = (grouped[folder.id] || [])
+        .filter(save => save.image_url)
+        .slice(0, 4);
+
+      const previewMarkup = previews.length
+        ? previews.map(save => `<img src="${save.image_url}" alt="">`).join('')
+        : `<div class="space-card-placeholder"></div>`;
+
+      return `
+        <div class="space-card" data-folder-id="${folder.id}">
+          <div class="space-card-preview">${previewMarkup}</div>
+          <div class="space-card-footer">
+            <span class="space-card-color" style="border-color: ${folder.color || '#ff6b9d'}"></span>
+            <span>${this.escapeHtml(folder.name)}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    spacesGrid.querySelectorAll('.space-card').forEach(card => {
+      card.addEventListener('click', () => {
+        this.filterByFolder(card.dataset.folderId);
+      });
+    });
+  }
+
+  showCreateSpaceModal() {
+    const modal = document.getElementById('create-space-modal');
+    const input = document.getElementById('create-space-name');
+    const next = document.getElementById('create-space-next');
+    if (!modal) return;
+
+    this.pendingSpaceName = '';
+    this.pendingSpaceColor = '';
+    modal.classList.remove('hidden');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+    if (next) {
+      next.disabled = true;
+      next.classList.remove('enabled');
+    }
+  }
+
+  hideCreateSpaceModal() {
+    document.getElementById('create-space-modal')?.classList.add('hidden');
+  }
+
+  showChooseColorModal() {
+    const modal = document.getElementById('choose-color-modal');
+    if (!modal) return;
+    this.pendingSpaceColor = '';
+    modal.classList.remove('hidden');
+    this.updateColorWheelSelection();
+  }
+
+  hideChooseColorModal() {
+    document.getElementById('choose-color-modal')?.classList.add('hidden');
+  }
+
+  renderColorWheel() {
+    const wheel = document.getElementById('color-wheel');
+    if (!wheel) return;
+
+    const radius = 110;
+    const center = 137.5;
+    const count = this.spaceColorOptions.length;
+
+    wheel.querySelectorAll('.color-wheel-button').forEach(btn => btn.remove());
+
+    this.spaceColorOptions.forEach((color, index) => {
+      const angle = (index / count) * Math.PI * 2 - Math.PI / 2;
+      const x = center + radius * Math.cos(angle) - 22.5;
+      const y = center + radius * Math.sin(angle) - 22.5;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'color-wheel-button';
+      btn.style.left = `${x}px`;
+      btn.style.top = `${y}px`;
+      btn.style.borderColor = color;
+      btn.style.background = 'white';
+
+      btn.addEventListener('click', () => {
+        this.pendingSpaceColor = color;
+        this.updateColorWheelSelection();
+      });
+
+      wheel.appendChild(btn);
+    });
+  }
+
+  updateColorWheelSelection() {
+    const wheel = document.getElementById('color-wheel');
+    const glow = document.getElementById('color-wheel-glow');
+    const confirm = document.getElementById('choose-color-confirm');
+    if (!wheel || !glow || !confirm) return;
+
+    glow.style.background = this.pendingSpaceColor || 'transparent';
+    glow.style.opacity = this.pendingSpaceColor ? '0.8' : '0';
+    wheel.querySelectorAll('.color-wheel-button').forEach(btn => {
+      btn.classList.toggle('selected', btn.style.borderColor === this.pendingSpaceColor);
+    });
+
+    if (this.pendingSpaceColor) {
+      confirm.disabled = false;
+      confirm.classList.add('enabled');
+    } else {
+      confirm.disabled = true;
+      confirm.classList.remove('enabled');
+    }
+  }
+
+  async createSpace() {
+    if (!this.pendingSpaceName || !this.pendingSpaceColor) return;
+
+    await this.supabase
+      .from('folders')
+      .insert({
+        user_id: this.user.id,
+        name: this.pendingSpaceName,
+        color: this.pendingSpaceColor,
+      });
+
+    this.hideChooseColorModal();
+    await this.loadFolders();
+    this.loadSpacesPage();
   }
 
   // ===================================
@@ -5498,6 +6117,279 @@ class StashApp {
 
   hideProductModal() {
     document.getElementById('product-modal')?.classList.add('hidden');
+  }
+
+  // ===================================
+  // Modal Context Menu
+  // ===================================
+
+  bindModalContextMenu() {
+    const menu = document.getElementById('modal-context-menu');
+    const deleteDialog = document.getElementById('modal-delete-confirm');
+    const sharePanel = document.getElementById('modal-share-panel');
+    if (!menu) return;
+
+    this.modalContextMenuSave = null;
+    this.modalShareSave = null;
+
+    document.addEventListener('click', (e) => {
+      const isTrigger = e.target.closest('#modal-more-btn') || e.target.closest('#modal-share-btn');
+      if (isTrigger) return;
+
+      if (!menu.contains(e.target) && !deleteDialog?.contains(e.target) && !sharePanel?.contains(e.target)) {
+        this.hideModalContextMenu();
+        this.hideModalSharePanel();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.hideModalContextMenu();
+        this.hideModalSharePanel();
+      }
+    });
+
+    menu.querySelectorAll('.context-menu-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        const action = item.dataset.action;
+        if (action === 'add-to-space') return;
+        if (item.classList.contains('disabled')) return;
+        this.handleModalContextMenuAction(action);
+      });
+    });
+
+    if (sharePanel) {
+      sharePanel.querySelectorAll('.context-menu-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const action = item.dataset.action;
+          if (item.classList.contains('disabled')) return;
+          this.handleModalShareAction(action);
+        });
+      });
+    }
+
+    if (deleteDialog) {
+      deleteDialog.querySelector('[data-action="cancel"]')?.addEventListener('click', () => {
+        this.hideModalContextMenu();
+      });
+      deleteDialog.querySelector('[data-action="confirm"]')?.addEventListener('click', () => {
+        this.confirmModalDelete();
+      });
+    }
+  }
+
+  showModalContextMenu(save) {
+    const menu = document.getElementById('modal-context-menu');
+    if (!menu) return;
+
+    if (!menu.classList.contains('hidden')) {
+      this.hideModalContextMenu();
+      return;
+    }
+
+    this.modalContextMenuSave = save;
+    this.updateModalContextMenuState(save);
+    this.populateModalSpacesSubmenu();
+    this.hideModalSharePanel();
+
+    const anchor = document.getElementById('modal-more-btn');
+    this.positionPopover(menu, anchor);
+  }
+
+  hideModalContextMenu() {
+    document.getElementById('modal-context-menu')?.classList.add('hidden');
+    document.getElementById('modal-delete-confirm')?.classList.add('hidden');
+    this.modalContextMenuSave = null;
+  }
+
+  updateModalContextMenuState(save) {
+    const pinLabel = document.getElementById('modal-menu-pin-label');
+    if (pinLabel) {
+      pinLabel.textContent = save.is_pinned ? 'Remove pin' : 'Stick a pin in it';
+    }
+
+    const favoriteLabel = document.getElementById('modal-menu-favorite-label');
+    if (favoriteLabel) {
+      favoriteLabel.textContent = save.is_favorite ? 'Unfavorite' : 'Favorite';
+    }
+
+    const openItem = document.getElementById('modal-menu-open-original');
+    if (openItem) {
+      openItem.classList.toggle('disabled', !save.url);
+    }
+
+    const sharePanel = document.getElementById('modal-share-panel');
+    if (sharePanel) {
+      const shareItems = sharePanel.querySelectorAll('[data-action="share-system"], [data-action="share-copy"]');
+      shareItems.forEach(item => item.classList.toggle('disabled', !save.url && !save.title));
+    }
+  }
+
+  populateModalSpacesSubmenu() {
+    const submenu = document.getElementById('modal-spaces-submenu');
+    if (!submenu) return;
+
+    const spaces = [
+      { id: 'ai', name: 'AI', color: '#54ba6e' },
+      { id: 'design-inspo', name: 'Design Inspo', color: '#d6bddc' },
+      { id: 'jobs', name: 'Jobs', color: '#adffff' },
+      { id: 'ux', name: 'UX', color: '#f4b2d1' }
+    ];
+
+    submenu.innerHTML = spaces.map(space => `
+      <button class="context-submenu-item" data-space-id="${space.id}">
+        <span class="space-color-dot" style="background: ${space.color}"></span>
+        <span>${this.escapeHtml(space.name)}</span>
+      </button>
+    `).join('');
+
+    submenu.querySelectorAll('.context-submenu-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const spaceId = item.dataset.spaceId;
+        this.addToModalSpace(spaceId);
+      });
+    });
+  }
+
+  handleModalContextMenuAction(action) {
+    const save = this.modalContextMenuSave;
+    if (!save) return;
+
+    switch (action) {
+      case 'copy':
+        this.copyModalSaveToClipboard(save);
+        break;
+      case 'pin':
+        this.toggleModalPin(save);
+        this.hideModalContextMenu();
+        break;
+      case 'favorite':
+        this.toggleModalFavorite(save);
+        this.hideModalContextMenu();
+        break;
+      case 'open-original':
+        if (save.url) {
+          window.open(save.url, '_blank', 'noopener');
+        }
+        this.hideModalContextMenu();
+        break;
+      case 'delete':
+        this.showModalDeleteConfirmation();
+        break;
+    }
+  }
+
+  async copyModalSaveToClipboard(save) {
+    try {
+      const text = save.url || save.title || save.content || '';
+      await navigator.clipboard.writeText(text);
+      this.showToast('Copied to clipboard!', 'success');
+      this.hideModalContextMenu();
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      this.showToast('Failed to copy', 'error');
+    }
+  }
+
+  addToModalSpace(spaceId) {
+    this.showToast('Spaces feature coming soon!', 'info');
+    this.hideModalContextMenu();
+  }
+
+  showModalDeleteConfirmation() {
+    const deleteDialog = document.getElementById('modal-delete-confirm');
+    if (!deleteDialog) return;
+
+    const anchor = document.getElementById('modal-more-btn');
+    this.positionPopover(deleteDialog, anchor);
+    document.getElementById('modal-context-menu')?.classList.add('hidden');
+  }
+
+  async confirmModalDelete() {
+    const save = this.modalContextMenuSave;
+    if (!save) return;
+    await this.deleteModalSave(save);
+    this.hideModalContextMenu();
+  }
+
+  showModalSharePanel(save) {
+    const sharePanel = document.getElementById('modal-share-panel');
+    if (!sharePanel) return;
+
+    if (!sharePanel.classList.contains('hidden')) {
+      this.hideModalSharePanel();
+      return;
+    }
+
+    this.modalShareSave = save;
+    this.updateModalContextMenuState(save);
+    this.hideModalContextMenu();
+
+    const anchor = document.getElementById('modal-share-btn');
+    this.positionPopover(sharePanel, anchor);
+  }
+
+  hideModalSharePanel() {
+    document.getElementById('modal-share-panel')?.classList.add('hidden');
+    this.modalShareSave = null;
+  }
+
+  async handleModalShareAction(action) {
+    const save = this.modalShareSave;
+    if (!save) return;
+
+    switch (action) {
+      case 'share-system':
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: save.title,
+              url: save.url || window.location.href
+            });
+          } catch (e) {
+            // User cancelled or share failed
+          }
+        } else {
+          this.showToast('Sharing not supported on this device', 'error');
+        }
+        this.hideModalSharePanel();
+        break;
+      case 'share-copy':
+        await this.copyModalSaveToClipboard(save);
+        this.hideModalSharePanel();
+        break;
+    }
+  }
+
+  positionPopover(popover, anchor) {
+    if (!popover || !anchor) return;
+
+    popover.classList.remove('hidden');
+    popover.style.visibility = 'hidden';
+    popover.style.left = '0';
+    popover.style.top = '0';
+
+    const popoverRect = popover.getBoundingClientRect();
+    const anchorRect = anchor.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    let x = anchorRect.right - popoverRect.width;
+    let y = anchorRect.bottom + 8;
+
+    if (x < 8) x = 8;
+    if (x + popoverRect.width > viewportWidth) {
+      x = viewportWidth - popoverRect.width - 8;
+    }
+
+    if (y + popoverRect.height > viewportHeight) {
+      y = anchorRect.top - popoverRect.height - 8;
+    }
+
+    popover.style.left = `${x}px`;
+    popover.style.top = `${y}px`;
+    popover.style.visibility = 'visible';
   }
 
   // ===================================
