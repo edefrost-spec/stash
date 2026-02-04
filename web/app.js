@@ -3068,11 +3068,30 @@ class StashApp {
 
   getSourceLabel(url) {
     try {
-      const host = new URL(url).hostname;
-      return host.replace(/^www\./, '');
+      const host = new URL(url).hostname.replace(/^www\./, '');
+      return this.getPrimaryDomain(host);
     } catch (e) {
       return '';
     }
+  }
+
+  getPrimaryDomain(host) {
+    if (!host) return '';
+    const parts = host.split('.').filter(Boolean);
+    if (parts.length <= 2) {
+      return parts[0] || host;
+    }
+
+    const tld = parts[parts.length - 1];
+    const sld = parts[parts.length - 2];
+    const third = parts[parts.length - 3];
+
+    const commonSecondLevel = new Set(['co', 'com', 'org', 'net', 'gov', 'edu', 'io']);
+    if (commonSecondLevel.has(sld) && third) {
+      return third;
+    }
+
+    return sld || host;
   }
 
   async updateSaveTitle(save, title) {

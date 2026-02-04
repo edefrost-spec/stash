@@ -4784,6 +4784,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   font-size: 14px;
   line-height: 20px;
   color: #6a7282;
+  flex-wrap: wrap;
 }
 
 .modal-save-source {
@@ -4792,6 +4793,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   gap: 4px;
   color: #6a7282;
   text-decoration: none;
+  word-break: break-word;
 }
 
 .modal-save-source img {
@@ -5213,7 +5215,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   gap: 8px;
   height: 36px;
   padding: 7px 16px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.6);
   border: none;
   border-radius: 999px;
   cursor: pointer;
@@ -5224,6 +5226,10 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   color: #364153;
   text-decoration: none;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modal-image-actions .image-action-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .modal-image-actions .image-action-btn img {
