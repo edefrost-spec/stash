@@ -4619,20 +4619,22 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   gap: 16px;
   padding: 48px;
   background: #fafaf9;
-  height: 100%;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .modal-product-image {
   width: 351px;
-  height: 484px;
+  max-height: 484px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-product-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .modal-product-purchase {
