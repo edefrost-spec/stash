@@ -4617,7 +4617,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  padding: 48px;
+  padding: 24px 48px 48px;
   background: #fafaf9;
   justify-content: flex-start;
 }
