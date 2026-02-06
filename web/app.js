@@ -3135,16 +3135,16 @@ class StashApp {
   }
 
   attachModalEventListeners(save) {
-    // Close button
-    const closeBtn = document.getElementById('unified-modal-close');
     const modal = document.getElementById('unified-modal');
     const overlay = modal?.querySelector('.modal-overlay');
     const modalContainer = modal?.querySelector('.modal-container');
 
     const closeModal = () => this.closeUnifiedModal();
 
-    closeBtn.onclick = closeModal;
-    if (overlay) overlay.onclick = closeModal;
+    if (overlay) {
+      overlay.onclick = closeModal;
+      overlay.addEventListener('click', closeModal, { capture: true, once: true });
+    }
 
     // Escape key to close
     const handleEscape = (e) => {
@@ -3174,6 +3174,8 @@ class StashApp {
       }
     };
     document.addEventListener('click', this.modalOutsideClickHandler);
+
+    this.bindModalSwipeToClose(modalContainer, closeModal);
 
     // Action buttons
     document.getElementById('modal-archive-btn').onclick = () => this.toggleModalArchive(save);
@@ -3304,12 +3306,69 @@ class StashApp {
     this.hideModalSharePanel();
     this.closeModalTagInput();
 
+    if (this.modalSwipeCleanup) {
+      this.modalSwipeCleanup();
+      this.modalSwipeCleanup = null;
+    }
+
     if (this.modalOutsideClickHandler) {
       document.removeEventListener('click', this.modalOutsideClickHandler);
       this.modalOutsideClickHandler = null;
     }
 
     this.currentSave = null;
+  }
+
+  bindModalSwipeToClose(container, closeModal) {
+    if (!container) return;
+    if (this.modalSwipeCleanup) {
+      this.modalSwipeCleanup();
+      this.modalSwipeCleanup = null;
+    }
+
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    const onPointerDown = (e) => {
+      if (e.pointerType === 'mouse') return;
+      isDragging = true;
+      startY = e.clientY;
+      currentY = 0;
+      container.style.transition = 'none';
+    };
+
+    const onPointerMove = (e) => {
+      if (!isDragging) return;
+      currentY = e.clientY - startY;
+      if (currentY > 0) {
+        container.style.transform = `translateY(${currentY}px)`;
+      }
+    };
+
+    const onPointerUp = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      container.style.transition = 'transform 0.2s ease';
+      if (currentY > 120) {
+        container.style.transform = '';
+        closeModal();
+      } else {
+        container.style.transform = '';
+      }
+    };
+
+    container.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+
+    this.modalSwipeCleanup = () => {
+      container.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      container.style.transition = '';
+      container.style.transform = '';
+    };
   }
 
   async toggleModalPin(save) {
