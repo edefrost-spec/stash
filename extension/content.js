@@ -15,8 +15,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === 'getSelection') {
     const selection = window.getSelection().toString().trim();
     sendResponse({ selection });
+    return false; // Synchronous response, don't keep channel open
   }
-  return true;
 });
 
 async function extractArticle() {
