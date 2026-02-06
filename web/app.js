@@ -1768,16 +1768,22 @@ class StashApp {
       default:
         // Article card - new design with optional image
         return `
-          <div class="save-card article-card${save.image_url ? ' article-card--image' : ' article-card--text'}" data-id="${save.id}">
+          <div class="save-card article-card${save.image_url ? ' article-card--image' : ' article-card--noimage'}" data-id="${save.id}">
+            <div class="article-card-content${save.image_url ? '' : ' article-card-content--bookmark'}">
+              <div class="article-card-bookmark">
+                <img src="https://www.figma.com/api/mcp/asset/da8fc600-a05e-4af0-855f-49c8958ccc50" alt="">
+              </div>
+              ${save.image_url ? `<div class="article-card-headline">${this.escapeHtml(save.title || '')}</div>` : ''}
+            </div>
             ${save.image_url ? `
               <div class="article-card-media">
                 <img src="${save.image_url}" alt="" onerror="this.style.display='none'">
               </div>
-            ` : ''}
-            <div class="article-card-body">
-              ${this.renderArticlePublisher(save)}
-              <div class="article-card-headline">${this.escapeHtml(save.title || '')}</div>
-            </div>
+            ` : `
+              <div class="article-card-noimage-body">
+                <div class="article-card-headline">${this.escapeHtml(save.title || '')}</div>
+              </div>
+            `}
           </div>
         `;
     }

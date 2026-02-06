@@ -6375,20 +6375,49 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
    =================================== */
 
 .save-card.article-card {
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   background: #ffffff;
-  transition: box-shadow 0.2s ease;
-  font-style: normal;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .save-card.article-card:hover {
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.save-card.article-card.article-card--noimage:hover {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.article-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.article-card-bookmark {
+  width: 32px;
+  height: 32px;
+}
+
+.article-card-bookmark img {
+  width: 100%;
+  height: 100%;
+}
+
+.article-card-headline {
+  font-family: 'Rosarivo', serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.3;
+  color: #1e1e1e;
 }
 
 .article-card-media {
   width: 100%;
-  height: 280px;
+  height: 130px;
   overflow: hidden;
 }
 
@@ -6398,41 +6427,15 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   object-fit: cover;
 }
 
-.article-card-body {
+.article-card-noimage-body {
   background: #ffffff;
-  padding: 16px 24px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  position: relative;
-  z-index: 1;
-  font-style: normal;
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin: 0 16px 16px;
 }
 
-.article-card--text .article-card-body {
-  padding: 24px;
-}
-
-.article-card-publisher {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 400;
-  font-size: 15px;
-  color: rgba(0, 0, 0, 1);
-  font-style: normal;
-  text-transform: uppercase;
-}
-
-.article-card-headline {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 400;
-  font-size: 13px;
-  letter-spacing: -0.26px;
-  color: rgba(60, 60, 67, 1);
-  font-style: normal;
-}
-
-.article-card-publisher.is-url {
-  text-transform: lowercase;
+.article-card-noimage-body .article-card-headline {
+  color: #3c3c43;
 }
 
 /* ===================================
