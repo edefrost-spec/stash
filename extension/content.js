@@ -20,6 +20,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function extractArticle() {
+  console.log('[Stash] extractArticle called on:', window.location.href);
   try {
     // Clone the document for Readability (it modifies the DOM)
     const documentClone = document.cloneNode(true);
@@ -30,9 +31,10 @@ async function extractArticle() {
     const article = reader.parse();
 
     if (article && article.textContent && article.textContent.length > 200) {
+      console.log('[Stash] Readability parsed article successfully');
       const productData = extractProductData();
       const bookData = extractBookData();
-      return {
+      const result = {
         success: true,
         title: article.title || document.title,
         content: htmlToText(article.content),
@@ -54,17 +56,20 @@ async function extractArticle() {
         bookPageCount: bookData.pageCount,
         bookDescription: bookData.description,
       };
+      console.log('[Stash] Returning article data:', result);
+      return result;
     }
   } catch (e) {
-    console.error('Readability failed:', e);
+    console.error('[Stash] Readability failed:', e);
   }
 
   // Fallback: try to find article content more intelligently
+  console.log('[Stash] Using fallback content extraction');
   const content = extractFallbackContent();
   const productData = extractProductData();
   const bookData = extractBookData();
 
-  return {
+  const result = {
     success: true,
     title: document.title,
     content: cleanContent(content),
@@ -86,6 +91,8 @@ async function extractArticle() {
     bookPageCount: bookData.pageCount,
     bookDescription: bookData.description,
   };
+  console.log('[Stash] Returning fallback article data:', result);
+  return result;
 }
 
 function extractFallbackContent() {
@@ -413,6 +420,7 @@ function extractProductDescription() {
 
 // Extract product data from schema.org markup and meta tags
 function extractProductData() {
+  console.log('[Stash] Starting product detection...');
   const product = {
     isProduct: false,
     price: null,
@@ -439,6 +447,7 @@ function extractProductData() {
       const type = data['@type'];
       if (type === 'Product' || (Array.isArray(type) && type.includes('Product'))) {
         product.isProduct = true;
+        console.log('[Stash] Found product in JSON-LD schema:', data);
 
         if (data.offers) {
           const offer = Array.isArray(data.offers) ? data.offers[0] : data.offers;
@@ -450,14 +459,18 @@ function extractProductData() {
       }
     } catch (e) {
       // JSON parse error, skip this script
+      console.log('[Stash] JSON-LD parse error:', e);
     }
   }
+  console.log('[Stash] After JSON-LD check, isProduct:', product.isProduct);
 
   // Check Open Graph product meta tags (fallback)
   if (!product.isProduct) {
     const ogType = document.querySelector('meta[property="og:type"]');
+    console.log('[Stash] OG type meta tag:', ogType?.content);
     if (ogType?.content === 'product' || ogType?.content === 'og:product') {
       product.isProduct = true;
+      console.log('[Stash] Found product via OG meta tags');
     }
 
     const priceAmount = document.querySelector('meta[property="product:price:amount"]') ||
@@ -469,6 +482,7 @@ function extractProductData() {
       product.isProduct = true;
       product.price = priceAmount.content;
       product.currency = priceCurrency?.content || 'USD';
+      console.log('[Stash] Found product price in OG meta:', product.price, product.currency);
     }
   }
 
@@ -510,6 +524,7 @@ function extractProductData() {
     product.description = extractProductDescription();
   }
 
+  console.log('[Stash] Final product detection result:', product);
   return product;
 }
 
@@ -622,6 +637,7 @@ function extractBookDescription() {
 
 // Extract book data from schema.org markup, meta tags, and URL patterns
 function extractBookData() {
+  console.log('[Stash] Starting book detection...');
   const book = {
     isBook: false,
     author: null,
@@ -797,6 +813,7 @@ function extractBookData() {
     book.description = extractBookDescription();
   }
 
+  console.log('[Stash] Final book detection result:', book);
   return book;
 }
 
