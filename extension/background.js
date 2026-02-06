@@ -391,6 +391,16 @@ async function savePageWithOptions(tab, folderId = null, tagIds = [], notes = nu
       if (article.productDescription) {
         saveData.excerpt = article.productDescription;
       }
+    } else if (article.isProduct) {
+      // Fallback to auto-detected product data from article
+      saveData.is_product = true;
+      saveData.product_price = article.productPrice;
+      saveData.product_currency = article.productCurrency || 'USD';
+      saveData.product_availability = article.productAvailability;
+      // Use cleaned product description as excerpt if available
+      if (article.productDescription) {
+        saveData.excerpt = article.productDescription;
+      }
     }
 
     // Add book fields if this is a book save (from popup toggle or auto-detected)
