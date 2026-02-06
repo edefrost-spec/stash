@@ -431,9 +431,11 @@ function extractProductData() {
 
   // Check JSON-LD schema (highest priority)
   const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+  console.log('[Stash] Found', scripts.length, 'JSON-LD script tags');
   for (const script of scripts) {
     try {
       let data = JSON.parse(script.textContent);
+      console.log('[Stash] JSON-LD @type:', data['@type'] || (data['@graph'] ? 'graph array' : 'unknown'));
 
       // Handle @graph arrays
       if (data['@graph']) {
@@ -489,7 +491,10 @@ function extractProductData() {
   // Check common ecommerce domains for confidence boost
   const hostname = window.location.hostname.toLowerCase();
   const ecommerceDomains = ['amazon.', 'ebay.', 'etsy.', 'shopify.', 'walmart.', 'target.', 'bestbuy.'];
-  if (ecommerceDomains.some(domain => hostname.includes(domain))) {
+  const isEcommerceSite = ecommerceDomains.some(domain => hostname.includes(domain));
+  console.log('[Stash] Is ecommerce site:', isEcommerceSite);
+
+  if (isEcommerceSite) {
     // If on ecommerce domain, try harder to find price
     if (!product.price) {
       // Look for common price selectors
@@ -500,6 +505,8 @@ function extractProductData() {
         '.a-price .a-offscreen', // Amazon
         '#priceblock_ourprice',
         '#priceblock_dealprice',
+        '.a-price-whole', // Amazon new layout
+        '[data-a-color="price"] .a-offscreen', // Amazon
         '.x-price-primary',
         '[itemprop="price"]'
       ];
@@ -508,13 +515,24 @@ function extractProductData() {
         const el = document.querySelector(selector);
         if (el) {
           const priceText = el.getAttribute('data-price') || el.textContent;
+          console.log('[Stash] Checking price selector', selector, ':', priceText);
           const match = priceText?.match(/[\d,.]+/);
           if (match) {
             product.price = match[0].replace(',', '');
             product.isProduct = true;
+            console.log('[Stash] Found price via selector:', product.price);
             break;
           }
         }
+      }
+    }
+
+    // If we're on Amazon and still no product detected, be more aggressive
+    if (!product.isProduct && hostname.includes('amazon.')) {
+      // Check if URL pattern suggests this is a product page
+      if (/\/dp\/|\/gp\/product\/|\/ASIN\//i.test(window.location.pathname)) {
+        console.log('[Stash] Amazon product page detected by URL pattern');
+        product.isProduct = true;
       }
     }
   }
@@ -690,7 +708,7 @@ function extractBookData() {
   const hostname = window.location.hostname.toLowerCase();
 
   const bookPatterns = [
-    { regex: /amazon\.com\/.*\/dp\/([A-Z0-9]{10})/i, site: 'amazon' },
+    { regex: /amazon\.(com|co\.uk|de|fr|es|it|ca|com\.au|co\.jp)\/.*\/dp\/([A-Z0-9]{10})/i, site: 'amazon' },
     { regex: /goodreads\.com\/book\/show/i, site: 'goodreads' },
     { regex: /google\.com\/books/i, site: 'google-books' },
     { regex: /barnesandnoble\.com\/w\//i, site: 'bn' },
