@@ -3487,6 +3487,7 @@ body.show-annotations .save-card-annotations {
 
 .save-card.image-save:hover {
   border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 }
 
 /* Hide site name, title, and date on image cards */
@@ -4520,6 +4521,7 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 
 .save-card.product-save:hover {
   border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 }
 
 /* Hide text elements on product cards */

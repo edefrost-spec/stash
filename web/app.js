@@ -1645,11 +1645,6 @@ class StashApp {
             <div class="book-cover-container">
               <img src="${save.image_url}" alt="${this.escapeHtml(save.title)}" class="book-cover">
             </div>
-            <div class="save-card-content">
-              <div class="save-card-title">${this.escapeHtml(save.title || 'Untitled')}</div>
-              ${save.author ? `<div class="book-author">by ${this.escapeHtml(save.author)}</div>` : ''}
-              ${annotations}
-            </div>
           </div>
         `;
 
@@ -3207,24 +3202,44 @@ class StashApp {
 
       if (autotagBtn) {
         autotagBtn.onclick = async () => {
-          autotagBtn.textContent = 'TAGGING...';
-          autotagBtn.disabled = true;
+          try {
+            autotagBtn.textContent = 'TAGGING...';
+            autotagBtn.disabled = true;
 
-          const { data, error } = await this.supabase.functions.invoke('auto-tag-image', {
-            body: {
-              save_id: save.id,
-              user_id: this.user.id,
-              image_url: save.image_url
+            const { data, error } = await this.supabase.functions.invoke('auto-tag-image', {
+              body: {
+                save_id: save.id,
+                user_id: this.user.id,
+                image_url: save.image_url
+              }
+            });
+
+            if (error) {
+              console.error('Auto-tag error:', error);
+              this.showToast(`Auto-tag failed: ${error.message || 'Unknown error'}`, 'error');
+              autotagBtn.textContent = 'Auto-tag';
+              autotagBtn.disabled = false;
+              return;
             }
-          });
 
-          if (!error) {
+            // Reload tags to show newly added ones
             await this.loadModalTags(save);
-            autotagBtn.textContent = 'AUTO-TAG';
-          } else {
-            autotagBtn.textContent = 'Error';
+
+            const tagCount = data?.tags?.length || 0;
+            if (tagCount > 0) {
+              this.showToast(`Added ${tagCount} tag${tagCount > 1 ? 's' : ''}!`, 'success');
+            } else {
+              this.showToast('No tags generated', 'info');
+            }
+
+            autotagBtn.textContent = 'Auto-tag';
+            autotagBtn.disabled = false;
+          } catch (err) {
+            console.error('Auto-tag exception:', err);
+            this.showToast('Auto-tag failed', 'error');
+            autotagBtn.textContent = 'Auto-tag';
+            autotagBtn.disabled = false;
           }
-          autotagBtn.disabled = false;
         };
       }
     }
