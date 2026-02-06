@@ -1518,47 +1518,69 @@ class StashApp {
     const assets = {
       article: {
         label: 'Article',
-        icon: 'https://www.figma.com/api/mcp/asset/1a54443f-4827-4074-badb-996d3b8c57bb',
+        icon: 'https://www.figma.com/api/mcp/asset/be26309e-b0a4-4698-a545-3343032f5d37',
+        size: 12,
       },
       book: {
         label: 'Book',
-        icon: 'https://www.figma.com/api/mcp/asset/9802b23e-c945-4860-90cc-468366c6125b',
+        icon: 'https://www.figma.com/api/mcp/asset/8a450998-358c-4752-9c7b-b408cad6464d',
+        size: 16,
       },
       video: {
         label: 'Video',
-        icon: 'https://www.figma.com/api/mcp/asset/85cc0732-dca9-4e01-bfea-95c450267ace',
+        icon: 'https://www.figma.com/api/mcp/asset/6106c1c5-02cf-471d-b41b-0a62117b1699',
+        size: 16,
       },
       image: {
         label: 'Image',
-        icon: 'https://www.figma.com/api/mcp/asset/38fe092f-1b69-4eee-bca6-4c3b0b41c2ce',
+        icon: 'https://www.figma.com/api/mcp/asset/57066f98-cd61-4e37-ae93-386aeeca16ac',
+        size: 16,
       },
       product: {
         label: 'Product',
-        icon: 'https://www.figma.com/api/mcp/asset/76271c4a-5763-4e85-80b8-0b770d15b8ec',
+        icon: 'https://www.figma.com/api/mcp/asset/33b49b13-c191-4856-8cb8-e3e86366bf98',
+        size: 16,
       },
       music: {
         label: 'Music',
-        icon: 'https://www.figma.com/api/mcp/asset/5c6f3cb0-8ee1-44d3-be16-866d232c3ca8',
+        icon: 'https://www.figma.com/api/mcp/asset/b5022f9f-b3a8-45e0-930b-df595c515086',
+        size: 16,
       },
       highlight: {
         label: 'Quote',
-        icon: 'https://www.figma.com/api/mcp/asset/c0b5076d-49c0-4ed5-a055-aac131df5a90',
+        icon: 'https://www.figma.com/api/mcp/asset/14bee86b-fdc7-4d1b-9f50-df3dc1dc67be',
+        size: 12,
       },
       note: {
         label: 'Note',
-        icon: 'https://www.figma.com/api/mcp/asset/6daf2b0c-3754-4e98-8909-d164673e319a',
+        icon: 'https://www.figma.com/api/mcp/asset/ad2a0beb-3130-4741-bd8e-7fc48f1cacc2',
+        size: 9,
       },
       link: {
         label: 'Link',
-        icon: 'https://www.figma.com/api/mcp/asset/1a54443f-4827-4074-badb-996d3b8c57bb',
+        icon: 'https://www.figma.com/api/mcp/asset/be26309e-b0a4-4698-a545-3343032f5d37',
+        size: 12,
       },
     };
 
     const data = assets[saveType] || assets.article;
     return `
       <span class="modal-save-type-pill" data-save-type="${saveType}">
-        <img src="${data.icon}" alt="">
+        <img src="${data.icon}" alt="" style="width: ${data.size}px; height: ${data.size}px;">
         <span>${data.label}</span>
+      </span>
+    `;
+  }
+
+  renderModalSpacePill(folderId) {
+    if (!folderId) return '';
+    const folder = this.folders.find(f => f.id === folderId);
+    if (!folder) return '';
+    const color = folder.color || '#8aa7ff';
+    return `
+      <span class="modal-space-tag-pill">
+        <span class="modal-space-dot" style="border-color: ${color};"></span>
+        <span>${this.escapeHtml(folder.name)}</span>
       </span>
     `;
   }
@@ -2936,11 +2958,6 @@ class StashApp {
       readStatusSection.classList.add('hidden');
     }
 
-    // Populate folder dropdown
-    const folderSelect = document.getElementById('modal-folder-select');
-    folderSelect.innerHTML = '<option value="">No folder</option>' +
-      this.folders.map(f => `<option value="${f.id}"${save.folder_id === f.id ? ' selected' : ''}>${this.escapeHtml(f.name)}</option>`).join('');
-
     // Load and display tags
     this.loadModalTags(save);
 
@@ -2956,10 +2973,11 @@ class StashApp {
     const saveTags = this.saveTagMap[save.id] || [];
     const saveType = this.getSaveType(save);
     const saveTypePill = this.renderModalSaveTypePill(saveType);
+    const spacePill = this.renderModalSpacePill(save.folder_id);
 
     const tagPills = saveTags.map(tag => {
       const color = '#FF794E';
-      const bg = '#FF9A7A';
+      const bg = '#FF794E';
       return `
         <span class="modal-tag-pill" style="--tag-color: ${color}; --tag-bg: ${bg}">
           <span class="modal-tag-text">${this.escapeHtml(tag.name)}</span>
@@ -2968,7 +2986,7 @@ class StashApp {
       `;
     }).join('');
 
-    tagsList.innerHTML = saveTypePill + tagPills;
+    tagsList.innerHTML = saveTypePill + spacePill + tagPills;
 
     tagsList.querySelector('.modal-save-type-pill')?.addEventListener('click', () => {
       this.filterBySaveType(saveType);
@@ -3156,9 +3174,6 @@ class StashApp {
       e.stopPropagation();
       this.showModalContextMenu(save);
     };
-
-    // Folder selector
-    document.getElementById('modal-folder-select').onchange = (e) => this.updateModalFolder(save, e.target.value);
 
     // Notes textarea with auto-save
     const notesTextarea = document.getElementById('modal-notes-textarea');
