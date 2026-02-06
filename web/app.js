@@ -2549,16 +2549,18 @@ class StashApp {
   }
 
   renderProductModalBody(save) {
+    const siteLabel = save.site_name ? `Purchase at ${this.escapeHtml(save.site_name)}` : 'Purchase';
+    const description = this.escapeHtml(save.excerpt || '');
     return `
-      <div class="modal-article-content">
-        ${save.image_url ? `<img src="${save.image_url}" class="modal-hero-image" alt="">` : ''}
-        ${save.product_price ? `
-          <div class="product-price-badge" style="font-size: 24px; font-weight: bold; color: var(--primary); margin-bottom: 16px;">
-            ${save.product_currency === 'USD' ? '$' : save.product_currency} ${save.product_price}
-          </div>
-        ` : ''}
-        ${save.excerpt ? `<p>${this.escapeHtml(save.excerpt)}</p>` : ''}
-        ${save.content ? this.renderMarkdown(save.content) : ''}
+      <div class="modal-product-view">
+        <div class="modal-product-image">
+          <img src="${save.image_url}" alt="${this.escapeHtml(save.title || 'Product')}">
+        </div>
+        <a href="${save.url || '#'}" target="_blank" class="modal-product-purchase">
+          <img src="https://www.figma.com/api/mcp/asset/3908d328-f6ca-45a7-b406-24fa5ac56bb1" alt="">
+          <span>${siteLabel}</span>
+        </a>
+        ${description ? `<div class="modal-product-description">${description}</div>` : ''}
       </div>
     `;
   }

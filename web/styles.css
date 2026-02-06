@@ -811,7 +811,7 @@ input, select {
 .save-card {
   background: white;
   border: 1px solid rgba(229,231,235,0.6);
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.15s;
@@ -3456,7 +3456,7 @@ body.show-annotations .save-card-annotations {
 .save-card.image-save {
   position: relative;
   overflow: hidden;
-  border: none;
+  border: 2px solid transparent;
 }
 
 .save-card.image-save .save-card-image {
@@ -3481,8 +3481,12 @@ body.show-annotations .save-card-annotations {
 }
 
 .save-card.image-save:hover .save-card-content {
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.save-card.image-save:hover {
+  border-color: rgba(0, 0, 0, 0.06);
 }
 
 /* Hide site name, title, and date on image cards */
@@ -3502,7 +3506,7 @@ body.show-annotations .save-card-annotations {
 }
 
 body.show-annotations .save-card.image-save:hover .save-card-annotations {
-  display: flex;
+  display: none;
 }
 
 .save-card.image-save .save-card-tag {
@@ -4486,7 +4490,7 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 .save-card.product-save {
   position: relative;
   overflow: hidden;
-  border: none;
+  border: 2px solid transparent;
 }
 
 .save-card.product-save .save-card-image {
@@ -4510,8 +4514,12 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 }
 
 .save-card.product-save:hover .save-card-content {
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.save-card.product-save:hover {
+  border-color: rgba(0, 0, 0, 0.06);
 }
 
 /* Hide text elements on product cards */
@@ -4531,7 +4539,7 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 }
 
 body.show-annotations .save-card.product-save:hover .save-card-annotations {
-  display: flex;
+  display: none;
 }
 
 .save-card.product-save .save-card-tag {
@@ -4602,6 +4610,62 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   color: var(--text-secondary);
   line-height: 1.6;
   font-size: 14px;
+}
+
+.modal-product-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px;
+  background: #fafaf9;
+  height: 100%;
+  justify-content: center;
+}
+
+.modal-product-image {
+  width: 351px;
+  height: 484px;
+  overflow: hidden;
+}
+
+.modal-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-product-purchase {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 10px 16px;
+  height: 41px;
+  border-radius: 0 0 8px 8px;
+  background: #ff5722;
+  color: #ffffff;
+  font-size: 20px;
+  letter-spacing: -0.4px;
+  text-decoration: none;
+  width: 100%;
+  max-width: 351px;
+}
+
+.modal-product-purchase:hover {
+  background: #ff794e;
+}
+
+.modal-product-purchase img {
+  width: 24px;
+  height: 24px;
+}
+
+.modal-product-description {
+  font-size: 15px;
+  color: #000000;
+  text-align: center;
+  max-width: 351px;
 }
 
 /* ===================================
@@ -5001,6 +5065,9 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   line-height: 20px;
   cursor: pointer;
   height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-tag-action-btn:hover {
