@@ -5801,6 +5801,7 @@ class StashApp {
     const isFolder = this.currentView === 'folder';
 
     const spacesPage = document.getElementById('spaces-page');
+    const contentArea = document.querySelector('.content');
     const searchBar = document.querySelector('.search-bar-redesigned');
     const spaceTitleBar = document.getElementById('space-title-bar');
     const focusBar = document.getElementById('focus-bar');
@@ -5809,6 +5810,7 @@ class StashApp {
     const empty = document.getElementById('empty-state');
 
     spacesPage?.classList.toggle('hidden', !isSpaces);
+    contentArea?.classList.toggle('hidden', isSpaces);
     searchBar?.classList.toggle('hidden', isSpaces || isFolder);
     spaceTitleBar?.classList.toggle('hidden', !isFolder);
     focusBar?.classList.toggle('hidden', isSpaces);
