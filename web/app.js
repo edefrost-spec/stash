@@ -1762,12 +1762,11 @@ class StashApp {
       case 'article':
       default:
         // Article card - new design with optional image
+        const publisherLabel = this.getArticlePublisherLabel(save);
         return `
           <div class="save-card article-card${save.image_url ? ' article-card--image' : ' article-card--noimage'}" data-id="${save.id}">
             <div class="article-card-content${save.image_url ? '' : ' article-card-content--bookmark'}">
-              <div class="article-card-bookmark">
-                <img src="https://www.figma.com/api/mcp/asset/da8fc600-a05e-4af0-855f-49c8958ccc50" alt="">
-              </div>
+              <div class="article-card-publisher-logo">${this.escapeHtml(publisherLabel)}</div>
               ${save.image_url ? `<div class="article-card-headline">${this.escapeHtml(save.title || '')}</div>` : ''}
             </div>
             ${save.image_url ? `
@@ -1798,6 +1797,16 @@ class StashApp {
     }
 
     return `<div class="article-card-publisher"></div>`;
+  }
+
+  getArticlePublisherLabel(save) {
+    const siteName = (save.site_name || '').trim();
+    if (siteName) return siteName;
+    if (save.url) {
+      const label = this.getSourceLabel(save.url);
+      if (label) return label;
+    }
+    return '';
   }
 
   renderCardAnnotations(save, options = {}) {

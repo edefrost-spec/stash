@@ -6500,14 +6500,26 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   padding: 16px;
 }
 
-.article-card-bookmark {
-  width: 32px;
-  height: 32px;
+.article-card-publisher-logo {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  color: #1e1e1e;
+  opacity: 0.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.article-card-bookmark img {
-  width: 100%;
-  height: 100%;
+.article-card-publisher-logo:empty {
+  display: none;
+}
+
+[data-theme="dark"] .article-card-publisher-logo {
+  color: #e5e7eb;
 }
 
 .article-card-headline {
