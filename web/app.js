@@ -6371,17 +6371,15 @@ class StashApp {
     const submenu = document.getElementById('modal-spaces-submenu');
     if (!submenu) return;
 
-    const spaces = [
-      { id: 'ai', name: 'AI', color: '#54ba6e' },
-      { id: 'design-inspo', name: 'Design Inspo', color: '#d6bddc' },
-      { id: 'jobs', name: 'Jobs', color: '#adffff' },
-      { id: 'ux', name: 'UX', color: '#f4b2d1' }
-    ];
+    if (!this.folders || this.folders.length === 0) {
+      submenu.innerHTML = '<div class="context-submenu-empty">No spaces yet</div>';
+      return;
+    }
 
-    submenu.innerHTML = spaces.map(space => `
-      <button class="context-submenu-item" data-space-id="${space.id}">
-        <span class="space-color-dot" style="background: ${space.color}"></span>
-        <span>${this.escapeHtml(space.name)}</span>
+    submenu.innerHTML = this.folders.map(folder => `
+      <button class="context-submenu-item" data-space-id="${folder.id}">
+        <span class="space-color-dot" style="background: ${folder.color || '#6366f1'}"></span>
+        <span>${this.escapeHtml(folder.name)}</span>
       </button>
     `).join('');
 
@@ -6434,9 +6432,24 @@ class StashApp {
     }
   }
 
-  addToModalSpace(spaceId) {
-    this.showToast('Spaces feature coming soon!', 'info');
-    this.hideModalContextMenu();
+  async addToModalSpace(spaceId) {
+    const save = this.modalContextMenuSave;
+    if (!save) return;
+
+    const folder = this.folders.find(f => f.id === spaceId);
+    try {
+      await this.supabase
+        .from('saves')
+        .update({ folder_id: spaceId })
+        .eq('id', save.id);
+
+      this.showToast(`Added to ${folder?.name || 'space'}`, 'success');
+      this.hideModalContextMenu();
+      this.loadSaves();
+    } catch (err) {
+      console.error('Error adding to space:', err);
+      this.showToast('Failed to add to space', 'error');
+    }
   }
 
   showModalDeleteConfirmation() {
@@ -6641,17 +6654,15 @@ class StashApp {
     const submenu = document.getElementById('spaces-submenu');
     if (!submenu) return;
 
-    // Placeholder spaces - will be populated from database when spaces feature is implemented
-    const spaces = [
-      { id: 'reading', name: 'Reading List', color: '#22c55e' },
-      { id: 'wishlist', name: 'Wishlist', color: '#a855f7' },
-      { id: 'coding', name: 'Vibecoding', color: '#06b6d4' }
-    ];
+    if (!this.folders || this.folders.length === 0) {
+      submenu.innerHTML = '<div class="context-submenu-empty">No spaces yet</div>';
+      return;
+    }
 
-    submenu.innerHTML = spaces.map(space => `
-      <button class="context-submenu-item" data-space-id="${space.id}">
-        <span class="space-color-dot" style="background: ${space.color}"></span>
-        <span>${space.name}</span>
+    submenu.innerHTML = this.folders.map(folder => `
+      <button class="context-submenu-item" data-space-id="${folder.id}">
+        <span class="space-color-dot" style="background: ${folder.color || '#6366f1'}"></span>
+        <span>${this.escapeHtml(folder.name)}</span>
       </button>
     `).join('');
 
@@ -6734,10 +6745,24 @@ class StashApp {
     }
   }
 
-  addToSpace(spaceId) {
-    // Placeholder - will be implemented when spaces feature is added
-    this.showToast('Spaces feature coming soon!', 'info');
-    this.hideContextMenu();
+  async addToSpace(spaceId) {
+    const save = this.contextMenuSave;
+    if (!save) return;
+
+    const folder = this.folders.find(f => f.id === spaceId);
+    try {
+      await this.supabase
+        .from('saves')
+        .update({ folder_id: spaceId })
+        .eq('id', save.id);
+
+      this.showToast(`Added to ${folder?.name || 'space'}`, 'success');
+      this.hideContextMenu();
+      this.loadSaves();
+    } catch (err) {
+      console.error('Error adding to space:', err);
+      this.showToast('Failed to add to space', 'error');
+    }
   }
 
   showDeleteConfirmation() {

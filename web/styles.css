@@ -6668,6 +6668,16 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   flex-shrink: 0;
 }
 
+.context-submenu-empty {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .context-submenu-empty {
+  color: #6b7280;
+}
+
 /* Delete Confirmation Dialog */
 .delete-confirm {
   width: 240px;

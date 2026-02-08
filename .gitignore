@@ -26,3 +26,13 @@ config.local.js
 # Build artifacts
 *.zip
 supabase/.temp/
+
+# iOS
+ios/Config.swift
+ios/*.xcodeproj
+ios/*.xcworkspace
+ios/DerivedData/
+ios/build/
+ios/.swiftpm/
+ios/*.ipa
+ios/*.dSYM.zip
