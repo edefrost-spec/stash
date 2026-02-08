@@ -1764,16 +1764,15 @@ class StashApp {
         // Article card - new design with optional image
         const publisherLabel = this.getArticlePublisherLabel(save);
         const publisherDomain = this.getArticlePublisherDomain(save);
-        const brandfetchTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-        const brandfetchUrl = publisherDomain
-          ? `https://cdn.brandfetch.io/${publisherDomain}/w/256/h/32/theme/${brandfetchTheme}/fallback/404/logo.png?c=1idTAprk8CUU5DSoOo1`
+        const brandfetchLogoUrl = publisherDomain
+          ? `https://cdn.brandfetch.io/${encodeURIComponent(publisherDomain)}/logo?c=1idTAprk8CUU5DSoOo1`
           : '';
         return `
           <div class="save-card article-card${save.image_url ? ' article-card--image' : ' article-card--noimage'}" data-id="${save.id}">
             <div class="article-card-content${save.image_url ? '' : ' article-card-content--bookmark'}">
               <div class="article-card-publisher-logo">
-                ${brandfetchUrl
-                  ? `<img src="${brandfetchUrl}" alt="${this.escapeHtml(publisherLabel)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="article-card-publisher-text" style="display:none">${this.escapeHtml(publisherLabel)}</span>`
+                ${brandfetchLogoUrl
+                  ? `<img src="${brandfetchLogoUrl}" alt="${this.escapeHtml(publisherLabel)}" loading="lazy" onload="if(this.naturalWidth<=50){this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='block'}" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='block'"><span class="article-card-publisher-text" style="display:none">${this.escapeHtml(publisherLabel)}</span>`
                   : `<span class="article-card-publisher-text">${this.escapeHtml(publisherLabel)}</span>`
                 }
               </div>
