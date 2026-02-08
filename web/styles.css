@@ -4312,6 +4312,34 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
   margin-bottom: 24px;
 }
 
+/* Hidden by default when no pinned items */
+.focus-bar.focus-bar-hidden {
+  display: none;
+}
+
+/* Revealed during drag — animate into view and push grid down */
+.focus-bar.focus-bar-drag-reveal {
+  display: block;
+  animation: focusBarSlideIn 0.25s ease-out forwards;
+}
+
+@keyframes focusBarSlideIn {
+  from {
+    opacity: 0;
+    min-height: 0;
+    padding: 0 20px;
+    margin-bottom: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    min-height: 140px;
+    padding: 20px;
+    margin-bottom: 24px;
+    transform: translateY(0);
+  }
+}
+
 [data-theme="dark"] .focus-bar {
   background: #2d2d2d;
 }
@@ -4458,12 +4486,16 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
   background: #3d3d3d;
 }
 
-.focus-bar.drag-over .focus-bar-dropzone {
+/* Show dropzone when drag-over OR when revealed during drag (no pinned items) */
+.focus-bar.drag-over .focus-bar-dropzone,
+.focus-bar.focus-bar-drag-reveal .focus-bar-dropzone {
   display: flex;
 }
 
 .focus-bar.drag-over .focus-bar-items,
-.focus-bar.drag-over .focus-bar-empty {
+.focus-bar.drag-over .focus-bar-empty,
+.focus-bar.focus-bar-drag-reveal .focus-bar-items,
+.focus-bar.focus-bar-drag-reveal .focus-bar-empty {
   visibility: hidden;
 }
 

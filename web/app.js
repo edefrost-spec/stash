@@ -5989,7 +5989,7 @@ class StashApp {
     focusBar.addEventListener('drop', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      focusBar.classList.remove('drag-over');
+      focusBar.classList.remove('drag-over', 'focus-bar-drag-reveal');
 
       // Get the save ID from the dragged card
       const saveId = e.dataTransfer.getData('text/plain');
@@ -6017,6 +6017,22 @@ class StashApp {
       if (card && card.dataset.id) {
         e.dataTransfer.setData('text/plain', card.dataset.id);
         e.dataTransfer.effectAllowed = 'move';
+
+        // Reveal focus bar if it's hidden (no pinned items)
+        const focusBar = document.getElementById('focus-bar');
+        if (focusBar && focusBar.classList.contains('focus-bar-hidden')) {
+          focusBar.classList.remove('focus-bar-hidden');
+          focusBar.classList.add('focus-bar-drag-reveal');
+        }
+      }
+    });
+
+    // Hide focus bar again when drag ends (if still no pinned items)
+    document.addEventListener('dragend', () => {
+      const focusBar = document.getElementById('focus-bar');
+      if (focusBar && focusBar.classList.contains('focus-bar-drag-reveal')) {
+        focusBar.classList.remove('focus-bar-drag-reveal', 'drag-over');
+        focusBar.classList.add('focus-bar-hidden');
       }
     });
   }
@@ -6128,14 +6144,18 @@ class StashApp {
 
     if (!focusBar || !container) return;
 
-    // Always show focus bar, toggle empty state based on items
+    // When no pinned items, hide the focus bar entirely.
+    // It will be revealed via drag-start when a user drags a card.
     if (!this.pinnedSaves.length) {
       container.innerHTML = '';
-      if (emptyState) emptyState.style.display = 'flex';
+      focusBar.classList.add('focus-bar-hidden');
+      focusBar.classList.remove('focus-bar-drag-reveal');
+      if (emptyState) emptyState.style.display = 'none';
       return;
     }
 
-    // Hide empty state when we have items
+    // Has pinned items — show the focus bar normally
+    focusBar.classList.remove('focus-bar-hidden', 'focus-bar-drag-reveal');
     if (emptyState) emptyState.style.display = 'none';
 
     container.innerHTML = this.pinnedSaves.map(save => `
