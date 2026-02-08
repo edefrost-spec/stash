@@ -1772,7 +1772,7 @@ class StashApp {
             <div class="article-card-content${save.image_url ? '' : ' article-card-content--bookmark'}">
               <div class="article-card-publisher-logo">
                 ${brandfetchLogoUrl
-                  ? `<img src="${brandfetchLogoUrl}" alt="${this.escapeHtml(publisherLabel)}" loading="lazy" onload="if(this.naturalWidth<=50){this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='block'}" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='block'"><span class="article-card-publisher-text" style="display:none">${this.escapeHtml(publisherLabel)}</span>`
+                  ? `<img src="${brandfetchLogoUrl}" alt="${this.escapeHtml(publisherLabel)}" loading="lazy" onload="if(this.naturalWidth<=50||(this.naturalWidth===820&&this.naturalHeight===220)){this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='block'}" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='block'"><span class="article-card-publisher-text" style="display:none">${this.escapeHtml(publisherLabel)}</span>`
                   : `<span class="article-card-publisher-text">${this.escapeHtml(publisherLabel)}</span>`
                 }
               </div>
