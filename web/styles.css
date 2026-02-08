@@ -15,6 +15,9 @@
   --danger: #ef4444;
   --shadow: 0 1px 3px rgba(0,0,0,0.1);
   --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+  --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.06);
+  --card-shadow-hover: 0 3px 6px rgba(15, 23, 42, 0.08), 0 10px 24px rgba(15, 23, 42, 0.12);
+  --card-hover-stroke: color-mix(in srgb, var(--primary) 30%, var(--border));
   --radius: 8px;
   --radius-lg: 16px;
   --sidebar-width: 64px;
@@ -35,6 +38,9 @@
   --border: #404040;
   --shadow: 0 1px 3px rgba(0,0,0,0.3);
   --shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(0, 0, 0, 0.45);
+  --card-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.45), 0 10px 24px rgba(0, 0, 0, 0.55);
+  --card-hover-stroke: color-mix(in srgb, var(--primary) 45%, var(--border));
 }
 
 [data-theme="dark"] .save-card,
@@ -109,7 +115,7 @@
 }
 
 body {
-  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-family: 'Rethink Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   font-size: 15px;
   color: var(--text);
   background: var(--bg);
@@ -814,7 +820,8 @@ input, select {
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.15s;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 [data-theme="dark"] .save-card {
@@ -884,7 +891,7 @@ input, select {
 }
 
 .save-card:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
   transform: translateY(-2px);
 }
 
@@ -1752,6 +1759,13 @@ body.show-annotations .save-card-annotations {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 24px;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.stat-card:hover {
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
+  transform: translateY(-2px);
 }
 
 .stat-card-value {
@@ -2840,11 +2854,12 @@ body.show-annotations .save-card-annotations {
   border-radius: var(--radius-lg);
   padding: 20px;
   cursor: pointer;
-  transition: all 0.15s;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .kindle-book-card:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
   transform: translateY(-2px);
 }
 
@@ -2972,11 +2987,12 @@ body.show-annotations .save-card-annotations {
   border-radius: var(--radius);
   padding: 20px;
   cursor: pointer;
-  transition: all 0.15s;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 
 .kindle-highlight-card:hover {
-  box-shadow: var(--shadow);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
   background: #fffbeb;
 }
 
@@ -3273,7 +3289,8 @@ body.show-annotations .save-card-annotations {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all 0.2s;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
   overflow: hidden;
 }
 
@@ -3288,11 +3305,11 @@ body.show-annotations .save-card-annotations {
 
 .rediscovery-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.25);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
 }
 
 [data-theme="dark"] .rediscovery-card:hover {
-  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.15);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
 }
 
 .rediscovery-image {
@@ -3456,7 +3473,6 @@ body.show-annotations .save-card-annotations {
 .save-card.image-save {
   position: relative;
   overflow: hidden;
-  border: 2px solid transparent;
 }
 
 .save-card.image-save .save-card-image {
@@ -3486,8 +3502,7 @@ body.show-annotations .save-card-annotations {
 }
 
 .save-card.image-save:hover {
-  border-color: rgba(0, 0, 0, 0.06);
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
 }
 
 /* Hide site name, title, and date on image cards */
@@ -3770,11 +3785,12 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   background: var(--bg-tertiary);
+  box-shadow: var(--card-shadow);
 }
 
 .similar-image-card:hover {
   transform: scale(1.03);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
 }
 
 .similar-image-card img {
@@ -4523,7 +4539,6 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 .save-card.product-save {
   position: relative;
   overflow: hidden;
-  border: 2px solid transparent;
 }
 
 .save-card.product-save .save-card-image {
@@ -4552,8 +4567,7 @@ body.show-annotations .save-card.image-save:hover .save-card-annotations {
 }
 
 .save-card.product-save:hover {
-  border-color: rgba(0, 0, 0, 0.06);
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
 }
 
 /* Hide text elements on product cards */
@@ -6481,16 +6495,16 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   border-radius: 8px;
   overflow: hidden;
   background: #ffffff;
-  border: 2px solid transparent;
+  border: 1px solid var(--border);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .save-card.article-card:hover {
-  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
 }
 
 .save-card.article-card.article-card--noimage:hover {
-  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px var(--card-hover-stroke);
 }
 
 .article-card-content {
