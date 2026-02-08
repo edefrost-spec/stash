@@ -109,6 +109,7 @@ class StashApp {
     this.bindEditNoteModal();
     this.bindContextMenu();
     this.bindModalContextMenu();
+    this.bindSpaceContextMenu();
     this.bindSpacesPage();
     this.bindNavTabs();
     this.bindDropZone();
@@ -2126,6 +2127,7 @@ class StashApp {
     const { data } = await this.supabase
       .from('folders')
       .select('*')
+      .not('is_archived', 'eq', true)
       .order('name');
 
     this.folders = data || [];
@@ -5882,6 +5884,11 @@ class StashApp {
       card.addEventListener('click', () => {
         this.filterByFolder(card.dataset.folderId);
       });
+      card.addEventListener('contextmenu', (e) => {
+        const folderId = card.dataset.folderId;
+        const folder = this.folders.find(f => f.id === folderId);
+        if (folder) this.showSpaceContextMenu(e, folder);
+      });
     });
   }
 
@@ -6610,9 +6617,15 @@ class StashApp {
     this.contextMenuPosition = { x: 0, y: 0 };
 
     // Close context menu when clicking outside
+    const spaceContextMenu = document.getElementById('space-context-menu');
+    const spaceDeleteDialog = document.getElementById('space-delete-dialog');
+    const editSpaceModal = document.getElementById('edit-space-modal');
     document.addEventListener('click', (e) => {
       if (!contextMenu.contains(e.target) && !deleteDialog?.contains(e.target)) {
         this.hideContextMenu();
+      }
+      if (spaceContextMenu && !spaceContextMenu.contains(e.target) && !spaceDeleteDialog?.contains(e.target) && !editSpaceModal?.contains(e.target)) {
+        this.hideSpaceContextMenu();
       }
     });
 
@@ -6620,6 +6633,8 @@ class StashApp {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         this.hideContextMenu();
+        this.hideSpaceContextMenu();
+        this.hideEditSpaceModal();
       }
     });
 
@@ -6845,6 +6860,256 @@ class StashApp {
     } catch (err) {
       console.error('Error deleting save:', err);
       this.showToast('Failed to delete', 'error');
+    }
+  }
+
+  // ===================================
+  // Space Context Menu
+  // ===================================
+
+  bindSpaceContextMenu() {
+    this.spaceContextMenuFolder = null;
+    this.spaceContextMenuPosition = { x: 0, y: 0 };
+
+    const menu = document.getElementById('space-context-menu');
+    const deleteDialog = document.getElementById('space-delete-dialog');
+    if (!menu) return;
+
+    // Bind menu item actions
+    menu.querySelectorAll('.context-menu-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const action = item.dataset.action;
+        this.handleSpaceContextMenuAction(action);
+      });
+    });
+
+    // Bind space delete confirmation
+    if (deleteDialog) {
+      deleteDialog.querySelector('[data-action="cancel"]')?.addEventListener('click', () => {
+        this.hideSpaceContextMenu();
+      });
+      deleteDialog.querySelector('[data-action="confirm"]')?.addEventListener('click', () => {
+        this.confirmDeleteSpace();
+      });
+    }
+
+    // Bind edit space modal
+    document.getElementById('edit-space-close')?.addEventListener('click', () => {
+      this.hideEditSpaceModal();
+    });
+    document.getElementById('edit-space-cancel')?.addEventListener('click', () => {
+      this.hideEditSpaceModal();
+    });
+    document.getElementById('edit-space-save')?.addEventListener('click', () => {
+      this.saveEditSpace();
+    });
+
+    // Save on Enter key in name input
+    document.getElementById('edit-space-name')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.saveEditSpace();
+      }
+    });
+
+    // Bind color picker buttons
+    document.querySelectorAll('.edit-space-color-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.edit-space-color-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        this.editSpaceSelectedColor = btn.dataset.color;
+      });
+    });
+
+    // Close edit modal on overlay click
+    document.getElementById('edit-space-modal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'edit-space-modal') {
+        this.hideEditSpaceModal();
+      }
+    });
+  }
+
+  showSpaceContextMenu(e, folder) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const menu = document.getElementById('space-context-menu');
+    const deleteDialog = document.getElementById('space-delete-dialog');
+    if (!menu) return;
+
+    // Hide any other open menus
+    this.hideContextMenu();
+    deleteDialog?.classList.add('hidden');
+
+    this.spaceContextMenuFolder = folder;
+
+    // Position menu at cursor
+    let x = e.clientX;
+    let y = e.clientY;
+
+    menu.classList.remove('hidden');
+    menu.style.visibility = 'hidden';
+    menu.style.left = '0';
+    menu.style.top = '0';
+
+    const menuRect = menu.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    if (x + menuRect.width > viewportWidth) {
+      x = viewportWidth - menuRect.width - 10;
+    }
+    if (y + menuRect.height > viewportHeight) {
+      y = viewportHeight - menuRect.height - 10;
+    }
+
+    this.spaceContextMenuPosition = { x, y };
+    menu.style.left = `${x}px`;
+    menu.style.top = `${y}px`;
+    menu.style.visibility = 'visible';
+  }
+
+  hideSpaceContextMenu() {
+    document.getElementById('space-context-menu')?.classList.add('hidden');
+    document.getElementById('space-delete-dialog')?.classList.add('hidden');
+    this.spaceContextMenuFolder = null;
+  }
+
+  handleSpaceContextMenuAction(action) {
+    const folder = this.spaceContextMenuFolder;
+    if (!folder) return;
+
+    switch (action) {
+      case 'edit-space':
+        this.hideSpaceContextMenu();
+        this.openEditSpaceModal(folder);
+        break;
+      case 'archive-space':
+        this.archiveSpace(folder);
+        break;
+      case 'delete-space':
+        this.showSpaceDeleteConfirmation();
+        break;
+    }
+  }
+
+  // --- Edit Space ---
+
+  openEditSpaceModal(folder) {
+    const modal = document.getElementById('edit-space-modal');
+    const nameInput = document.getElementById('edit-space-name');
+    if (!modal || !nameInput) return;
+
+    this.editSpaceFolder = folder;
+    this.editSpaceSelectedColor = folder.color || '#6366f1';
+
+    nameInput.value = folder.name;
+
+    // Select the current color
+    document.querySelectorAll('.edit-space-color-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.color === this.editSpaceSelectedColor);
+    });
+
+    modal.classList.remove('hidden');
+    nameInput.focus();
+    nameInput.select();
+  }
+
+  hideEditSpaceModal() {
+    document.getElementById('edit-space-modal')?.classList.add('hidden');
+    this.editSpaceFolder = null;
+  }
+
+  async saveEditSpace() {
+    const folder = this.editSpaceFolder;
+    if (!folder) return;
+
+    const nameInput = document.getElementById('edit-space-name');
+    const newName = (nameInput?.value || '').trim();
+
+    if (!newName) {
+      this.showToast('Space name cannot be empty', 'error');
+      return;
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('folders')
+        .update({ name: newName, color: this.editSpaceSelectedColor })
+        .eq('id', folder.id);
+
+      if (error) throw error;
+
+      this.showToast('Space updated', 'success');
+      this.hideEditSpaceModal();
+      this.loadSpacesPage();
+      this.loadFolders();
+    } catch (err) {
+      console.error('Error updating space:', err);
+      this.showToast('Failed to update space', 'error');
+    }
+  }
+
+  // --- Archive Space ---
+
+  async archiveSpace(folder) {
+    try {
+      const { error } = await this.supabase
+        .from('folders')
+        .update({ is_archived: true })
+        .eq('id', folder.id);
+
+      if (error) throw error;
+
+      this.showToast(`"${folder.name}" archived`, 'success');
+      this.hideSpaceContextMenu();
+      this.loadSpacesPage();
+      this.loadFolders();
+    } catch (err) {
+      console.error('Error archiving space:', err);
+      this.showToast('Failed to archive space', 'error');
+    }
+  }
+
+  // --- Delete Space ---
+
+  showSpaceDeleteConfirmation() {
+    const menu = document.getElementById('space-context-menu');
+    const deleteDialog = document.getElementById('space-delete-dialog');
+    if (!deleteDialog) return;
+
+    menu?.classList.add('hidden');
+    deleteDialog.classList.remove('hidden');
+    deleteDialog.style.left = `${this.spaceContextMenuPosition.x}px`;
+    deleteDialog.style.top = `${this.spaceContextMenuPosition.y}px`;
+  }
+
+  async confirmDeleteSpace() {
+    const folder = this.spaceContextMenuFolder;
+    if (!folder) return;
+
+    try {
+      // Unassign saves from this folder (don't delete them)
+      await this.supabase
+        .from('saves')
+        .update({ folder_id: null })
+        .eq('folder_id', folder.id);
+
+      // Delete the folder
+      const { error } = await this.supabase
+        .from('folders')
+        .delete()
+        .eq('id', folder.id);
+
+      if (error) throw error;
+
+      this.showToast(`"${folder.name}" deleted`, 'success');
+      this.hideSpaceContextMenu();
+      this.loadSpacesPage();
+      this.loadFolders();
+    } catch (err) {
+      console.error('Error deleting space:', err);
+      this.showToast('Failed to delete space', 'error');
     }
   }
 }

@@ -903,6 +903,74 @@
     </div>
   </div>
 
+  <!-- Space Context Menu -->
+  <div id="space-context-menu" class="context-menu hidden">
+    <button class="context-menu-item" data-action="edit-space">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
+      <span>Edit</span>
+    </button>
+    <button class="context-menu-item" data-action="archive-space">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="21 8 21 21 3 21 3 8"></polyline>
+        <rect x="1" y="3" width="22" height="5"></rect>
+        <line x1="10" y1="12" x2="14" y2="12"></line>
+      </svg>
+      <span>Archive</span>
+    </button>
+    <button class="context-menu-item danger" data-action="delete-space">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      </svg>
+      <span>Delete</span>
+    </button>
+  </div>
+
+  <!-- Space Delete Confirmation Dialog -->
+  <div id="space-delete-dialog" class="context-menu delete-confirm hidden">
+    <p class="delete-confirm-message">Delete this space? Items inside won't be deleted.</p>
+    <div class="delete-confirm-actions">
+      <button class="delete-confirm-btn cancel" data-action="cancel">Cancel</button>
+      <button class="delete-confirm-btn confirm" data-action="confirm">Delete</button>
+    </div>
+  </div>
+
+  <!-- Edit Space Modal -->
+  <div id="edit-space-modal" class="edit-space-overlay hidden">
+    <div class="edit-space-modal">
+      <div class="edit-space-header">
+        <h3>Edit Space</h3>
+        <button class="edit-space-close" id="edit-space-close">&times;</button>
+      </div>
+      <div class="edit-space-body">
+        <label class="edit-space-label">Name</label>
+        <input type="text" id="edit-space-name" class="edit-space-input" placeholder="Space name" maxlength="50" />
+        <label class="edit-space-label">Colour</label>
+        <div class="edit-space-colors" id="edit-space-colors">
+          <button class="edit-space-color-btn" data-color="#ef4444" style="background:#ef4444"></button>
+          <button class="edit-space-color-btn" data-color="#f97316" style="background:#f97316"></button>
+          <button class="edit-space-color-btn" data-color="#eab308" style="background:#eab308"></button>
+          <button class="edit-space-color-btn" data-color="#22c55e" style="background:#22c55e"></button>
+          <button class="edit-space-color-btn" data-color="#14b8a6" style="background:#14b8a6"></button>
+          <button class="edit-space-color-btn" data-color="#3b82f6" style="background:#3b82f6"></button>
+          <button class="edit-space-color-btn" data-color="#6366f1" style="background:#6366f1"></button>
+          <button class="edit-space-color-btn" data-color="#a855f7" style="background:#a855f7"></button>
+          <button class="edit-space-color-btn" data-color="#ec4899" style="background:#ec4899"></button>
+          <button class="edit-space-color-btn" data-color="#ff6b9d" style="background:#ff6b9d"></button>
+          <button class="edit-space-color-btn" data-color="#78716c" style="background:#78716c"></button>
+          <button class="edit-space-color-btn" data-color="#1e293b" style="background:#1e293b"></button>
+        </div>
+      </div>
+      <div class="edit-space-footer">
+        <button class="edit-space-cancel" id="edit-space-cancel">Cancel</button>
+        <button class="edit-space-save" id="edit-space-save">Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Global Drop Overlay for image saves -->
   <div class="global-drop-overlay" id="global-drop-overlay">
     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">

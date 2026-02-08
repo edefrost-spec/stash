@@ -10,6 +10,7 @@ create table folders (
   user_id uuid references auth.users(id) on delete cascade not null,
   name text not null,
   color text default '#6366f1',
+  is_archived boolean default false,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
