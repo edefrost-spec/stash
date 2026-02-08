@@ -6501,24 +6501,38 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .article-card-publisher-logo {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  line-height: 1;
-  color: #1e1e1e;
-  opacity: 0.5;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  height: 20px;
   max-width: 100%;
+  opacity: 0.5;
 }
 
 .article-card-publisher-logo:empty {
   display: none;
 }
 
-[data-theme="dark"] .article-card-publisher-logo {
+.article-card-publisher-logo img {
+  display: block;
+  max-height: 20px;
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.article-card-publisher-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 20px;
+  color: #1e1e1e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+[data-theme="dark"] .article-card-publisher-text {
   color: #e5e7eb;
 }
 
