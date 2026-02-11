@@ -1,0 +1,356 @@
+/* Quick Add Modal */
+.quick-add-content {
+  max-width: 448px;
+  padding: 32px 40px 28px;
+  border-radius: 16px;
+  background: white;
+  position: relative;
+}
+
+.quick-add-content .modal-body {
+  padding: 0;
+  border: none;
+}
+
+.quick-add-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-add-close-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+.quick-add-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.quick-add-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.quick-add-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.quick-add-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.quick-add-tab {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-add-tab:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+.quick-add-tab.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.quick-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.quick-add-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quick-add-field label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quick-add-form input[type="text"],
+.quick-add-form input[type="url"],
+.quick-add-form input[type="file"],
+.quick-add-form textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color 0.15s ease;
+}
+
+.quick-add-form input[type="text"]::placeholder,
+.quick-add-form input[type="url"]::placeholder,
+.quick-add-form textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.quick-add-form input[type="text"]:focus,
+.quick-add-form input[type="url"]:focus,
+.quick-add-form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.quick-add-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.quick-add-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.quick-add-status {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  text-align: center;
+}
+
+.quick-add-status.success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.quick-add-status.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+.quick-add-panel {
+  margin-top: 0;
+}
+
+.quick-add-panel.hidden {
+  display: none;
+}
+
+.quick-add-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+  padding-top: 0;
+}
+
+.quick-add-cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.quick-add-cancel-btn:hover {
+  color: var(--text);
+}
+
+.quick-add-save-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  background: #364153;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.quick-add-save-btn:hover {
+  background: #1e2939;
+}
+
+.quick-add-save-btn:disabled {
+  background: var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* Dark mode adjustments for Quick Add Modal */
+[data-theme="dark"] .quick-add-content {
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .quick-add-save-btn {
+  background: #e5e7eb;
+  color: #1e2939;
+}
+
+[data-theme="dark"] .quick-add-save-btn:hover {
+  background: #f5f5f5;
+}
+
+/* Image Dropzone */
+.image-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-dropzone:hover,
+.image-dropzone.dragover {
+  border-color: var(--primary);
+  background: rgba(255, 87, 34, 0.05);
+}
+
+.image-dropzone.dragover {
+  border-style: solid;
+}
+
+.image-dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.image-dropzone-content svg {
+  color: var(--text-muted);
+}
+
+.image-dropzone-content p {
+  color: var(--text);
+  font-size: 15px;
+  margin: 0;
+}
+
+.image-dropzone .dropzone-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Image Preview */
+.image-preview {
+  position: relative;
+  width: 100%;
+  max-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-preview img {
+  max-width: 100%;
+  max-height: 280px;
+  border-radius: var(--radius);
+  object-fit: contain;
+}
+
+.image-preview-remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--danger);
+  border: 2px solid var(--bg);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.image-preview-remove:hover {
+  transform: scale(1.1);
+}
+
+.image-dropzone.has-preview {
+  border-style: solid;
+  border-color: var(--primary);
+  background: var(--bg-secondary);
+  padding: 16px;
+}
+
+/* Global Drop Overlay */
+.global-drop-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 87, 34, 0.95);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.global-drop-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.global-drop-overlay svg {
+  color: white;
+  width: 64px;
+  height: 64px;
+}
+
+.global-drop-overlay p {
+  color: white;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.global-drop-overlay span {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+

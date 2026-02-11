@@ -1,6 +1,6 @@
 // Environment-aware config loader.
-// Loads dev config on localhost unless overridden by localStorage key `stash-env`,
-// then loads app.js after config is ready.
+// Loads dev or prod config on localhost unless overridden by localStorage key `stash-env`.
+// Exposes window.configReady (Promise) so ES module entry point can await it.
 (function () {
   const envOverride = localStorage.getItem('stash-env');
   const host = window.location.hostname;
@@ -8,17 +8,14 @@
   const useDev = envOverride ? envOverride === 'dev' : isLocalhost;
   const file = useDev ? 'config.dev.js' : 'config.prod.js';
 
-  const loadScript = (src, onload) => {
+  window.configReady = new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = src;
-    script.onload = onload;
+    script.src = file;
+    script.onload = resolve;
     script.onerror = () => {
-      console.error(`Failed to load ${src}`);
+      console.error(`Failed to load ${file}`);
+      reject(new Error(`Failed to load ${file}`));
     };
     document.head.appendChild(script);
-  };
-
-  loadScript(file, () => {
-    loadScript('app.js');
   });
 })();

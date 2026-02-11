@@ -36,3 +36,4 @@ ios/build/
 ios/.swiftpm/
 ios/*.ipa
 ios/*.dSYM.zip
+ios/Eden/.git

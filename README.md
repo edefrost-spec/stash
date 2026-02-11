@@ -37,13 +37,19 @@ See [SETUP.md](SETUP.md) for detailed instructions.
 
 ```
 stash/
-├── extension/       # Chrome extension
-├── safari/          # Safari Web Extension wrapper instructions
-├── web/            # Web app (PWA)
-├── tts/            # Text-to-speech generator
-├── bookmarklet/    # Universal save bookmarklet
-├── ios-shortcut/   # iOS Shortcut for Safari
-└── supabase/       # Database schema & Edge Functions
+├── web/              # Web app (PWA)
+│   ├── js/           #   ES modules (split from app.js)
+│   ├── css/          #   CSS partials (split from styles.css)
+│   ├── config.js     #   Environment-aware config loader
+│   └── sw.js         #   Service worker
+├── extension/        # Chrome extension
+├── safari/           # Safari Web Extension (Xcode wrapper)
+├── ios/              # Native iOS app (Xcode project in ios/Eden/)
+├── supabase/         # Database schema & Edge Functions
+├── tts/              # Text-to-speech generator (Python)
+├── bookmarklet/      # Universal save bookmarklet
+├── ios-shortcut/     # iOS Shortcut for Safari
+└── docs/design/      # Design reference images
 ```
 
 ## Tech Stack

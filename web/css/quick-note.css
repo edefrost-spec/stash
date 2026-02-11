@@ -1,0 +1,488 @@
+/* ===================================
+   Quick Note Input
+   =================================== */
+
+.quick-note-input {
+  position: relative;
+  width: calc((100% - 72px) / 4);
+  margin-bottom: 24px;
+  padding: 21px;
+  background: white;
+  border: 1px solid rgba(229,231,235,0.6);
+  border-radius: var(--card-radius);
+  box-shadow: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+}
+
+[data-theme="dark"] .quick-note-input {
+  background: var(--bg-secondary);
+}
+
+.quick-note-input:hover {
+  box-shadow: var(--shadow);
+}
+
+.quick-note-input:focus-within {
+  border-color: var(--primary);
+}
+
+.quick-note-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 16px;
+}
+
+#quick-note-textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 80px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  resize: none;
+  font-family: inherit;
+}
+
+#quick-note-textarea:focus {
+  outline: none;
+}
+
+#quick-note-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.quick-note-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* Hide footer until textarea has content */
+.quick-note-footer.hidden {
+  display: none;
+}
+
+.quick-note-input.has-content .quick-note-footer {
+  display: flex;
+}
+
+/* Old styles kept for compatibility but hidden */
+.quick-note-header {
+  display: none;
+}
+
+.quick-note-actions {
+  display: none;
+}
+
+.quick-note-color-btn,
+.quick-note-expand-btn {
+  display: none;
+}
+
+.color-indicator {
+  display: none;
+}
+
+.quick-note-title-input {
+  display: none;
+}
+
+.quick-note-title-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+#quick-note-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  resize: none;
+  font-family: inherit;
+}
+
+#quick-note-textarea:focus {
+  outline: none;
+}
+
+#quick-note-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.quick-note-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.quick-note-char-count {
+  display: none;
+}
+
+.btn.small {
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+/* ===================================
+   Quick Note Color Picker
+   =================================== */
+
+.quick-note-color-picker {
+  position: absolute;
+  top: 48px;
+  right: 8px;
+  width: 200px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 12px;
+  z-index: 100;
+}
+
+.color-picker-section {
+  margin-bottom: 12px;
+}
+
+.color-picker-section:last-child {
+  margin-bottom: 0;
+}
+
+.color-picker-section label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.color-preset-grid,
+.gradient-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.gradient-preset-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.color-preset,
+.gradient-preset {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.color-preset:hover,
+.gradient-preset:hover {
+  transform: scale(1.1);
+}
+
+.color-preset.active,
+.gradient-preset.active {
+  border-color: var(--text);
+}
+
+.color-custom-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.color-custom-row input[type="color"] {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.color-custom-row input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.color-custom-row input[type="color"]::-webkit-color-swatch {
+  border-radius: 4px;
+  border: none;
+}
+
+.color-custom-row input[type="text"] {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: monospace;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.color-custom-row input[type="text"]:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* ===================================
+   Floating Format Bar
+   =================================== */
+
+.format-bar {
+  position: fixed;
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  animation: formatBarIn 0.15s ease;
+}
+
+@keyframes formatBarIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.format-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: background 0.15s, color 0.15s;
+}
+
+.format-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+.format-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ===================================
+   Quick Note Modal (Expanded View)
+   =================================== */
+
+.quick-note-modal-content {
+  max-width: 700px;
+  width: 90%;
+}
+
+.quick-note-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-note-modal-body {
+  padding: 0 \!important;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+#quick-note-modal-textarea {
+  flex: 1;
+  width: 100%;
+  min-height: 400px;
+  padding: 24px;
+  border: none;
+  font-size: 15px;
+  line-height: 1.7;
+  font-family: inherit;
+  resize: none;
+  background: var(--bg);
+  color: var(--text);
+}
+
+#quick-note-modal-textarea:focus {
+  outline: none;
+}
+
+#quick-note-modal-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.quick-note-modal-preview {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background: var(--bg-secondary);
+  min-height: 400px;
+}
+
+.quick-note-modal-preview h1,
+.quick-note-modal-preview h2,
+.quick-note-modal-preview h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.quick-note-modal-preview p {
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+.quick-note-modal-preview ul,
+.quick-note-modal-preview ol {
+  margin-left: 24px;
+  margin-bottom: 12px;
+}
+
+.quick-note-modal-preview li {
+  margin-bottom: 4px;
+}
+
+.quick-note-modal-preview code {
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.quick-note-modal-preview pre {
+  background: var(--bg-tertiary);
+  padding: 16px;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  margin-bottom: 12px;
+}
+
+.quick-note-modal-preview a {
+  color: var(--primary);
+}
+
+.quick-note-modal-footer-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.quick-note-modal-color {
+  margin-right: auto;
+}
+
+/* ===================================
+   Quick Note Responsive
+   =================================== */
+
+@media (max-width: 1024px) {
+  .quick-note-input {
+    width: calc((100% - 16px) / 2);
+  }
+}
+
+@media (max-width: 768px) {
+  .quick-note-input {
+    width: 100%;
+  }
+
+  .quick-note-modal-content {
+    max-height: 90vh;
+  }
+
+  .quick-note-modal-body {
+    min-height: 300px;
+  }
+
+  #quick-note-modal-textarea,
+  .quick-note-modal-preview {
+    min-height: 300px;
+  }
+
+  .quick-note-color-picker {
+    right: 0;
+    left: 0;
+    width: auto;
+  }
+}
+
+/* ===================================
+   Colored Note Cards
+   =================================== */
+
+/* When note has custom background, adjust text colors for readability */
+.save-card.note-save[style*="background"] {
+  border-color: transparent;
+}
+
+.save-card.note-save[style*="background"] .save-card-site {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.save-card.note-save[style*="background"] .save-card-title {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.save-card.note-save[style*="background"] .save-card-note-content {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.save-card.note-save[style*="background"] .save-card-date {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* For gradient backgrounds that might be dark, add text shadow for readability */
+.save-card.note-save[style*="linear-gradient(135deg, #667eea"],
+.save-card.note-save[style*="linear-gradient(135deg, #f093fb"],
+.save-card.note-save[style*="linear-gradient(135deg, #4facfe"] {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.save-card.note-save[style*="linear-gradient(135deg, #667eea"] .save-card-site,
+.save-card.note-save[style*="linear-gradient(135deg, #667eea"] .save-card-title,
+.save-card.note-save[style*="linear-gradient(135deg, #667eea"] .save-card-note-content,
+.save-card.note-save[style*="linear-gradient(135deg, #667eea"] .save-card-date {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Dark mode handling for colored notes */
+[data-theme="dark"] .save-card.note-save[style*="background"] {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

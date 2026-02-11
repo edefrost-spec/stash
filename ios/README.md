@@ -75,29 +75,30 @@ Enable these in your app target:
 - Select your device/simulator
 - Press Cmd+R to build and run
 
-## Project Structure
+## Directory Layout
 
 ```
-Stash/
-├── App/
-│   ├── StashApp.swift           # App entry point
-│   └── Config.swift              # Supabase credentials (gitignored)
-├── Models/
-│   ├── Save.swift                # Save model (articles, highlights, etc)
-│   ├── Folder.swift              # Folder model
-│   └── Tag.swift                 # Tag model
-├── Services/
-│   ├── SupabaseService.swift    # Supabase client wrapper
-│   └── SyncService.swift         # Offline sync logic
-├── Views/
-│   ├── SavesListView.swift      # Main list of saves
-│   ├── SaveDetailView.swift     # Article detail view
-│   ├── SearchView.swift          # Search interface
-│   ├── FoldersView.swift         # Folder management
-│   └── SettingsView.swift        # App settings
-└── ShareExtension/
-    └── ShareViewController.swift # Safari share extension
+ios/
+├── Eden/                        # Xcode project (do NOT reorganize)
+│   ├── Eden.xcodeproj           # Xcode project file (gitignored)
+│   └── New Group/Stash/         # Active source files
+│       ├── StashApp.swift       #   App entry point
+│       ├── Save.swift           #   Save model
+│       ├── SupabaseService.swift
+│       ├── SavesListView.swift
+│       └── ...
+├── Stash/                       # Older reference copy (NOT used by Xcode)
+│   ├── App/
+│   ├── Models/
+│   ├── Services/
+│   └── Views/
+├── Config.example.swift
+└── README.md
 ```
+
+> **Important**: `Eden/` contains the actual Xcode project. Its internal
+> structure is managed by Xcode — do not rename or move files outside of
+> Xcode. `ios/Stash/` is an earlier standalone copy kept for reference.
 
 ## Usage
 

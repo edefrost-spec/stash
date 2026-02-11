@@ -188,6 +188,9 @@
               <span class="quick-note-label">ADD NEW NOTE</span>
               <textarea id="quick-note-textarea" placeholder=""></textarea>
               <div class="quick-note-footer hidden">
+                <button type="button" class="voice-dictation-btn" id="quick-note-mic-btn" title="Dictate">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                </button>
                 <button class="btn primary small" id="quick-note-save-btn">Save</button>
               </div>
               <!-- Hidden elements for JS compatibility -->
@@ -525,6 +528,9 @@
         <div class="modal-header">
           <h2>Quick Note</h2>
           <div class="quick-note-modal-actions">
+            <button type="button" class="voice-dictation-btn" id="quick-note-modal-mic-btn" title="Dictate">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </button>
             <button type="button" class="btn secondary small" id="quick-note-preview-toggle">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -666,6 +672,38 @@
               <option value="reading">Reading</option>
               <option value="finished">Finished</option>
             </select>
+          </div>
+
+          <!-- Audio Player (for voice memos) -->
+          <div id="modal-audio-section" class="modal-section hidden">
+            <label class="modal-section-header">AUDIO</label>
+            <div class="modal-audio-player">
+              <div class="modal-audio-controls">
+                <button class="modal-audio-play-btn" id="modal-audio-play-btn" title="Play audio">
+                  <svg class="play-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <svg class="pause-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                  </svg>
+                </button>
+                <div class="modal-audio-progress-container">
+                  <span class="modal-audio-time" id="modal-audio-current">0:00</span>
+                  <div class="modal-audio-progress-bar" id="modal-audio-progress-bar">
+                    <div class="modal-audio-progress" id="modal-audio-progress"></div>
+                  </div>
+                  <span class="modal-audio-time" id="modal-audio-duration">0:00</span>
+                </div>
+              </div>
+              <select class="modal-audio-speed" id="modal-audio-speed" title="Playback speed">
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+              </select>
+            </div>
           </div>
 
           <!-- Tags -->
@@ -986,8 +1024,11 @@
   <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
   <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
 
-  <!-- Config (loads app.js after config is ready) -->
+  <!-- Config (sets window.CONFIG, exposes configReady promise) -->
   <script src="config.js"></script>
+
+  <!-- App (ES module – waits for configReady before booting) -->
+  <script type="module" src="js/app.js"></script>
 
   <!-- Register Service Worker -->
   <script>

@@ -1,0 +1,361 @@
+/* Audio Player */
+.audio-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+}
+
+[data-theme="dark"] .audio-player {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(34, 197, 94, 0.1) 100%);
+}
+
+.audio-play-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.audio-play-btn:hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+.audio-play-btn svg.hidden {
+  display: none;
+}
+
+.audio-progress-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.audio-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+}
+
+.audio-progress {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+.audio-time {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+}
+
+.audio-speed {
+  padding: 4px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius);
+  background: white;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.audio-generating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #92400e;
+}
+
+[data-theme="dark"] .audio-generating {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(251, 191, 36, 0.15) 100%);
+  color: #fcd34d;
+}
+
+.audio-generating-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #fcd34d;
+  border-top-color: #d97706;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@media (max-width: 768px) {
+  .audio-player {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .audio-play-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .audio-time {
+    font-size: 11px;
+    min-width: 32px;
+  }
+
+  .audio-speed {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+}
+
+#reading-title {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+}
+
+.reading-body {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.reading-body p {
+  margin-bottom: 16px;
+}
+
+.reading-body a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.reading-body a:hover {
+  color: var(--primary-dark);
+}
+
+.reading-body strong {
+  font-weight: 600;
+}
+
+.reading-body em {
+  font-style: italic;
+}
+
+.reading-body code {
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 14px;
+}
+
+.reading-body pre {
+  background: var(--bg-tertiary);
+  padding: 16px;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+.reading-body pre code {
+  background: none;
+  padding: 0;
+}
+
+.reading-body blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 16px;
+  margin: 16px 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.reading-body ul, .reading-body ol {
+  margin: 16px 0;
+  padding-left: 24px;
+}
+
+.reading-body li {
+  margin-bottom: 8px;
+}
+
+.reading-body h1, .reading-body h2, .reading-body h3,
+.reading-body h4, .reading-body h5, .reading-body h6 {
+  font-weight: 600;
+  margin: 24px 0 12px;
+  line-height: 1.3;
+}
+
+.reading-body h1 { font-size: 24px; }
+.reading-body h2 { font-size: 20px; }
+.reading-body h3 { font-size: 18px; }
+
+.reading-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  margin: 16px 0;
+}
+
+.save-card {
+  position: relative;
+}
+
+.reading-tags {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.add-tag-btn {
+  padding: 4px 12px;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.add-tag-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.save-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid;
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.tag-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-left: 2px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.tag-remove:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.no-tags {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.reading-folder {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.reading-folder label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.reading-folder select {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.reading-folder select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.reading-notes {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.reading-notes label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.reading-notes textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.reading-notes textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.reading-notes textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.notes-status {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  min-height: 14px;
+}
+
