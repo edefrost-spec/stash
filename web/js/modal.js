@@ -97,7 +97,7 @@ export function applyModalMixin(proto) {
         <img src="${save.image_url}" alt="${this.escapeHtml(save.title || 'Image')}" class="modal-full-image">
         <div class="modal-image-actions">
           <button id="modal-image-similar" class="image-action-btn">
-            <img src="https://www.figma.com/api/mcp/asset/09ace2b5-c661-462c-ae60-3e2ce5952d28" alt="">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <span>Same Vibe</span>
           </button>
           <button id="modal-image-autotag" class="image-action-btn">
@@ -197,7 +197,7 @@ export function applyModalMixin(proto) {
           <img src="${save.image_url}" alt="${this.escapeHtml(save.title || 'Product')}">
         </div>
         <a href="${save.url || '#'}" target="_blank" class="modal-product-purchase">
-          <img src="https://www.figma.com/api/mcp/asset/3908d328-f6ca-45a7-b406-24fa5ac56bb1" alt="">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           <span>${siteLabel}</span>
         </a>
         ${description ? `<div class="modal-product-description">${description}</div>` : ''}

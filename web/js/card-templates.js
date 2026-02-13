@@ -50,63 +50,50 @@ export function applyCardTemplatesMixin(proto) {
     const assets = {
       article: {
         label: 'Article',
-        icon: 'https://www.figma.com/api/mcp/asset/be26309e-b0a4-4698-a545-3343032f5d37',
-        size: 12,
+        icon: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
       },
       book: {
         label: 'Book',
-        icon: 'https://www.figma.com/api/mcp/asset/8a450998-358c-4752-9c7b-b408cad6464d',
-        size: 16,
+        icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
       },
       video: {
         label: 'Video',
-        icon: 'https://www.figma.com/api/mcp/asset/6106c1c5-02cf-471d-b41b-0a62117b1699',
-        size: 16,
+        icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`,
       },
       image: {
         label: 'Image',
-        icon: 'https://www.figma.com/api/mcp/asset/57066f98-cd61-4e37-ae93-386aeeca16ac',
-        size: 16,
+        icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
       },
       product: {
         label: 'Product',
-        icon: 'https://www.figma.com/api/mcp/asset/33b49b13-c191-4856-8cb8-e3e86366bf98',
-        size: 16,
+        icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
       },
       music: {
         label: 'Music',
-        icon: 'https://www.figma.com/api/mcp/asset/b5022f9f-b3a8-45e0-930b-df595c515086',
-        size: 16,
+        icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
       },
       highlight: {
         label: 'Quote',
-        icon: 'https://www.figma.com/api/mcp/asset/14bee86b-fdc7-4d1b-9f50-df3dc1dc67be',
-        size: 12,
+        icon: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>`,
       },
       note: {
         label: 'Note',
-        icon: 'https://www.figma.com/api/mcp/asset/ad2a0beb-3130-4741-bd8e-7fc48f1cacc2',
-        size: 9,
+        icon: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
       },
       link: {
         label: 'Link',
-        icon: 'https://www.figma.com/api/mcp/asset/be26309e-b0a4-4698-a545-3343032f5d37',
-        size: 12,
+        icon: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
       },
       voice: {
         label: 'Voice Memo',
-        icon: null,
-        size: 14,
+        icon: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`,
       },
     };
 
     const data = assets[saveType] || assets.article;
-    const iconHtml = data.icon
-      ? `<img src="${data.icon}" alt="" style="width: ${data.size}px; height: ${data.size}px;">`
-      : `<svg width="${data.size}" height="${data.size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`;
     return `
       <span class="modal-save-type-pill" data-save-type="${saveType}">
-        ${iconHtml}
+        ${data.icon}
         <span>${data.label}</span>
       </span>
     `;
