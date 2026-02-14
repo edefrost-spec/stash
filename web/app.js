@@ -2672,7 +2672,7 @@ class StashApp {
             ` : ''}
 
             <div class="book-tags-section">
-              <label class="book-section-label">MIND TAGS <span class="book-section-icon">🧠</span></label>
+              <label class="book-section-label">NODES <span class="book-section-icon">🧠</span></label>
               <div id="book-modal-tags" class="book-modal-tags"></div>
               <button class="book-add-tag-btn" id="book-add-tag-btn">+ Add tag</button>
               <div class="book-tag-input-wrapper hidden" id="book-tag-input-wrapper">
@@ -2682,7 +2682,7 @@ class StashApp {
             </div>
 
             <div class="book-notes-section">
-              <label class="book-section-label">MIND NOTES <span class="book-section-icon">📝</span></label>
+              <label class="book-section-label">NOTES <span class="book-section-icon">📝</span></label>
               <textarea id="book-modal-notes" class="book-modal-notes" placeholder="Type here to add a note...">${this.escapeHtml(save.notes || '')}</textarea>
             </div>
 

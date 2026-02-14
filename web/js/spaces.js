@@ -22,6 +22,8 @@ export function applySpacesMixin(proto) {
           this.setView('spaces');
         } else if (view === 'serendipity') {
           this.setView('weekly');
+        } else if (view === 'canvas') {
+          this.setView('canvas');
         }
       });
     });
@@ -86,8 +88,10 @@ export function applySpacesMixin(proto) {
   proto.updateMainViewVisibility = function() {
     const isSpaces = this.currentView === 'spaces';
     const isFolder = this.currentView === 'folder';
+    const isCanvas = this.currentView === 'canvas';
 
     const spacesPage = document.getElementById('spaces-page');
+    const canvasPage = document.getElementById('canvas-page');
     const contentArea = document.querySelector('.content');
     const searchBar = document.querySelector('.search-bar-redesigned');
     const spaceTitleBar = document.getElementById('space-title-bar');
@@ -97,13 +101,14 @@ export function applySpacesMixin(proto) {
     const empty = document.getElementById('empty-state');
 
     spacesPage?.classList.toggle('hidden', !isSpaces);
-    contentArea?.classList.toggle('hidden', isSpaces);
-    searchBar?.classList.toggle('hidden', isSpaces || isFolder);
+    canvasPage?.classList.toggle('hidden', !isCanvas);
+    contentArea?.classList.toggle('hidden', isSpaces || isCanvas);
+    searchBar?.classList.toggle('hidden', isSpaces || isFolder || isCanvas);
     spaceTitleBar?.classList.toggle('hidden', !isFolder);
-    focusBar?.classList.toggle('hidden', isSpaces);
-    savesContainer?.classList.toggle('hidden', isSpaces);
-    loading?.classList.toggle('hidden', isSpaces || loading.classList.contains('hidden'));
-    empty?.classList.toggle('hidden', isSpaces || empty.classList.contains('hidden'));
+    focusBar?.classList.toggle('hidden', isSpaces || isCanvas);
+    savesContainer?.classList.toggle('hidden', isSpaces || isCanvas);
+    loading?.classList.toggle('hidden', isSpaces || isCanvas || loading.classList.contains('hidden'));
+    empty?.classList.toggle('hidden', isSpaces || isCanvas || empty.classList.contains('hidden'));
 
     const spacesTab = document.querySelector('.nav-tab[data-view="spaces"]');
     if (spacesTab) {

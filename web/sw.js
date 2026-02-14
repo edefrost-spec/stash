@@ -43,6 +43,8 @@ const ASSETS = [
   '/css/context-menu.css',
   '/css/voice.css',
   '/js/voice.js',
+  '/css/canvas.css',
+  '/js/canvas.js',
 ];
 
 // Install

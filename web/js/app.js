@@ -19,6 +19,7 @@ import { applySpacesMixin } from './spaces.js';
 import { applyFocusBarMixin } from './focus-bar.js';
 import { applyContextMenuMixin } from './context-menu.js';
 import { applyVoiceMixin } from './voice.js';
+import { applyCanvasMixin } from './canvas.js';
 
 // Apply all mixins to StashApp.prototype
 const proto = StashApp.prototype;
@@ -40,6 +41,7 @@ applySpacesMixin(proto);
 applyFocusBarMixin(proto);
 applyContextMenuMixin(proto);
 applyVoiceMixin(proto);
+applyCanvasMixin(proto);
 
 // Boot
 proto.init = async function() {
@@ -68,6 +70,7 @@ proto.init = async function() {
   this.bindSpaceContextMenu();
   this.bindSpacesPage();
   this.bindNavTabs();
+  this.bindCanvasTab();
   this.bindDropZone();
   this.loadPinnedSaves();
   this.bindDictationButtons();

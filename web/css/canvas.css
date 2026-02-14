@@ -1,0 +1,533 @@
+/* =============================================
+   Canvas View
+   ============================================= */
+
+.canvas-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* =============================================
+   Toolbar
+   ============================================= */
+
+.canvas-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.canvas-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+  white-space: nowrap;
+}
+
+.canvas-toolbar-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+.canvas-toolbar-btn--icon {
+  padding: 6px 10px;
+  font-size: 15px;
+  min-width: 32px;
+  justify-content: center;
+}
+
+.canvas-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+#canvas-zoom-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-width: 38px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =============================================
+   Viewport & World
+   ============================================= */
+
+.canvas-viewport {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background-color: var(--bg-secondary);
+  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  cursor: default;
+}
+
+.canvas-viewport.canvas--panning {
+  cursor: grabbing;
+}
+
+.canvas-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4000px;
+  height: 4000px;
+  transform-origin: 0 0;
+}
+
+/* =============================================
+   SVG Edge Layer
+   ============================================= */
+
+.canvas-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.canvas-svg .canvas-edge {
+  pointer-events: stroke;
+  cursor: pointer;
+  transition: stroke 0.15s, stroke-width 0.15s;
+}
+
+.canvas-svg .canvas-edge:hover {
+  stroke: var(--primary) !important;
+  stroke-width: 2.5 !important;
+}
+
+.canvas-svg .canvas-edge--selected {
+  stroke: var(--primary) !important;
+  stroke-width: 2.5 !important;
+}
+
+.canvas-edge-temp {
+  pointer-events: none;
+}
+
+/* =============================================
+   Nodes Layer
+   ============================================= */
+
+.canvas-nodes-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* individual nodes set their own pointer-events */
+}
+
+/* =============================================
+   Individual Nodes
+   ============================================= */
+
+.canvas-node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  cursor: grab;
+  user-select: none;
+  pointer-events: all;
+  transition: box-shadow 0.15s;
+  min-width: 160px;
+  max-width: 260px;
+}
+
+.canvas-node:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.canvas-node--dragging {
+  cursor: grabbing;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  z-index: 100;
+  opacity: 0.95;
+}
+
+/* =============================================
+   Node Inner Content
+   ============================================= */
+
+.canvas-node-inner {
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.canvas-save-node .canvas-node-inner {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Thumbnail */
+.canvas-node-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-tertiary);
+}
+
+.canvas-node-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Meta block (type icon + title) */
+.canvas-node-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.canvas-node-type-icon {
+  color: var(--text-muted);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.canvas-node-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+.canvas-node-title--missing {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.canvas-node-site {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =============================================
+   Delete Button (shown on hover)
+   ============================================= */
+
+.canvas-node-delete {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 10px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  line-height: 1;
+  padding: 0;
+  font-family: inherit;
+  transition: background 0.1s, color 0.1s;
+}
+
+.canvas-node:hover .canvas-node-delete {
+  display: flex;
+}
+
+.canvas-node-delete:hover {
+  background: var(--danger, #ef4444);
+  color: white;
+  border-color: var(--danger, #ef4444);
+}
+
+/* =============================================
+   Connection Handle (shown on hover)
+   ============================================= */
+
+.canvas-node-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: crosshair;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+
+.canvas-node-handle--top {
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.canvas-node:hover .canvas-node-handle {
+  opacity: 1;
+}
+
+/* =============================================
+   Stem Nodes
+   ============================================= */
+
+.canvas-stem-node {
+  background: #fefce8;
+  border-color: #fde68a;
+  min-width: 180px;
+  max-width: 280px;
+}
+
+[data-theme="dark"] .canvas-stem-node {
+  background: #292310;
+  border-color: #44380c;
+}
+
+.canvas-stem-node .canvas-node-inner {
+  padding: 0;
+  display: block;
+  min-height: unset;
+  cursor: default;
+}
+
+.canvas-stem-text {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  resize: none;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  min-height: 80px;
+  cursor: text;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border-radius: 8px;
+}
+
+.canvas-stem-text::placeholder {
+  color: #a1855a;
+  opacity: 0.7;
+}
+
+[data-theme="dark"] .canvas-stem-text::placeholder {
+  color: #8a6d3b;
+}
+
+/* =============================================
+   Save Picker Panel
+   ============================================= */
+
+.canvas-picker-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100%;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.06);
+}
+
+.canvas-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.canvas-picker-search {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.canvas-picker-search input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  background: var(--bg-secondary);
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.canvas-picker-search input:focus {
+  border-color: var(--primary);
+}
+
+.canvas-picker-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.canvas-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: grab;
+  transition: background 0.1s;
+}
+
+.canvas-picker-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.canvas-picker-item--on-canvas {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.canvas-picker-thumb {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--bg-tertiary);
+}
+
+.canvas-picker-thumb--placeholder {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+}
+
+.canvas-picker-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.canvas-picker-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.canvas-picker-site {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.canvas-picker-add-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: inherit;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+
+.canvas-picker-add-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.canvas-picker-badge {
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* =============================================
+   Empty State
+   ============================================= */
+
+.canvas-empty-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--text-muted);
+  pointer-events: none;
+  user-select: none;
+}
+
+.canvas-empty-hint p {
+  font-size: 13px;
+  margin: 6px 0;
+  opacity: 0.8;
+}
+
+.canvas-empty-hint .canvas-empty-icon {
+  font-size: 32px;
+  opacity: 0.4;
+  margin-bottom: 8px;
+}

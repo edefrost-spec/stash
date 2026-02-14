@@ -119,6 +119,7 @@ export function applyViewsMixin(proto) {
       archived: 'Archived',
       stats: 'Stats',
       weekly: 'This Week',
+      canvas: 'Canvas',
     };
     document.getElementById('view-title').textContent = titles[view] || 'Saves';
     this.updateColorFilterVisibility();
@@ -130,6 +131,8 @@ export function applyViewsMixin(proto) {
       this.loadKindleHighlights();
     } else if (view === 'spaces') {
       this.loadSpacesPage();
+    } else if (view === 'canvas') {
+      this.showCanvasPage();
     } else {
       this.loadSaves();
     }

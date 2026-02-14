@@ -59,6 +59,18 @@ export class StashApp {
     // Focus Bar state
     this.pinnedSaves = [];
 
+    // Canvas state
+    this.canvasNodes = [];
+    this.canvasEdges = [];
+    this.canvasPan = { x: 0, y: 0 };
+    this.canvasZoom = 1.0;
+    this.canvasDragState = null;
+    this.canvasPanState = null;
+    this.canvasConnecting = null;
+    this.canvasSelectedEdgeId = null;
+    this._canvasInitialized = false;
+    this._nodeWasDragged = false;
+
     // Spaces modal state
     this.pendingSpaceName = '';
     this.pendingSpaceColor = '';
