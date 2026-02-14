@@ -1,8 +1,8 @@
 /* CSS Variables */
 :root {
-  --primary: #ff5722;
-  --primary-dark: #e64a19;
-  --primary-light: #ff8a65;
+  --primary: #423e1b;
+  --primary-dark: #2e2b13;
+  --primary-light: #6b6530;
   --bg: #fafaf9;
   --bg-secondary: rgba(245,245,247,0.6);
   --bg-tertiary: #f3f4f6;
@@ -27,9 +27,9 @@
 
 /* Dark Mode */
 [data-theme="dark"] {
-  --primary: #ff8a65;
-  --primary-dark: #ff5722;
-  --primary-light: #ffab91;
+  --primary: #8c8450;
+  --primary-dark: #423e1b;
+  --primary-light: #b5ad7a;
   --bg: #1a1a1a;
   --bg-secondary: #2d2d2d;
   --bg-tertiary: #3d3d3d;

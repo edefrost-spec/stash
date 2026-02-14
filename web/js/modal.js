@@ -628,8 +628,10 @@ export function applyModalMixin(proto) {
     // Load and display tags
     this.loadModalTags(save);
 
-    // Populate notes
-    document.getElementById('modal-notes-textarea').value = save.notes || '';
+    // Populate notes — for note saves, content === notes (same field), so keep sidebar blank
+    const saveTypeForNotes = this.getSaveType(save);
+    const sidebarNotes = (saveTypeForNotes === 'note') ? (save.notes !== save.content ? save.notes || '' : '') : (save.notes || '');
+    document.getElementById('modal-notes-textarea').value = sidebarNotes;
     document.getElementById('modal-notes-status').textContent = '';
   };
 
@@ -1277,7 +1279,6 @@ export function applyModalMixin(proto) {
       .from('saves')
       .update({
         content,
-        notes: content,
         excerpt: content.slice(0, 180),
         note_color: this.editNoteColor,
         note_gradient: this.editNoteGradient,
@@ -1286,7 +1287,6 @@ export function applyModalMixin(proto) {
 
     if (!error) {
       save.content = content;
-      save.notes = content;
       save.excerpt = content.slice(0, 180);
       save.note_color = this.editNoteColor;
       save.note_gradient = this.editNoteGradient;
