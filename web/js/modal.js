@@ -599,21 +599,29 @@ export function applyModalMixin(proto) {
     const tldrSection = document.getElementById('modal-tldr-section');
     const readStatusSection = document.getElementById('modal-read-status-section');
 
-    if (saveType === 'book') {
-      // Show TLDR section if excerpt exists
-      if (save.excerpt || save.content) {
-        tldrSection.classList.remove('hidden');
-        const tldrContent = save.excerpt || (save.content ? save.content.substring(0, 300) + '...' : '');
-        document.getElementById('modal-tldr-content').textContent = tldrContent;
-      } else {
-        tldrSection.classList.add('hidden');
-      }
+    // Show TLDR section for summarizable types
+    const summarizableTypes = ['article', 'link', 'note', 'highlight', 'book'];
+    const hasSummarizableContent = save.content || save.excerpt || save.highlight || save.notes;
 
+    if (summarizableTypes.includes(saveType) && hasSummarizableContent) {
+      tldrSection.classList.remove('hidden');
+      const tldrContent = document.getElementById('modal-tldr-content');
+      if (save.excerpt) {
+        tldrContent.textContent = save.excerpt;
+        tldrContent.classList.remove('hidden');
+      } else {
+        tldrContent.textContent = '';
+        tldrContent.classList.add('hidden');
+      }
+    } else {
+      tldrSection.classList.add('hidden');
+    }
+
+    if (saveType === 'book') {
       // Show reading status dropdown
       readStatusSection.classList.remove('hidden');
       document.getElementById('modal-read-status-select').value = save.read_status || 'unread';
     } else {
-      tldrSection.classList.add('hidden');
       readStatusSection.classList.add('hidden');
     }
 
@@ -856,6 +864,12 @@ export function applyModalMixin(proto) {
 
     // Add tag button
     this.bindModalTagInput(save);
+
+    // Summarize button
+    const summarizeBtn = document.getElementById('modal-summarize-btn');
+    if (summarizeBtn) {
+      summarizeBtn.onclick = () => this.summarizeSave(save);
+    }
 
     // Image-specific actions
     if (this.getSaveType(save) === 'image') {
@@ -1311,6 +1325,61 @@ export function applyModalMixin(proto) {
       save.note_color = color;
       this.loadSaves();
     }
+  };
+
+  proto.summarizeSave = async function(save) {
+    const btn = document.getElementById('modal-summarize-btn');
+    const btnText = document.getElementById('modal-summarize-btn-text');
+    if (!btn) return;
+
+    btn.disabled = true;
+    btnText.textContent = 'Summarizing…';
+
+    try {
+      const { data, error } = await this.supabase.functions.invoke('summarize', {
+        body: { save_id: save.id, user_id: this.user.id }
+      });
+
+      if (error || !data?.success) {
+        this.showToast(error?.message || 'Summarize failed', 'error');
+        btnText.textContent = 'Summarize';
+        btn.disabled = false;
+        return;
+      }
+
+      // Update in-memory save and display TLDR
+      save.excerpt = data.summary;
+      const tldrSection = document.getElementById('modal-tldr-section');
+      const tldrContent = document.getElementById('modal-tldr-content');
+      tldrSection.classList.remove('hidden');
+      tldrContent.textContent = data.summary;
+      tldrContent.classList.remove('hidden');
+
+      btnText.textContent = 'Summarize';
+      btn.disabled = false;
+
+      // Auto-tag after summarizing
+      btnText.textContent = 'Tagging…';
+      btn.disabled = true;
+
+      const { data: tagData, error: tagError } = await this.supabase.functions.invoke('auto-tag', {
+        body: { save_id: save.id, user_id: this.user.id }
+      });
+
+      if (!tagError && tagData?.tags?.length > 0) {
+        await this.loadModalTags(save);
+        this.showToast(`Summary added · ${tagData.tags.length} tag${tagData.tags.length > 1 ? 's' : ''} added`, 'success');
+      } else {
+        this.showToast('Summary added', 'success');
+      }
+
+    } catch (err) {
+      console.error('Summarize error:', err);
+      this.showToast('Summarize failed', 'error');
+    }
+
+    btnText.textContent = 'Summarize';
+    btn.disabled = false;
   };
 
   // Reading Progress Bar

@@ -5366,6 +5366,48 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 /* TLDR Section */
+.modal-tldr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.modal-tldr-header .modal-section-header {
+  margin-bottom: 0;
+}
+
+.modal-summarize-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  letter-spacing: 0.02em;
+}
+
+.modal-summarize-btn:hover:not(:disabled) {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.modal-summarize-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modal-summarize-btn svg {
+  flex-shrink: 0;
+}
+
 .modal-tldr-content {
   padding: 12px;
   background: var(--bg-secondary);
