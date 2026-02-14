@@ -5178,8 +5178,8 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   line-height: 1;
   letter-spacing: -0.26px;
   color: #ffffff;
-  background: var(--tag-bg, #423e1b);
-  border: 1px solid var(--tag-color, #423e1b);
+  background: var(--tag-bg, #6b6530);
+  border: 1px solid var(--tag-color, #6b6530);
 }
 
 .modal-tag-pill .modal-tag-text {
@@ -5201,8 +5201,8 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .modal-tag-pill:hover {
-  background: #423e1b;
-  border-color: #423e1b;
+  background: #6b6530;
+  border-color: #6b6530;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 

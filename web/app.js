@@ -2672,7 +2672,7 @@ class StashApp {
             ` : ''}
 
             <div class="book-tags-section">
-              <label class="book-section-label">NODES <span class="book-section-icon">🧠</span></label>
+              <label class="book-section-label">TAGS</label>
               <div id="book-modal-tags" class="book-modal-tags"></div>
               <button class="book-add-tag-btn" id="book-add-tag-btn">+ Add tag</button>
               <div class="book-tag-input-wrapper hidden" id="book-tag-input-wrapper">

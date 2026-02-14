@@ -288,7 +288,7 @@ export function applyModalMixin(proto) {
             ` : ''}
 
             <div class="book-tags-section">
-              <label class="book-section-label">NODES <span class="book-section-icon">🧠</span></label>
+              <label class="book-section-label">TAGS</label>
               <div id="book-modal-tags" class="book-modal-tags"></div>
               <button class="book-add-tag-btn" id="book-add-tag-btn">+ Add tag</button>
               <div class="book-tag-input-wrapper hidden" id="book-tag-input-wrapper">
@@ -645,8 +645,8 @@ export function applyModalMixin(proto) {
     const spacePill = this.renderModalSpacePill(save.folder_id);
 
     const tagPills = saveTags.map(tag => {
-      const color = '#423e1b';
-      const bg = '#423e1b';
+      const color = '#6b6530';
+      const bg = '#6b6530';
       return `
         <span class="modal-tag-pill" style="--tag-color: ${color}; --tag-bg: ${bg}">
           <span class="modal-tag-text">${this.escapeHtml(tag.name)}</span>
