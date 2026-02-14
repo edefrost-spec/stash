@@ -1336,12 +1336,23 @@ export function applyModalMixin(proto) {
     btnText.textContent = 'Summarizing…';
 
     try {
-      const { data, error } = await this.supabase.functions.invoke('summarize', {
-        body: { save_id: save.id, user_id: this.user.id }
-      });
+      const response = await fetch(
+        `${CONFIG.SUPABASE_URL}/functions/v1/summarize`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': CONFIG.SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ save_id: save.id, user_id: this.user.id }),
+        }
+      );
 
-      if (error || !data?.success) {
-        this.showToast(error?.message || 'Summarize failed', 'error');
+      const data = await response.json();
+
+      if (!response.ok || !data?.success) {
+        this.showToast(data?.error || 'Summarize failed', 'error');
         btnText.textContent = 'Summarize';
         btn.disabled = false;
         return;
@@ -1355,18 +1366,25 @@ export function applyModalMixin(proto) {
       tldrContent.textContent = data.summary;
       tldrContent.classList.remove('hidden');
 
-      btnText.textContent = 'Summarize';
-      btn.disabled = false;
-
       // Auto-tag after summarizing
       btnText.textContent = 'Tagging…';
-      btn.disabled = true;
 
-      const { data: tagData, error: tagError } = await this.supabase.functions.invoke('auto-tag', {
-        body: { save_id: save.id, user_id: this.user.id }
-      });
+      const tagResponse = await fetch(
+        `${CONFIG.SUPABASE_URL}/functions/v1/auto-tag`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': CONFIG.SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ save_id: save.id, user_id: this.user.id }),
+        }
+      );
 
-      if (!tagError && tagData?.tags?.length > 0) {
+      const tagData = tagResponse.ok ? await tagResponse.json() : null;
+
+      if (tagData?.tags?.length > 0) {
         await this.loadModalTags(save);
         this.showToast(`Summary added · ${tagData.tags.length} tag${tagData.tags.length > 1 ? 's' : ''} added`, 'success');
       } else {
