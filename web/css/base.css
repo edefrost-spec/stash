@@ -42,7 +42,7 @@ input, select {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+  background: linear-gradient(135deg, #423e1b 0%, #2e2b13 100%);
 }
 
 .auth-container {

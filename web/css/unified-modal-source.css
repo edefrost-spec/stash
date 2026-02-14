@@ -1,8 +1,8 @@
 /* CSS Variables */
 :root {
-  --primary: #ff5722;
-  --primary-dark: #e64a19;
-  --primary-light: #ff8a65;
+  --primary: #423e1b;
+  --primary-dark: #2e2b13;
+  --primary-light: #8c8450;
   --bg: #fafaf9;
   --bg-secondary: rgba(245,245,247,0.6);
   --bg-tertiary: #f3f4f6;
@@ -27,9 +27,9 @@
 
 /* Dark Mode */
 [data-theme="dark"] {
-  --primary: #ff8a65;
-  --primary-dark: #ff5722;
-  --primary-light: #ffab91;
+  --primary: #8c8450;
+  --primary-dark: #423e1b;
+  --primary-light: #b5ad7a;
   --bg: #1a1a1a;
   --bg-secondary: #2d2d2d;
   --bg-tertiary: #3d3d3d;
@@ -152,7 +152,7 @@ input, select {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+  background: linear-gradient(135deg, #423e1b 0%, #2e2b13 100%);
 }
 
 .auth-container {
@@ -1868,7 +1868,7 @@ body.show-annotations .save-card-annotations {
   padding: 10px 20px;
   border-radius: 999px;
   border: none;
-  background: #ff794e;
+  background: #423e1b;
   color: #ffffff;
   font-size: 14px;
   text-transform: uppercase;
@@ -4849,7 +4849,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   padding: 10px 16px;
   height: 41px;
   border-radius: 0 0 8px 8px;
-  background: #ff5722;
+  background: #423e1b;
   color: #ffffff;
   font-size: 20px;
   letter-spacing: -0.4px;
@@ -4859,7 +4859,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .modal-product-purchase:hover {
-  background: #ff794e;
+  background: #423e1b;
 }
 
 .modal-product-purchase img {
@@ -5178,8 +5178,8 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   line-height: 1;
   letter-spacing: -0.26px;
   color: #ffffff;
-  background: var(--tag-bg, #ff794e);
-  border: 1px solid var(--tag-color, #ff794e);
+  background: var(--tag-bg, #423e1b);
+  border: 1px solid var(--tag-color, #423e1b);
 }
 
 .modal-tag-pill .modal-tag-text {
@@ -5201,8 +5201,8 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .modal-tag-pill:hover {
-  background: #ff5722;
-  border-color: #ff5722;
+  background: #423e1b;
+  border-color: #423e1b;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -5262,7 +5262,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .modal-tag-action-btn {
-  background: #ff5722;
+  background: #423e1b;
   color: #ffffff;
   border: none;
   border-radius: 999px;
@@ -5277,7 +5277,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .modal-tag-action-btn:hover {
-  background: #ff794e;
+  background: #423e1b;
 }
 
 .modal-tag-input-wrapper {
@@ -5316,7 +5316,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 
 .modal-notes-textarea:focus {
   outline: none;
-  border-color: #ff7655;
+  border-color: #423e1b;
 }
 
 .modal-notes-textarea::placeholder {
@@ -7202,7 +7202,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   padding: 8px 24px;
   border-radius: 10px;
   border: none;
-  background: #ff794e;
+  background: #423e1b;
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;

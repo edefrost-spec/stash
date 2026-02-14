@@ -3008,8 +3008,8 @@ class StashApp {
     const spacePill = this.renderModalSpacePill(save.folder_id);
 
     const tagPills = saveTags.map(tag => {
-      const color = '#FF794E';
-      const bg = '#FF794E';
+      const color = '#423e1b';
+      const bg = '#423e1b';
       return `
         <span class="modal-tag-pill" style="--tag-color: ${color}; --tag-bg: ${bg}">
           <span class="modal-tag-text">${this.escapeHtml(tag.name)}</span>

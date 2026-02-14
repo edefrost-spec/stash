@@ -376,7 +376,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
   padding: 10px 16px;
   height: 41px;
   border-radius: 0 0 8px 8px;
-  background: #ff5722;
+  background: #423e1b;
   color: #ffffff;
   font-size: 20px;
   letter-spacing: -0.4px;
@@ -386,7 +386,7 @@ body.show-annotations .save-card.product-save:hover .save-card-annotations {
 }
 
 .modal-product-purchase:hover {
-  background: #ff794e;
+  background: #423e1b;
 }
 
 .modal-product-purchase img {
