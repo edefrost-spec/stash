@@ -7,20 +7,37 @@ export function applyNoteEditorMixin(proto) {
     const closeBtn = document.getElementById('edit-note-modal-close');
     const cancelBtn = document.getElementById('edit-note-modal-cancel');
     const saveBtn = document.getElementById('edit-note-modal-save');
-    const previewToggle = document.getElementById('edit-note-preview-toggle');
     const colorBtn = document.getElementById('edit-note-color-btn');
 
     overlay?.addEventListener('click', () => this.hideEditNoteModal());
     closeBtn?.addEventListener('click', () => this.hideEditNoteModal());
     cancelBtn?.addEventListener('click', () => this.hideEditNoteModal());
     saveBtn?.addEventListener('click', () => this.saveEditedNote());
-    previewToggle?.addEventListener('click', () => this.toggleEditNotePreview());
 
     // Color button opens the color picker
     colorBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.showEditNoteColorPicker();
     });
+
+    // Format toolbar buttons
+    modal.querySelectorAll('.note-modal-format-btn[data-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const textarea = document.getElementById('edit-note-textarea');
+        if (textarea) this.insertMarkdownFormatting(textarea, btn.dataset.action);
+      });
+    });
+
+    // Live preview wiring
+    const textarea = document.getElementById('edit-note-textarea');
+    const preview = document.getElementById('edit-note-preview');
+    if (textarea && preview) {
+      textarea.addEventListener('input', () => {
+        preview.innerHTML = this.renderMarkdown(textarea.value || '');
+        this.bindLivePreviewCheckboxes(preview, textarea, this.editingNote);
+      });
+    }
 
     // Escape key
     document.addEventListener('keydown', (e) => {
@@ -43,25 +60,17 @@ export function applyNoteEditorMixin(proto) {
 
     if (titleInput) titleInput.value = save.title || '';
     if (textarea) textarea.value = save.content || save.notes || '';
-    if (preview) preview.classList.add('hidden');
-    if (textarea) textarea.classList.remove('hidden');
+
+    // Render initial live preview
+    if (preview && textarea) {
+      preview.innerHTML = this.renderMarkdown(textarea.value || '');
+      this.bindLivePreviewCheckboxes(preview, textarea, save);
+    }
 
     // Store current color
     this.editNoteColor = save.note_color || null;
     this.editNoteGradient = save.note_gradient || null;
     this.updateEditNoteColorIndicator();
-
-    // Reset preview toggle button
-    const previewToggle = document.getElementById('edit-note-preview-toggle');
-    if (previewToggle) {
-      previewToggle.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-        Preview
-      `;
-    }
 
     modal.classList.remove('hidden');
     textarea?.focus();
@@ -80,7 +89,7 @@ export function applyNoteEditorMixin(proto) {
     const titleInput = document.getElementById('edit-note-title');
     const textarea = document.getElementById('edit-note-textarea');
 
-    const title = (titleInput?.value || '').trim() || 'Quick Note';
+    const title = (titleInput?.value || '').trim() || null;
     const content = (textarea?.value || '').trim();
 
     if (!content) return;
@@ -115,47 +124,6 @@ export function applyNoteEditorMixin(proto) {
       if (saveBtn) {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save Changes';
-      }
-    }
-  };
-
-  proto.toggleEditNotePreview = function() {
-    const textarea = document.getElementById('edit-note-textarea');
-    const preview = document.getElementById('edit-note-preview');
-    const previewToggle = document.getElementById('edit-note-preview-toggle');
-
-    if (!textarea || !preview) return;
-
-    const isShowingPreview = !preview.classList.contains('hidden');
-
-    if (isShowingPreview) {
-      // Switch to edit mode
-      preview.classList.add('hidden');
-      textarea.classList.remove('hidden');
-      if (previewToggle) {
-        previewToggle.innerHTML = `
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-          Preview
-        `;
-      }
-      textarea.focus();
-    } else {
-      // Switch to preview mode
-      const content = textarea.value || '';
-      preview.innerHTML = this.renderMarkdown(content);
-      preview.classList.remove('hidden');
-      textarea.classList.add('hidden');
-      if (previewToggle) {
-        previewToggle.innerHTML = `
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-          </svg>
-          Edit
-        `;
       }
     }
   };

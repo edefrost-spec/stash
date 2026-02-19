@@ -202,7 +202,7 @@ export function applyQuickNoteMixin(proto) {
     try {
       const payload = {
         user_id: this.user.id,
-        title: customTitle || 'Quick Note',
+        title: customTitle || null,
         content: content,
         notes: content,
         excerpt: content.slice(0, 180),
@@ -256,7 +256,6 @@ export function applyQuickNoteMixin(proto) {
     const closeBtn = document.getElementById('quick-note-modal-close');
     const cancelBtn = document.getElementById('quick-note-modal-cancel');
     const saveBtn = document.getElementById('quick-note-modal-save');
-    const previewToggle = document.getElementById('quick-note-preview-toggle');
 
     overlay?.addEventListener('click', () => this.hideQuickNoteModal());
     closeBtn?.addEventListener('click', () => this.hideQuickNoteModal());
@@ -264,8 +263,24 @@ export function applyQuickNoteMixin(proto) {
 
     saveBtn?.addEventListener('click', () => this.saveQuickNoteToGrid());
 
-    // Preview toggle
-    previewToggle?.addEventListener('click', () => this.toggleQuickNotePreview());
+    // Format toolbar buttons
+    modal.querySelectorAll('.note-modal-format-btn[data-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const textarea = document.getElementById('quick-note-modal-textarea');
+        if (textarea) this.insertMarkdownFormatting(textarea, btn.dataset.action);
+      });
+    });
+
+    // Live preview wiring
+    const textarea = document.getElementById('quick-note-modal-textarea');
+    const preview = document.getElementById('quick-note-modal-preview');
+    if (textarea && preview) {
+      textarea.addEventListener('input', () => {
+        preview.innerHTML = this.renderMarkdown(textarea.value || '');
+        this.bindLivePreviewCheckboxes(preview, textarea, null);
+      });
+    }
 
     // Escape key
     document.addEventListener('keydown', (e) => {
@@ -295,20 +310,10 @@ export function applyQuickNoteMixin(proto) {
       titleInput.value = stickyTitleInput.value;
     }
 
-    // Reset to edit mode
-    preview?.classList.add('hidden');
-    textarea?.classList.remove('hidden');
-
-    // Update preview toggle button text
-    const previewToggle = document.getElementById('quick-note-preview-toggle');
-    if (previewToggle) {
-      previewToggle.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-        Preview
-      `;
+    // Render initial live preview
+    if (preview && textarea) {
+      preview.innerHTML = this.renderMarkdown(textarea.value || '');
+      this.bindLivePreviewCheckboxes(preview, textarea, null);
     }
 
     modal.classList.remove('hidden');
@@ -341,44 +346,4 @@ export function applyQuickNoteMixin(proto) {
     modal?.classList.add('hidden');
   };
 
-  proto.toggleQuickNotePreview = function() {
-    const textarea = document.getElementById('quick-note-modal-textarea');
-    const preview = document.getElementById('quick-note-modal-preview');
-    const previewToggle = document.getElementById('quick-note-preview-toggle');
-
-    if (!textarea || !preview) return;
-
-    const isShowingPreview = !preview.classList.contains('hidden');
-
-    if (isShowingPreview) {
-      // Switch to edit mode
-      preview.classList.add('hidden');
-      textarea.classList.remove('hidden');
-      if (previewToggle) {
-        previewToggle.innerHTML = `
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-          Preview
-        `;
-      }
-      textarea.focus();
-    } else {
-      // Switch to preview mode
-      const content = textarea.value || '';
-      preview.innerHTML = this.renderMarkdown(content);
-      preview.classList.remove('hidden');
-      textarea.classList.add('hidden');
-      if (previewToggle) {
-        previewToggle.innerHTML = `
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-          </svg>
-          Edit
-        `;
-      }
-    }
-  };
 }

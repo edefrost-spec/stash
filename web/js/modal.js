@@ -38,7 +38,9 @@ export function applyModalMixin(proto) {
     // Populate header
     const modalTitle = document.getElementById('modal-title');
     if (modalTitle) {
-      modalTitle.textContent = save.title || 'Untitled';
+      const isNote = this.getSaveType(save) === 'note';
+      modalTitle.textContent = save.title || (isNote ? '' : 'Untitled');
+      modalTitle.style.display = (isNote && !save.title) ? 'none' : '';
     }
     const modalMeta = document.getElementById('modal-meta');
     if (modalMeta) {
@@ -175,15 +177,14 @@ export function applyModalMixin(proto) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
           <span class="note-toolbar-divider"></span>
-          <button type="button" class="note-format-btn" id="modal-note-preview-toggle" title="Toggle Preview">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-          </button>
           <button type="button" class="note-format-btn" id="modal-note-color-btn" title="Background Color">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
           </button>
         </div>
-        <textarea id="modal-note-content" class="modal-note-textarea" placeholder="Write your note...">${this.escapeHtml(save.content || save.notes || '')}</textarea>
-        <div id="modal-note-preview" class="modal-note-preview hidden"></div>
+        <div class="note-split-pane">
+          <textarea id="modal-note-content" class="modal-note-textarea" placeholder="Start writing... use # for headings, - for bullets, - [ ] for todos">${this.escapeHtml(save.content || save.notes || '')}</textarea>
+          <div id="modal-note-preview" class="modal-note-preview note-live-preview"></div>
+        </div>
       </div>
     `;
   };
@@ -930,7 +931,6 @@ export function applyModalMixin(proto) {
     if (this.getSaveType(save) === 'note') {
       const noteContent = document.getElementById('modal-note-content');
       const notePreview = document.getElementById('modal-note-preview');
-      const previewToggle = document.getElementById('modal-note-preview-toggle');
       const colorBtn = document.getElementById('modal-note-color-btn');
 
       // Store note state for color updates
@@ -938,10 +938,21 @@ export function applyModalMixin(proto) {
       this.editNoteColor = save.note_color || null;
       this.editNoteGradient = save.note_gradient || null;
 
+      // Render initial live preview
+      if (noteContent && notePreview) {
+        notePreview.innerHTML = this.renderMarkdown(noteContent.value || '');
+        this.bindLivePreviewCheckboxes(notePreview, noteContent, save);
+      }
+
       if (noteContent) {
         noteContent.oninput = () => {
           clearTimeout(notesTimeout);
           notesTimeout = setTimeout(() => this.saveModalNoteContent(save), 1000);
+          // Update live preview
+          if (notePreview) {
+            notePreview.innerHTML = this.renderMarkdown(noteContent.value || '');
+            this.bindLivePreviewCheckboxes(notePreview, noteContent, save);
+          }
         };
       }
 
@@ -954,22 +965,6 @@ export function applyModalMixin(proto) {
           }
         };
       });
-
-      // Preview toggle
-      if (previewToggle) {
-        previewToggle.onclick = () => {
-          const isShowingPreview = !notePreview.classList.contains('hidden');
-          if (isShowingPreview) {
-            notePreview.classList.add('hidden');
-            noteContent.classList.remove('hidden');
-            noteContent.focus();
-          } else {
-            notePreview.innerHTML = this.renderMarkdown(noteContent.value || '');
-            notePreview.classList.remove('hidden');
-            noteContent.classList.add('hidden');
-          }
-        };
-      }
 
       // Color button
       if (colorBtn) {
@@ -1279,6 +1274,7 @@ export function applyModalMixin(proto) {
       .from('saves')
       .update({
         content,
+        notes: content,
         excerpt: content.slice(0, 180),
         note_color: this.editNoteColor,
         note_gradient: this.editNoteGradient,
@@ -1287,6 +1283,7 @@ export function applyModalMixin(proto) {
 
     if (!error) {
       save.content = content;
+      save.notes = content;
       save.excerpt = content.slice(0, 180);
       save.note_color = this.editNoteColor;
       save.note_gradient = this.editNoteGradient;

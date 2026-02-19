@@ -460,8 +460,9 @@ export function applyKindleMixin(proto) {
 
   proto.bindTaskCheckboxes = function(container) {
     container.querySelectorAll('.task-list-item input[type="checkbox"]').forEach(checkbox => {
-      // Add our custom class for styling
+      // Add our custom class for styling and enable interaction
       checkbox.classList.add('task-checkbox');
+      checkbox.removeAttribute('disabled');
 
       checkbox.addEventListener('change', async (e) => {
         e.stopPropagation();
@@ -478,21 +479,41 @@ export function applyKindleMixin(proto) {
     });
   };
 
-  proto.toggleTaskInNote = async function(save, checkbox) {
-    let content = save.content || save.notes || '';
+  // Bind checkboxes inside a live preview pane (editor modals)
+  proto.bindLivePreviewCheckboxes = function(previewEl, sourceTextarea, save) {
+    if (!previewEl) return;
+    previewEl.querySelectorAll('.task-list-item input[type="checkbox"]').forEach((checkbox, idx) => {
+      checkbox.removeAttribute('disabled');
+      checkbox.addEventListener('change', async (e) => {
+        e.stopPropagation();
+        const content = sourceTextarea.value;
+        const newContent = this.toggleTaskInContent(content, idx, checkbox.checked);
+        sourceTextarea.value = newContent;
+        // Trigger input event to update any auto-save listeners
+        sourceTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+        // Persist if we have a save object
+        if (save && save.id) {
+          try {
+            await this.supabase.from('saves').update({
+              content: newContent,
+              notes: newContent,
+            }).eq('id', save.id);
+            save.content = newContent;
+            save.notes = newContent;
+          } catch (err) {
+            console.error('Error saving task toggle:', err);
+          }
+        }
+      });
+    });
+  };
+
+  proto.toggleTaskInContent = function(content, checkboxIndex, isChecked) {
     const lines = content.split('\n');
-
-    // Find which checkbox index was clicked
-    const card = checkbox.closest('.save-card');
-    const allCheckboxes = card.querySelectorAll('.task-checkbox');
-    const checkboxIndex = Array.from(allCheckboxes).indexOf(checkbox);
-
-    // Find and toggle the matching task in the content
     let taskIndex = 0;
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].match(/^(\s*)?[-*]\s*\[([ xX])\]/)) {
         if (taskIndex === checkboxIndex) {
-          const isChecked = checkbox.checked;
           lines[i] = lines[i].replace(
             /^(\s*)?([-*])\s*\[([ xX])\]/,
             isChecked ? '$1$2 [x]' : '$1$2 [ ]'
@@ -502,8 +523,18 @@ export function applyKindleMixin(proto) {
         taskIndex++;
       }
     }
+    return lines.join('\n');
+  };
 
-    const newContent = lines.join('\n');
+  proto.toggleTaskInNote = async function(save, checkbox) {
+    const content = save.content || save.notes || '';
+
+    // Find which checkbox index was clicked
+    const card = checkbox.closest('.save-card');
+    const allCheckboxes = card.querySelectorAll('.task-checkbox');
+    const checkboxIndex = Array.from(allCheckboxes).indexOf(checkbox);
+
+    const newContent = this.toggleTaskInContent(content, checkboxIndex, checkbox.checked);
 
     try {
       await this.supabase

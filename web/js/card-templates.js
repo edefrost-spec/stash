@@ -250,7 +250,7 @@ export function applyCardTemplatesMixin(proto) {
         return `
           <div class="save-card note-save" data-id="${save.id}" style="${noteStyle}">
             <div class="save-card-content">
-              <div class="save-card-title">${this.escapeHtml(save.title || 'Quick Note')}</div>
+              ${save.title ? `<div class="save-card-title">${this.escapeHtml(save.title)}</div>` : ''}
               <div class="save-card-note-content">${this.renderMarkdownPreview(noteContent)}</div>
               ${annotations}
             </div>

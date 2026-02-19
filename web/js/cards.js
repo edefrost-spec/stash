@@ -47,8 +47,9 @@ export function applyCardsMixin(proto) {
       card.setAttribute('draggable', 'true');
 
       card.addEventListener('click', (e) => {
-        // Don't open reading pane if clicking a checkbox
-        if (e.target.classList.contains('task-checkbox')) return;
+        // Don't open reading pane if clicking a task checkbox
+        if (e.target.classList.contains('task-checkbox') ||
+            (e.target.tagName === 'INPUT' && e.target.type === 'checkbox' && e.target.closest('.task-list-item'))) return;
         const id = card.dataset.id;
         const save = this.saves.find(s => s.id === id);
         if (save) this.openReadingPane(save);

@@ -1,5 +1,5 @@
 // Stash Service Worker
-const CACHE_NAME = 'stash-v7';
+const CACHE_NAME = 'stash-v8';
 const ASSETS = [
   '/',
   '/index.html',
