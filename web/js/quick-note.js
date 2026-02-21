@@ -177,18 +177,21 @@ export function applyQuickNoteMixin(proto) {
 
   proto.saveQuickNoteToGrid = async function() {
     const textarea = document.getElementById('quick-note-textarea');
-    const modalTextarea = document.getElementById('quick-note-modal-textarea');
+    const modalEditor = document.getElementById('quick-note-modal-editor');
     const titleInput = document.getElementById('quick-note-title');
     const modalTitleInput = document.getElementById('quick-note-modal-title');
 
-    const content = (modalTextarea && !modalTextarea.closest('.hidden')
-      ? modalTextarea.value
+    // Read content from WYSIWYG editor if modal is open, else from sticky textarea
+    const modal = document.getElementById('quick-note-modal');
+    const modalOpen = modal && !modal.classList.contains('hidden');
+    const content = (modalOpen && modalEditor
+      ? this.getNoteEditorContent(modalEditor)
       : textarea?.value || '').trim();
 
     if (!content) return;
 
     // Get title from the active input (modal or sticky)
-    const customTitle = (modalTitleInput && !modalTitleInput.closest('.hidden')
+    const customTitle = (modalOpen && modalTitleInput
       ? modalTitleInput.value
       : titleInput?.value || '').trim();
 
@@ -216,12 +219,13 @@ export function applyQuickNoteMixin(proto) {
 
       if (error) throw error;
 
-      // Clear input for next note
+      // Clear sticky textarea
       if (textarea) {
         textarea.value = '';
         textarea.style.height = 'auto';
       }
-      if (modalTextarea) modalTextarea.value = '';
+      // Clear WYSIWYG editor
+      if (modalEditor) this.clearNoteEditor(modalEditor);
       if (titleInput) titleInput.value = '';
       if (modalTitleInput) modalTitleInput.value = '';
 
@@ -263,23 +267,18 @@ export function applyQuickNoteMixin(proto) {
 
     saveBtn?.addEventListener('click', () => this.saveQuickNoteToGrid());
 
-    // Format toolbar buttons
+    // Format toolbar buttons — delegate to WYSIWYG editor
+    const editor = document.getElementById('quick-note-modal-editor');
     modal.querySelectorAll('.note-modal-format-btn[data-action]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        const textarea = document.getElementById('quick-note-modal-textarea');
-        if (textarea) this.insertMarkdownFormatting(textarea, btn.dataset.action);
+        if (editor) this.applyNoteFormat(editor, btn.dataset.action);
       });
     });
 
-    // Live preview wiring
-    const textarea = document.getElementById('quick-note-modal-textarea');
-    const preview = document.getElementById('quick-note-modal-preview');
-    if (textarea && preview) {
-      textarea.addEventListener('input', () => {
-        preview.innerHTML = this.renderMarkdown(textarea.value || '');
-        this.bindLivePreviewCheckboxes(preview, textarea, null);
-      });
+    // Init WYSIWYG editor (empty for new notes)
+    if (editor) {
+      this.initNoteEditor(editor, '', null);
     }
 
     // Escape key
@@ -292,55 +291,52 @@ export function applyQuickNoteMixin(proto) {
 
   proto.showQuickNoteModal = function() {
     const modal = document.getElementById('quick-note-modal');
-    const textarea = document.getElementById('quick-note-modal-textarea');
+    const editor = document.getElementById('quick-note-modal-editor');
     const stickyTextarea = document.getElementById('quick-note-textarea');
     const titleInput = document.getElementById('quick-note-modal-title');
     const stickyTitleInput = document.getElementById('quick-note-title');
-    const preview = document.getElementById('quick-note-modal-preview');
 
     if (!modal) return;
-
-    // Sync content from sticky note input
-    if (textarea && stickyTextarea) {
-      textarea.value = stickyTextarea.value;
-    }
 
     // Sync title from sticky note input
     if (titleInput && stickyTitleInput) {
       titleInput.value = stickyTitleInput.value;
     }
 
-    // Render initial live preview
-    if (preview && textarea) {
-      preview.innerHTML = this.renderMarkdown(textarea.value || '');
-      this.bindLivePreviewCheckboxes(preview, textarea, null);
+    // Load sticky textarea content into WYSIWYG editor
+    if (editor) {
+      const stickyContent = stickyTextarea?.value?.trim() || '';
+      this.setNoteEditorContent(editor, stickyContent);
+      // Focus editor after a short delay to ensure modal is visible
+      setTimeout(() => editor.focus(), 50);
     }
 
     modal.classList.remove('hidden');
-    textarea?.focus();
   };
 
   proto.hideQuickNoteModal = function() {
     const modal = document.getElementById('quick-note-modal');
-    const modalTextarea = document.getElementById('quick-note-modal-textarea');
+    const editor = document.getElementById('quick-note-modal-editor');
     const stickyTextarea = document.getElementById('quick-note-textarea');
     const modalTitleInput = document.getElementById('quick-note-modal-title');
     const stickyTitleInput = document.getElementById('quick-note-title');
 
-    // Sync content back to sticky note input
-    if (modalTextarea && stickyTextarea && !modal?.classList.contains('hidden')) {
-      stickyTextarea.value = modalTextarea.value;
-      // Update char count
-      const charCount = document.getElementById('quick-note-char-count');
-      if (charCount) {
-        const len = stickyTextarea.value.length;
-        charCount.textContent = len > 0 ? `${len}` : '';
+    if (!modal?.classList.contains('hidden')) {
+      // Sync markdown content back to sticky textarea so it's preserved if user re-opens
+      if (editor && stickyTextarea) {
+        stickyTextarea.value = this.getNoteEditorContent(editor);
+        // Update sticky char count
+        const charCount = document.getElementById('quick-note-char-count');
+        if (charCount) {
+          const len = stickyTextarea.value.length;
+          charCount.textContent = len > 0 ? `${len}` : '';
+        }
       }
-    }
 
-    // Sync title back to sticky note input
-    if (modalTitleInput && stickyTitleInput && !modal?.classList.contains('hidden')) {
-      stickyTitleInput.value = modalTitleInput.value;
+      // Sync title back to sticky note input
+      if (modalTitleInput && stickyTitleInput) {
+        stickyTitleInput.value = modalTitleInput.value;
+      }
     }
 
     modal?.classList.add('hidden');

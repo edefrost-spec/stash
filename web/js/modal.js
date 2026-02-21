@@ -181,10 +181,11 @@ export function applyModalMixin(proto) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
           </button>
         </div>
-        <div class="note-split-pane">
-          <textarea id="modal-note-content" class="modal-note-textarea" placeholder="Start writing... use # for headings, - for bullets, - [ ] for todos">${this.escapeHtml(save.content || save.notes || '')}</textarea>
-          <div id="modal-note-preview" class="modal-note-preview note-live-preview"></div>
-        </div>
+        <div id="modal-note-editor"
+             class="note-wysiwyg-editor modal-note-wysiwyg"
+             contenteditable="true"
+             spellcheck="true"
+             data-placeholder="Start writing… type / for commands"></div>
       </div>
     `;
   };
@@ -929,8 +930,7 @@ export function applyModalMixin(proto) {
 
     // Note-specific actions
     if (this.getSaveType(save) === 'note') {
-      const noteContent = document.getElementById('modal-note-content');
-      const notePreview = document.getElementById('modal-note-preview');
+      const noteEditor = document.getElementById('modal-note-editor');
       const colorBtn = document.getElementById('modal-note-color-btn');
 
       // Store note state for color updates
@@ -938,31 +938,18 @@ export function applyModalMixin(proto) {
       this.editNoteColor = save.note_color || null;
       this.editNoteGradient = save.note_gradient || null;
 
-      // Render initial live preview
-      if (noteContent && notePreview) {
-        notePreview.innerHTML = this.renderMarkdown(noteContent.value || '');
-        this.bindLivePreviewCheckboxes(notePreview, noteContent, save);
-      }
-
-      if (noteContent) {
-        noteContent.oninput = () => {
+      // Init WYSIWYG editor with existing content
+      if (noteEditor) {
+        this.initNoteEditor(noteEditor, save.content || save.notes || '', () => {
           clearTimeout(notesTimeout);
           notesTimeout = setTimeout(() => this.saveModalNoteContent(save), 1000);
-          // Update live preview
-          if (notePreview) {
-            notePreview.innerHTML = this.renderMarkdown(noteContent.value || '');
-            this.bindLivePreviewCheckboxes(notePreview, noteContent, save);
-          }
-        };
+        });
       }
 
-      // Formatting buttons
+      // Formatting toolbar buttons
       document.querySelectorAll('.note-format-btn[data-format]').forEach(btn => {
         btn.onclick = () => {
-          const format = btn.dataset.format;
-          if (noteContent && format) {
-            this.insertNoteFormatting(noteContent, format);
-          }
+          this.applyNoteFormat(noteEditor, btn.dataset.format);
         };
       });
 
@@ -1268,7 +1255,8 @@ export function applyModalMixin(proto) {
   };
 
   proto.saveModalNoteContent = async function(save) {
-    const content = document.getElementById('modal-note-content').value;
+    const noteEditor = document.getElementById('modal-note-editor');
+    const content = noteEditor ? this.getNoteEditorContent(noteEditor) : '';
 
     const { error } = await this.supabase
       .from('saves')

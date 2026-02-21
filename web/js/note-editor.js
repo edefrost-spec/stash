@@ -20,24 +20,14 @@ export function applyNoteEditorMixin(proto) {
       this.showEditNoteColorPicker();
     });
 
-    // Format toolbar buttons
+    // Format toolbar buttons — delegate to WYSIWYG editor
+    const editor = document.getElementById('edit-note-editor');
     modal.querySelectorAll('.note-modal-format-btn[data-action]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        const textarea = document.getElementById('edit-note-textarea');
-        if (textarea) this.insertMarkdownFormatting(textarea, btn.dataset.action);
+        if (editor) this.applyNoteFormat(editor, btn.dataset.action);
       });
     });
-
-    // Live preview wiring
-    const textarea = document.getElementById('edit-note-textarea');
-    const preview = document.getElementById('edit-note-preview');
-    if (textarea && preview) {
-      textarea.addEventListener('input', () => {
-        preview.innerHTML = this.renderMarkdown(textarea.value || '');
-        this.bindLivePreviewCheckboxes(preview, textarea, this.editingNote);
-      });
-    }
 
     // Escape key
     document.addEventListener('keydown', (e) => {
@@ -55,16 +45,17 @@ export function applyNoteEditorMixin(proto) {
 
     // Populate fields
     const titleInput = document.getElementById('edit-note-title');
-    const textarea = document.getElementById('edit-note-textarea');
-    const preview = document.getElementById('edit-note-preview');
+    const editor = document.getElementById('edit-note-editor');
 
     if (titleInput) titleInput.value = save.title || '';
-    if (textarea) textarea.value = save.content || save.notes || '';
 
-    // Render initial live preview
-    if (preview && textarea) {
-      preview.innerHTML = this.renderMarkdown(textarea.value || '');
-      this.bindLivePreviewCheckboxes(preview, textarea, save);
+    // Load content into WYSIWYG editor
+    if (editor) {
+      const markdown = save.content || save.notes || '';
+      this.initNoteEditor(editor, markdown, null);
+      // Re-bind format toolbar (buttons were set up in bindEditNoteModal,
+      // but initNoteEditor resets the element — toolbar bindings are outside
+      // the editor div so they still work)
     }
 
     // Store current color
@@ -73,7 +64,7 @@ export function applyNoteEditorMixin(proto) {
     this.updateEditNoteColorIndicator();
 
     modal.classList.remove('hidden');
-    textarea?.focus();
+    setTimeout(() => editor?.focus(), 50);
   };
 
   proto.hideEditNoteModal = function() {
@@ -87,10 +78,10 @@ export function applyNoteEditorMixin(proto) {
     if (!this.editingNote) return;
 
     const titleInput = document.getElementById('edit-note-title');
-    const textarea = document.getElementById('edit-note-textarea');
+    const editor = document.getElementById('edit-note-editor');
 
     const title = (titleInput?.value || '').trim() || null;
-    const content = (textarea?.value || '').trim();
+    const content = editor ? this.getNoteEditorContent(editor).trim() : '';
 
     if (!content) return;
 

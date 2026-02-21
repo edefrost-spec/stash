@@ -1,5 +1,5 @@
 // Stash Service Worker
-const CACHE_NAME = 'stash-v8';
+const CACHE_NAME = 'stash-v9';
 const ASSETS = [
   '/',
   '/index.html',
@@ -20,6 +20,7 @@ const ASSETS = [
   '/js/kindle.js',
   '/js/quick-note.js',
   '/js/note-editor.js',
+  '/js/note-wysiwyg.js',
   '/js/format-bar.js',
   '/js/spaces.js',
   '/js/focus-bar.js',

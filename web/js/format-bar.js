@@ -1,9 +1,10 @@
 export function applyFormatBarMixin(proto) {
   proto.bindFormatBar = function() {
+    // The floating format bar now only applies to the sticky quick-note-textarea.
+    // Modal note editors (quick-note-modal-editor, edit-note-editor, modal-note-editor)
+    // use the WYSIWYG editor's built-in selection toolbar instead.
     const textareas = [
       document.getElementById('quick-note-textarea'),
-      document.getElementById('quick-note-modal-textarea'),
-      document.getElementById('edit-note-textarea')
     ].filter(Boolean);
 
     textareas.forEach(textarea => {
