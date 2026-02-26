@@ -832,7 +832,11 @@ export function applyModalMixin(proto) {
       if (ignoreOutsideClick) return;
       if (!modal || modal.classList.contains('hidden')) return;
       if (e.target.closest('.context-menu')) return;
-      if (modalContainer && !modalContainer.contains(e.target)) {
+      // Use composedPath (captured before any DOM mutations) so that clicks
+      // on buttons whose children are removed synchronously during the handler
+      // (e.g. autotagBtn.textContent = '…') don't falsely appear as outside clicks.
+      const path = e.composedPath ? e.composedPath() : [];
+      if (modalContainer && !path.includes(modalContainer) && !modalContainer.contains(e.target)) {
         closeModal();
       }
     };
@@ -886,8 +890,12 @@ export function applyModalMixin(proto) {
 
       if (autotagBtn) {
         autotagBtn.onclick = async () => {
+          // Mutate the span's text (not the button's textContent) so the span
+          // stays in the DOM — prevents a detached-node false-positive in the
+          // outside-click handler that would otherwise close the modal.
+          const autotagSpan = autotagBtn.querySelector('span') || autotagBtn;
           try {
-            autotagBtn.textContent = 'TAGGING...';
+            autotagSpan.textContent = 'Tagging…';
             autotagBtn.disabled = true;
 
             const { data, error } = await this.supabase.functions.invoke('auto-tag-image', {
@@ -901,12 +909,18 @@ export function applyModalMixin(proto) {
             if (error) {
               console.error('Auto-tag error:', error);
               this.showToast(`Auto-tag failed: ${error.message || 'Unknown error'}`, 'error');
-              autotagBtn.textContent = 'Auto-tag';
+              autotagSpan.textContent = 'Auto-tag';
               autotagBtn.disabled = false;
               return;
             }
 
-            // Reload tags to show newly added ones
+            // Refresh the in-memory tag cache for this save from the DB,
+            // then re-render the tag pills in the modal sidebar.
+            const { data: freshTagRows } = await this.supabase
+              .from('save_tags')
+              .select('tags(id, name, color)')
+              .eq('save_id', save.id);
+            this.saveTagMap[save.id] = (freshTagRows || []).map(r => r.tags).filter(Boolean);
             await this.loadModalTags(save);
 
             const tagCount = data?.tags?.length || 0;
@@ -916,12 +930,12 @@ export function applyModalMixin(proto) {
               this.showToast('No tags generated', 'info');
             }
 
-            autotagBtn.textContent = 'Auto-tag';
+            autotagSpan.textContent = 'Auto-tag';
             autotagBtn.disabled = false;
           } catch (err) {
             console.error('Auto-tag exception:', err);
             this.showToast('Auto-tag failed', 'error');
-            autotagBtn.textContent = 'Auto-tag';
+            autotagSpan.textContent = 'Auto-tag';
             autotagBtn.disabled = false;
           }
         };
