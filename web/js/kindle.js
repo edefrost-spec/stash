@@ -602,6 +602,11 @@ export function applyKindleMixin(proto) {
     });
   };
 
+  proto.openQuickAddNoteEditor = function() {
+    this.hideQuickAddModal();
+    this.showQuickNoteModal({ fromQuickAdd: true });
+  };
+
   proto.setQuickAddStatus = function(message, type) {
     const status = document.getElementById('quick-add-status');
     if (!status) return;

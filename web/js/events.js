@@ -268,7 +268,11 @@ export function applyEventsMixin(proto) {
 
       quickAddModal.querySelectorAll('.quick-add-tab').forEach(tab => {
         tab.addEventListener('click', () => {
-          this.switchQuickAddType(tab.dataset.type);
+          if (tab.dataset.type === 'note') {
+            this.openQuickAddNoteEditor();
+          } else {
+            this.switchQuickAddType(tab.dataset.type);
+          }
         });
       });
 

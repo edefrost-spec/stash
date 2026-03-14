@@ -219,18 +219,20 @@ export function applyQuickNoteMixin(proto) {
 
       if (error) throw error;
 
-      // Clear sticky textarea
-      if (textarea) {
+      // Clear sticky textarea (not in quick-add mode — that's a separate note)
+      if (!this._quickAddNoteMode && textarea) {
         textarea.value = '';
         textarea.style.height = 'auto';
       }
       // Clear WYSIWYG editor
       if (modalEditor) this.clearNoteEditor(modalEditor);
-      if (titleInput) titleInput.value = '';
+      if (!this._quickAddNoteMode && titleInput) titleInput.value = '';
       if (modalTitleInput) modalTitleInput.value = '';
 
-      const charCount = document.getElementById('quick-note-char-count');
-      if (charCount) charCount.textContent = '';
+      if (!this._quickAddNoteMode) {
+        const charCount = document.getElementById('quick-note-char-count');
+        if (charCount) charCount.textContent = '';
+      }
 
       // Reset color selection
       this.pendingNoteColor = null;
@@ -252,6 +254,48 @@ export function applyQuickNoteMixin(proto) {
     }
   };
 
+  proto._showNoteUnsavedDialog = function(onSave, onDiscard) {
+    const dialog = document.getElementById('note-unsaved-dialog');
+    const saveBtn = document.getElementById('note-confirm-save');
+    const discardBtn = document.getElementById('note-confirm-discard');
+    if (!dialog || !saveBtn || !discardBtn) return;
+
+    dialog.classList.remove('hidden');
+
+    const cleanup = () => {
+      dialog.classList.add('hidden');
+      saveBtn.removeEventListener('click', handleSave);
+      discardBtn.removeEventListener('click', handleDiscard);
+    };
+
+    const handleSave = () => { cleanup(); onSave(); };
+    const handleDiscard = () => { cleanup(); onDiscard(); };
+
+    saveBtn.addEventListener('click', handleSave);
+    discardBtn.addEventListener('click', handleDiscard);
+  };
+
+  proto._checkUnsavedAndClose = function() {
+    const editor = document.getElementById('quick-note-modal-editor');
+    const content = editor ? this.getNoteEditorContent(editor).trim() : '';
+    if (content) {
+      this._showNoteUnsavedDialog(
+        () => this.saveQuickNoteToGrid(),
+        () => this._discardQuickAddNote()
+      );
+    } else {
+      this._discardQuickAddNote();
+    }
+  };
+
+  proto._discardQuickAddNote = function() {
+    const editor = document.getElementById('quick-note-modal-editor');
+    const titleInput = document.getElementById('quick-note-modal-title');
+    if (editor) this.clearNoteEditor(editor);
+    if (titleInput) titleInput.value = '';
+    this.hideQuickNoteModal();
+  };
+
   proto.bindQuickNoteModalEvents = function() {
     const modal = document.getElementById('quick-note-modal');
     if (!modal) return;
@@ -261,9 +305,27 @@ export function applyQuickNoteMixin(proto) {
     const cancelBtn = document.getElementById('quick-note-modal-cancel');
     const saveBtn = document.getElementById('quick-note-modal-save');
 
-    overlay?.addEventListener('click', () => this.hideQuickNoteModal());
-    closeBtn?.addEventListener('click', () => this.hideQuickNoteModal());
-    cancelBtn?.addEventListener('click', () => this.hideQuickNoteModal());
+    overlay?.addEventListener('click', () => {
+      if (this._quickAddNoteMode) {
+        this._checkUnsavedAndClose();
+      } else {
+        this.hideQuickNoteModal();
+      }
+    });
+    closeBtn?.addEventListener('click', () => {
+      if (this._quickAddNoteMode) {
+        this._checkUnsavedAndClose();
+      } else {
+        this.hideQuickNoteModal();
+      }
+    });
+    cancelBtn?.addEventListener('click', () => {
+      if (this._quickAddNoteMode) {
+        this._discardQuickAddNote();
+      } else {
+        this.hideQuickNoteModal();
+      }
+    });
 
     saveBtn?.addEventListener('click', () => this.saveQuickNoteToGrid());
 
@@ -284,30 +346,49 @@ export function applyQuickNoteMixin(proto) {
     // Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-        this.hideQuickNoteModal();
+        if (this._quickAddNoteMode) {
+          this._checkUnsavedAndClose();
+        } else {
+          this.hideQuickNoteModal();
+        }
       }
     });
   };
 
-  proto.showQuickNoteModal = function() {
+  proto.showQuickNoteModal = function(options = {}) {
     const modal = document.getElementById('quick-note-modal');
     const editor = document.getElementById('quick-note-modal-editor');
     const stickyTextarea = document.getElementById('quick-note-textarea');
     const titleInput = document.getElementById('quick-note-modal-title');
     const stickyTitleInput = document.getElementById('quick-note-title');
+    const cancelBtn = document.getElementById('quick-note-modal-cancel');
+    const saveBtn = document.getElementById('quick-note-modal-save');
 
     if (!modal) return;
 
-    // Sync title from sticky note input
-    if (titleInput && stickyTitleInput) {
-      titleInput.value = stickyTitleInput.value;
+    this._quickAddNoteMode = !!options.fromQuickAdd;
+
+    if (options.fromQuickAdd) {
+      // Open fresh for quick-add flow
+      if (editor) this.clearNoteEditor(editor);
+      if (titleInput) titleInput.value = '';
+      if (cancelBtn) cancelBtn.textContent = 'Discard';
+      if (saveBtn) saveBtn.textContent = 'Save';
+    } else {
+      // Sync from sticky note for expand flow
+      if (titleInput && stickyTitleInput) {
+        titleInput.value = stickyTitleInput.value;
+      }
+      if (editor) {
+        const stickyContent = stickyTextarea?.value?.trim() || '';
+        this.setNoteEditorContent(editor, stickyContent);
+      }
+      if (cancelBtn) cancelBtn.textContent = 'Cancel';
+      if (saveBtn) saveBtn.textContent = 'Save Note';
     }
 
-    // Load sticky textarea content into WYSIWYG editor
+    // Focus editor after a short delay to ensure modal is visible
     if (editor) {
-      const stickyContent = stickyTextarea?.value?.trim() || '';
-      this.setNoteEditorContent(editor, stickyContent);
-      // Focus editor after a short delay to ensure modal is visible
       setTimeout(() => editor.focus(), 50);
     }
 
@@ -321,8 +402,9 @@ export function applyQuickNoteMixin(proto) {
     const modalTitleInput = document.getElementById('quick-note-modal-title');
     const stickyTitleInput = document.getElementById('quick-note-title');
 
-    if (!modal?.classList.contains('hidden')) {
+    if (!modal?.classList.contains('hidden') && !this._quickAddNoteMode) {
       // Sync markdown content back to sticky textarea so it's preserved if user re-opens
+      // (only for sticky note expand flow, not quick-add flow)
       if (editor && stickyTextarea) {
         stickyTextarea.value = this.getNoteEditorContent(editor);
         // Update sticky char count
@@ -339,6 +421,7 @@ export function applyQuickNoteMixin(proto) {
       }
     }
 
+    this._quickAddNoteMode = false;
     modal?.classList.add('hidden');
   };
 
