@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Garden</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header id="stats-bar">
+      <div class="stat">
+        <span class="stat-value" id="total-tokens">0</span>
+        <span class="stat-label">tokens this week</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="flower-count">0</span>
+        <span class="stat-label">flowers bloomed</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="next-flower">5,000</span>
+        <span class="stat-label">to next flower</span>
+      </div>
+      <div class="stat-actions">
+        <button id="log-btn" class="btn">+ Log tokens</button>
+        <button id="archive-btn" class="btn btn-ghost">Archive</button>
+      </div>
+    </header>
+
+    <div id="garden-container">
+      <svg id="garden-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <div id="log-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Log token usage</h2>
+        <p>How many tokens did your Claude session use?</p>
+        <input type="number" id="token-input" placeholder="e.g. 3500" min="1">
+        <div class="modal-actions">
+          <button id="log-confirm" class="btn">Add to garden</button>
+          <button id="log-cancel" class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="archive-modal" class="modal hidden">
+      <div class="modal-content archive-content">
+        <div class="archive-header">
+          <h2>Garden Archive</h2>
+          <button id="archive-close" class="btn btn-ghost">Close</button>
+        </div>
+        <div id="archive-list"></div>
+      </div>
+    </div>
+  </div>
+  <script src="garden.js"></script>
+</body>
+</html>
