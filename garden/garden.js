@@ -345,13 +345,13 @@ function checkWeekReset(s) {
   return false;
 }
 
-function makeFlower(milestone, palette, W, groundY, rand) {
+function makeFlower(milestone, palette, W) {
   return {
-    id: Date.now().toString(36) + (rand() * 0xfffff | 0).toString(36),
-    x: 45 + rand() * (W - 90),
-    type: FLOWER_TYPES[Math.floor(rand() * FLOWER_TYPES.length)],
-    seed: (rand() * 999999999) | 0,
-    color: palette[Math.floor(rand() * palette.length)],
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+    x: 45 + Math.random() * (W - 90),
+    type: FLOWER_TYPES[Math.floor(Math.random() * FLOWER_TYPES.length)],
+    seed: Math.floor(Math.random() * 999999999),
+    color: palette[Math.floor(Math.random() * palette.length)],
     stage: 'bloom',
     tokenMilestone: milestone,
     createdAt: new Date().toISOString()
@@ -423,8 +423,7 @@ function addTokens(count) {
 
   for (let i = before; i < after; i++) {
     const milestone = (i + 1) * TOKENS_PER_FLOWER;
-    const fRand = mkRand(milestone ^ state.totalTokens);
-    const f = makeFlower(milestone, state.weekPalette, W, currentGroundY, fRand);
+    const f = makeFlower(milestone, state.weekPalette, W);
     state.flowers.push(f);
     newIds.push(f.id);
   }
