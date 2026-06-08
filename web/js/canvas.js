@@ -37,13 +37,12 @@ export function applyCanvasMixin(proto) {
     // Set up all canvas interactions (one time only)
     this.renderCanvas();
 
-    // Wait for saves to be loaded before fetching canvas data
-    if (this.saves && this.saves.length > 0) {
+    // Wait for allSaves to be loaded before fetching canvas data
+    if (this.allSaves && this.allSaves.length > 0) {
       this.loadCanvasData();
     } else {
-      // Poll until saves are available
       const poll = setInterval(() => {
-        if (this.saves && this.saves.length > 0) {
+        if (this.allSaves && this.allSaves.length > 0) {
           clearInterval(poll);
           this.loadCanvasData();
         }
@@ -249,7 +248,7 @@ export function applyCanvasMixin(proto) {
 
     } else {
       // Save node
-      const save = this.saves.find(s => s.id === node.save_id);
+      const save = this.allSaves.find(s => s.id === node.save_id);
       const inner = document.createElement('div');
       inner.className = 'canvas-node-inner';
 
@@ -610,32 +609,11 @@ export function applyCanvasMixin(proto) {
   // Save Picker Panel
   // ===================================
 
-  proto.openSavePickerPanel = async function() {
+  proto.openSavePickerPanel = function() {
     const panel = document.getElementById('canvas-picker-panel');
     panel?.classList.remove('hidden');
     const input = document.getElementById('canvas-picker-search-input');
     if (input) input.value = '';
-
-    // Fetch all non-archived saves fresh — don't rely on this.saves, which is
-    // view-filtered and may be stale or empty (e.g. if canvas was the first view loaded).
-    const list = document.getElementById('canvas-picker-list');
-    if (list) {
-      list.innerHTML = `<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px;">Loading…</div>`;
-    }
-
-    const { data, error } = await this.supabase
-      .from('saves')
-      .select('id, title, site_name, image_url, url')
-      .eq('is_archived', false)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Canvas picker: failed to load saves', error);
-      this._pickerSaves = this.saves || [];
-    } else {
-      this._pickerSaves = data || [];
-    }
-
     this.renderSavePickerList('');
   };
 
@@ -682,7 +660,7 @@ export function applyCanvasMixin(proto) {
       this.canvasNodes.map(n => n.save_id).filter(Boolean)
     );
 
-    let saves = this._pickerSaves || this.saves || [];
+    let saves = this.allSaves || [];
     if (query) {
       const q = query.toLowerCase();
       saves = saves.filter(s =>

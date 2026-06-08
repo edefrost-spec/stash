@@ -195,6 +195,11 @@ export function applyAudioMixin(proto) {
       .eq('id', this.currentSave.id);
 
     this.currentSave.is_archived = newValue;
+    if (newValue) {
+      this.allSaves = this.allSaves.filter(s => s.id !== this.currentSave.id);
+    } else {
+      this.allSaves.unshift({ ...this.currentSave, is_archived: false });
+    }
     this.loadSaves();
     if (newValue) this.closeReadingPane();
   };

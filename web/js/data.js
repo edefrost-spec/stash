@@ -76,9 +76,26 @@ export function applyDataMixin(proto) {
   proto.loadData = async function() {
     await Promise.all([
       this.loadSaves(),
+      this.loadAllSaves(),
       this.loadTags(),
       this.loadFolders(),
     ]);
+  };
+
+  // Loads ALL non-archived saves regardless of current view.
+  // Used by cross-view features (canvas, etc.) that need the full library.
+  // Keep this.allSaves in sync manually at each mutation point rather than
+  // re-fetching on every view change.
+  proto.loadAllSaves = async function() {
+    const { data, error } = await this.supabase
+      .from('saves')
+      .select('*')
+      .eq('is_archived', false)
+      .order('created_at', { ascending: false });
+
+    if (!error) {
+      this.allSaves = data || [];
+    }
   };
 
   proto.loadSaves = async function() {

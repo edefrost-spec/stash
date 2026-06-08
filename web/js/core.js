@@ -5,7 +5,8 @@ export class StashApp {
     this.user = { id: CONFIG.USER_ID }; // Hardcoded single user
     this.currentView = 'all';
     this.currentSave = null;
-    this.saves = [];
+    this.saves = [];       // view-filtered saves for the current card grid
+    this.allSaves = [];    // all non-archived saves, used by canvas and cross-view features
     this.tags = [];
     this.folders = [];
     this.pendingKindleImport = null; // Stores parsed highlights before import

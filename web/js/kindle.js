@@ -380,6 +380,7 @@ export function applyKindleMixin(proto) {
       // Success - close modal and refresh
       this.hideKindleImportModal();
       this.loadSaves();
+      this.loadAllSaves(); // refresh full library after batch import
 
       alert(`Successfully imported ${saves.length} highlights!`);
 
@@ -471,7 +472,7 @@ export function applyKindleMixin(proto) {
         if (!card) return;
 
         const saveId = card.dataset.id;
-        const save = this.saves.find(s => s.id === saveId);
+        const save = this.allSaves.find(s => s.id === saveId) || this.saves.find(s => s.id === saveId);
         if (!save) return;
 
         await this.toggleTaskInNote(save, checkbox);

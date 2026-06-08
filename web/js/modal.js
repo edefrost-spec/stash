@@ -457,6 +457,7 @@ export function applyModalMixin(proto) {
     document.getElementById('book-delete-btn')?.addEventListener('click', async () => {
       if (confirm('Delete this book?')) {
         await this.supabase.from('saves').delete().eq('id', save.id);
+        this.allSaves = this.allSaves.filter(s => s.id !== save.id);
         this.closeUnifiedModal();
         this.loadSaves();
         this.showToast('Book deleted', 'success');
@@ -1204,6 +1205,12 @@ export function applyModalMixin(proto) {
 
     if (!error) {
       save.is_archived = newArchiveState;
+      // Remove from allSaves when archived; add back when unarchived
+      if (newArchiveState) {
+        this.allSaves = this.allSaves.filter(s => s.id !== save.id);
+      } else {
+        this.allSaves.unshift({ ...save, is_archived: false });
+      }
       document.getElementById('modal-archive-btn').classList.toggle('active', newArchiveState);
       this.closeUnifiedModal();
       this.loadSaves();
@@ -1217,6 +1224,7 @@ export function applyModalMixin(proto) {
       .eq('id', save.id);
 
     if (!error) {
+      this.allSaves = this.allSaves.filter(s => s.id !== save.id);
       this.closeUnifiedModal();
       this.loadSaves();
       this.loadPinnedSaves();

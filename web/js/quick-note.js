@@ -215,9 +215,14 @@ export function applyQuickNoteMixin(proto) {
         note_gradient: this.pendingNoteGradient,
       };
 
-      const { error } = await this.supabase.from('saves').insert(payload);
+      const { data: newSave, error } = await this.supabase
+        .from('saves')
+        .insert(payload)
+        .select()
+        .single();
 
       if (error) throw error;
+      if (newSave) this.allSaves.unshift(newSave);
 
       // Clear sticky textarea (not in quick-add mode — that's a separate note)
       if (!this._quickAddNoteMode && textarea) {

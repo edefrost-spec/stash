@@ -292,6 +292,7 @@ export function applyViewsMixin(proto) {
     lightbox.querySelector('.lightbox-delete')?.addEventListener('click', async () => {
       if (!confirm('Delete this image? This cannot be undone.')) return;
       await this.supabase.from('saves').delete().eq('id', save.id);
+      this.allSaves = this.allSaves.filter(s => s.id !== save.id);
       closeLightbox();
       this.loadSaves();
     });
