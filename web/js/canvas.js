@@ -255,43 +255,59 @@ export function applyCanvasMixin(proto) {
 
       if (save) {
         const saveType = this.getSaveType(save);
-        const iconSvg = this.getCanvasTypeIconSvg(saveType);
+        const isImageOnly = saveType === 'image' && save.image_url;
 
-        if (save.image_url) {
+        if (isImageOnly) {
+          // Image saves: full-bleed thumbnail, no text meta
+          el.classList.add('canvas-save-node--image-only');
           const thumb = document.createElement('div');
           thumb.className = 'canvas-node-thumb';
           const img = document.createElement('img');
           img.src = save.image_url;
-          img.alt = '';
+          img.alt = save.title || '';
           img.loading = 'lazy';
           thumb.appendChild(img);
           inner.appendChild(thumb);
-        }
-
-        const meta = document.createElement('div');
-        meta.className = 'canvas-node-meta';
-
-        const typeIcon = document.createElement('span');
-        typeIcon.className = 'canvas-node-type-icon';
-        typeIcon.innerHTML = iconSvg;
-
-        const title = document.createElement('span');
-        title.className = 'canvas-node-title';
-        title.textContent = save.title || 'Untitled';
-
-        if (save.site_name) {
-          const site = document.createElement('span');
-          site.className = 'canvas-node-site';
-          site.textContent = save.site_name;
-          meta.appendChild(typeIcon);
-          meta.appendChild(title);
-          meta.appendChild(site);
         } else {
-          meta.appendChild(typeIcon);
-          meta.appendChild(title);
-        }
+          // Standard save: small thumbnail + title + site
+          const iconSvg = this.getCanvasTypeIconSvg(saveType);
 
-        inner.appendChild(meta);
+          if (save.image_url) {
+            const thumb = document.createElement('div');
+            thumb.className = 'canvas-node-thumb';
+            const img = document.createElement('img');
+            img.src = save.image_url;
+            img.alt = '';
+            img.loading = 'lazy';
+            thumb.appendChild(img);
+            inner.appendChild(thumb);
+          }
+
+          const meta = document.createElement('div');
+          meta.className = 'canvas-node-meta';
+
+          const typeIcon = document.createElement('span');
+          typeIcon.className = 'canvas-node-type-icon';
+          typeIcon.innerHTML = iconSvg;
+
+          const title = document.createElement('span');
+          title.className = 'canvas-node-title';
+          title.textContent = save.title || 'Untitled';
+
+          if (save.site_name) {
+            const site = document.createElement('span');
+            site.className = 'canvas-node-site';
+            site.textContent = save.site_name;
+            meta.appendChild(typeIcon);
+            meta.appendChild(title);
+            meta.appendChild(site);
+          } else {
+            meta.appendChild(typeIcon);
+            meta.appendChild(title);
+          }
+
+          inner.appendChild(meta);
+        }
 
         // Click to open reading pane (guarded by drag detection)
         inner.addEventListener('click', () => {
@@ -594,11 +610,32 @@ export function applyCanvasMixin(proto) {
   // Save Picker Panel
   // ===================================
 
-  proto.openSavePickerPanel = function() {
+  proto.openSavePickerPanel = async function() {
     const panel = document.getElementById('canvas-picker-panel');
     panel?.classList.remove('hidden');
     const input = document.getElementById('canvas-picker-search-input');
     if (input) input.value = '';
+
+    // Fetch all non-archived saves fresh — don't rely on this.saves, which is
+    // view-filtered and may be stale or empty (e.g. if canvas was the first view loaded).
+    const list = document.getElementById('canvas-picker-list');
+    if (list) {
+      list.innerHTML = `<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px;">Loading…</div>`;
+    }
+
+    const { data, error } = await this.supabase
+      .from('saves')
+      .select('id, title, site_name, image_url, url')
+      .eq('is_archived', false)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Canvas picker: failed to load saves', error);
+      this._pickerSaves = this.saves || [];
+    } else {
+      this._pickerSaves = data || [];
+    }
+
     this.renderSavePickerList('');
   };
 
@@ -645,7 +682,7 @@ export function applyCanvasMixin(proto) {
       this.canvasNodes.map(n => n.save_id).filter(Boolean)
     );
 
-    let saves = this.saves || [];
+    let saves = this._pickerSaves || this.saves || [];
     if (query) {
       const q = query.toLowerCase();
       saves = saves.filter(s =>
