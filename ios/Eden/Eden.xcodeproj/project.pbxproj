@@ -1,0 +1,1291 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		807D0AAE2F3786DC00F47767 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 807D0AAD2F3786DC00F47767 /* Auth */; };
+		807D0AB02F3786DC00F47767 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 807D0AAF2F3786DC00F47767 /* PostgREST */; };
+		807D0AB22F3786DC00F47767 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 807D0AB12F3786DC00F47767 /* Realtime */; };
+		807D0AB42F3786DC00F47767 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 807D0AB32F3786DC00F47767 /* Storage */; };
+		807D0AB62F3786DC00F47767 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 807D0AB52F3786DC00F47767 /* Supabase */; };
+		807D0AB92F37871A00F47767 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 807D0AB82F37871A00F47767 /* SwiftSoup */; };
+		807D0B3D2F3789C700F47767 /* project-ref in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B062F3789C700F47767 /* project-ref */; };
+		807D0B412F3789C700F47767 /* cli-latest in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B022F3789C700F47767 /* cli-latest */; };
+		807D0B482F3789C700F47767 /* storage-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B092F3789C700F47767 /* storage-version */; };
+		807D0B512F3789C700F47767 /* schema.sql in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B1F2F3789C700F47767 /* schema.sql */; };
+		807D0B562F3789C700F47767 /* install.html in Resources */ = {isa = PBXBuildFile; fileRef = 807D0ABB2F3789C700F47767 /* install.html */; };
+		807D0B572F3789C700F47767 /* save-page.js in Resources */ = {isa = PBXBuildFile; fileRef = 807D0ABC2F3789C700F47767 /* save-page.js */; };
+		807D0B5A2F3789C700F47767 /* postgres-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B052F3789C700F47767 /* postgres-version */; };
+		807D0B612F3789C700F47767 /* 001_add_books_and_vectors.sql in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B1C2F3789C700F47767 /* 001_add_books_and_vectors.sql */; };
+		807D0B622F3789C700F47767 /* rest-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B072F3789C700F47767 /* rest-version */; };
+		807D0B652F3789C700F47767 /* storage-migration in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B082F3789C700F47767 /* storage-migration */; };
+		807D0B762F3789C700F47767 /* 002_semantic_search.sql in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B1D2F3789C700F47767 /* 002_semantic_search.sql */; };
+		807D0B852F3789C700F47767 /* pooler-url in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B042F3789C700F47767 /* pooler-url */; };
+		807D0B882F3789C700F47767 /* gotrue-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B032F3789C700F47767 /* gotrue-version */; };
+		807D0B902F3789C700F47767 /* project-ref in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B062F3789C700F47767 /* project-ref */; };
+		807D0B942F3789C700F47767 /* cli-latest in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B022F3789C700F47767 /* cli-latest */; };
+		807D0B9B2F3789C700F47767 /* storage-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B092F3789C700F47767 /* storage-version */; };
+		807D0BA42F3789C700F47767 /* schema.sql in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B1F2F3789C700F47767 /* schema.sql */; };
+		807D0BA92F3789C700F47767 /* install.html in Resources */ = {isa = PBXBuildFile; fileRef = 807D0ABB2F3789C700F47767 /* install.html */; };
+		807D0BAA2F3789C700F47767 /* save-page.js in Resources */ = {isa = PBXBuildFile; fileRef = 807D0ABC2F3789C700F47767 /* save-page.js */; };
+		807D0BAD2F3789C700F47767 /* postgres-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B052F3789C700F47767 /* postgres-version */; };
+		807D0BB42F3789C700F47767 /* 001_add_books_and_vectors.sql in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B1C2F3789C700F47767 /* 001_add_books_and_vectors.sql */; };
+		807D0BB52F3789C700F47767 /* rest-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B072F3789C700F47767 /* rest-version */; };
+		807D0BB82F3789C700F47767 /* storage-migration in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B082F3789C700F47767 /* storage-migration */; };
+		807D0BC92F3789C700F47767 /* 002_semantic_search.sql in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B1D2F3789C700F47767 /* 002_semantic_search.sql */; };
+		807D0BD82F3789C700F47767 /* pooler-url in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B042F3789C700F47767 /* pooler-url */; };
+		807D0BDB2F3789C700F47767 /* gotrue-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B032F3789C700F47767 /* gotrue-version */; };
+		807D0BE82F3789C700F47767 /* project-ref in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B062F3789C700F47767 /* project-ref */; };
+		807D0BEC2F3789C700F47767 /* cli-latest in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B022F3789C700F47767 /* cli-latest */; };
+		807D0BF32F3789C700F47767 /* storage-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B092F3789C700F47767 /* storage-version */; };
+		807D0BFC2F3789C700F47767 /* schema.sql in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B1F2F3789C700F47767 /* schema.sql */; };
+		807D0C012F3789C700F47767 /* install.html in Resources */ = {isa = PBXBuildFile; fileRef = 807D0ABB2F3789C700F47767 /* install.html */; };
+		807D0C022F3789C700F47767 /* save-page.js in Resources */ = {isa = PBXBuildFile; fileRef = 807D0ABC2F3789C700F47767 /* save-page.js */; };
+		807D0C052F3789C700F47767 /* postgres-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B052F3789C700F47767 /* postgres-version */; };
+		807D0C0C2F3789C700F47767 /* 001_add_books_and_vectors.sql in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B1C2F3789C700F47767 /* 001_add_books_and_vectors.sql */; };
+		807D0C0D2F3789C700F47767 /* rest-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B072F3789C700F47767 /* rest-version */; };
+		807D0C102F3789C700F47767 /* storage-migration in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B082F3789C700F47767 /* storage-migration */; };
+		807D0C212F3789C700F47767 /* 002_semantic_search.sql in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B1D2F3789C700F47767 /* 002_semantic_search.sql */; };
+		807D0C302F3789C700F47767 /* pooler-url in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B042F3789C700F47767 /* pooler-url */; };
+		807D0C332F3789C700F47767 /* gotrue-version in Resources */ = {isa = PBXBuildFile; fileRef = 807D0B032F3789C700F47767 /* gotrue-version */; };
+		807D0C582F378A6300F47767 /* ARCHITECTURE.md in Resources */ = {isa = PBXBuildFile; fileRef = 807D0C412F378A6300F47767 /* ARCHITECTURE.md */; };
+		807D0C592F378A6300F47767 /* README 2.md in Resources */ = {isa = PBXBuildFile; fileRef = 807D0C442F378A6300F47767 /* README 2.md */; };
+		807D0C5A2F378A6300F47767 /* QUICKSTART.md in Resources */ = {isa = PBXBuildFile; fileRef = 807D0C432F378A6300F47767 /* QUICKSTART.md */; };
+		807D0C5D2F378A6300F47767 /* SaveDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C522F378A6300F47767 /* SaveDetailView.swift */; };
+		807D0C5E2F378A6300F47767 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C552F378A6300F47767 /* SettingsView.swift */; };
+		807D0C5F2F378A6300F47767 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C542F378A6300F47767 /* SearchView.swift */; };
+		807D0C602F378A6300F47767 /* StashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C482F378A6300F47767 /* StashApp.swift */; };
+		807D0C612F378A6300F47767 /* Save.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4B2F378A6300F47767 /* Save.swift */; };
+		807D0C622F378A6300F47767 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4A2F378A6300F47767 /* Folder.swift */; };
+		807D0C632F378A6300F47767 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4C2F378A6300F47767 /* Tag.swift */; };
+		807D0C642F378A6300F47767 /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4F2F378A6300F47767 /* SyncService.swift */; };
+		807D0C652F378A6300F47767 /* SavesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C532F378A6300F47767 /* SavesListView.swift */; };
+		807D0C662F378A6300F47767 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4E2F378A6300F47767 /* SupabaseService.swift */; };
+		807D0C682F378A6300F47767 /* FoldersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C512F378A6300F47767 /* FoldersView.swift */; };
+		807D0C6A2F378A6300F47767 /* SaveDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C522F378A6300F47767 /* SaveDetailView.swift */; };
+		807D0C6B2F378A6300F47767 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C552F378A6300F47767 /* SettingsView.swift */; };
+		807D0C6C2F378A6300F47767 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C542F378A6300F47767 /* SearchView.swift */; };
+		807D0C6D2F378A6300F47767 /* StashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C482F378A6300F47767 /* StashApp.swift */; };
+		807D0C6E2F378A6300F47767 /* Save.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4B2F378A6300F47767 /* Save.swift */; };
+		807D0C6F2F378A6300F47767 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4A2F378A6300F47767 /* Folder.swift */; };
+		807D0C702F378A6300F47767 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4C2F378A6300F47767 /* Tag.swift */; };
+		807D0C712F378A6300F47767 /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4F2F378A6300F47767 /* SyncService.swift */; };
+		807D0C722F378A6300F47767 /* SavesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C532F378A6300F47767 /* SavesListView.swift */; };
+		807D0C732F378A6300F47767 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4E2F378A6300F47767 /* SupabaseService.swift */; };
+		807D0C752F378A6300F47767 /* FoldersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C512F378A6300F47767 /* FoldersView.swift */; };
+		807D0C762F378A6300F47767 /* ARCHITECTURE.md in Resources */ = {isa = PBXBuildFile; fileRef = 807D0C412F378A6300F47767 /* ARCHITECTURE.md */; };
+		807D0C772F378A6300F47767 /* README 2.md in Resources */ = {isa = PBXBuildFile; fileRef = 807D0C442F378A6300F47767 /* README 2.md */; };
+		807D0C782F378A6300F47767 /* QUICKSTART.md in Resources */ = {isa = PBXBuildFile; fileRef = 807D0C432F378A6300F47767 /* QUICKSTART.md */; };
+		807D0C7A2F378A6300F47767 /* ARCHITECTURE.md in Resources */ = {isa = PBXBuildFile; fileRef = 807D0C412F378A6300F47767 /* ARCHITECTURE.md */; };
+		807D0C7B2F378A6300F47767 /* README 2.md in Resources */ = {isa = PBXBuildFile; fileRef = 807D0C442F378A6300F47767 /* README 2.md */; };
+		807D0C7C2F378A6300F47767 /* QUICKSTART.md in Resources */ = {isa = PBXBuildFile; fileRef = 807D0C432F378A6300F47767 /* QUICKSTART.md */; };
+		807D0C7F2F378A6300F47767 /* SaveDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C522F378A6300F47767 /* SaveDetailView.swift */; };
+		807D0C802F378A6300F47767 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C552F378A6300F47767 /* SettingsView.swift */; };
+		807D0C812F378A6300F47767 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C542F378A6300F47767 /* SearchView.swift */; };
+		807D0C822F378A6300F47767 /* StashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C482F378A6300F47767 /* StashApp.swift */; };
+		807D0C832F378A6300F47767 /* Save.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4B2F378A6300F47767 /* Save.swift */; };
+		807D0C842F378A6300F47767 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4A2F378A6300F47767 /* Folder.swift */; };
+		807D0C852F378A6300F47767 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4C2F378A6300F47767 /* Tag.swift */; };
+		807D0C862F378A6300F47767 /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4F2F378A6300F47767 /* SyncService.swift */; };
+		807D0C872F378A6300F47767 /* SavesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C532F378A6300F47767 /* SavesListView.swift */; };
+		807D0C882F378A6300F47767 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C4E2F378A6300F47767 /* SupabaseService.swift */; };
+		807D0C8A2F378A6300F47767 /* FoldersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0C512F378A6300F47767 /* FoldersView.swift */; };
+		807D0C9F2F378EE200F47767 /* Stash Share Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 807D0C952F378EE200F47767 /* Stash Share Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		807D0CB42F379A0100F47767 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 807D0CB52F379A0100F47767 /* Supabase */; };
+		807D0D032F38F00000F47767 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807D0D022F38F00000F47767 /* Config.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		807D0A902F3730BD00F47767 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 807D0A782F3730BB00F47767 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 807D0A7F2F3730BB00F47767;
+			remoteInfo = Eden;
+		};
+		807D0A9A2F3730BD00F47767 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 807D0A782F3730BB00F47767 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 807D0A7F2F3730BB00F47767;
+			remoteInfo = Eden;
+		};
+		807D0C9D2F378EE200F47767 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 807D0A782F3730BB00F47767 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 807D0C942F378EE200F47767;
+			remoteInfo = "Stash Share Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		807D0CA42F378EE200F47767 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				807D0C9F2F378EE200F47767 /* Stash Share Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		807D0A802F3730BB00F47767 /* Eden.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Eden.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		807D0A8F2F3730BD00F47767 /* EdenTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		807D0A992F3730BD00F47767 /* EdenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		807D0ABB2F3789C700F47767 /* install.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = install.html; sourceTree = "<group>"; };
+		807D0ABC2F3789C700F47767 /* save-page.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "save-page.js"; sourceTree = "<group>"; };
+		807D0B022F3789C700F47767 /* cli-latest */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cli-latest"; sourceTree = "<group>"; };
+		807D0B032F3789C700F47767 /* gotrue-version */ = {isa = PBXFileReference; lastKnownFileType = text; path = "gotrue-version"; sourceTree = "<group>"; };
+		807D0B042F3789C700F47767 /* pooler-url */ = {isa = PBXFileReference; lastKnownFileType = text; path = "pooler-url"; sourceTree = "<group>"; };
+		807D0B052F3789C700F47767 /* postgres-version */ = {isa = PBXFileReference; lastKnownFileType = text; path = "postgres-version"; sourceTree = "<group>"; };
+		807D0B062F3789C700F47767 /* project-ref */ = {isa = PBXFileReference; lastKnownFileType = text; path = "project-ref"; sourceTree = "<group>"; };
+		807D0B072F3789C700F47767 /* rest-version */ = {isa = PBXFileReference; lastKnownFileType = text; path = "rest-version"; sourceTree = "<group>"; };
+		807D0B082F3789C700F47767 /* storage-migration */ = {isa = PBXFileReference; lastKnownFileType = text; path = "storage-migration"; sourceTree = "<group>"; };
+		807D0B092F3789C700F47767 /* storage-version */ = {isa = PBXFileReference; lastKnownFileType = text; path = "storage-version"; sourceTree = "<group>"; };
+		807D0B0B2F3789C700F47767 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
+		807D0B0D2F3789C700F47767 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
+		807D0B0F2F3789C700F47767 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
+		807D0B112F3789C700F47767 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
+		807D0B132F3789C700F47767 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
+		807D0B152F3789C700F47767 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
+		807D0B172F3789C700F47767 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
+		807D0B192F3789C700F47767 /* index.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = index.ts; sourceTree = "<group>"; };
+		807D0B1C2F3789C700F47767 /* 001_add_books_and_vectors.sql */ = {isa = PBXFileReference; lastKnownFileType = text; path = 001_add_books_and_vectors.sql; sourceTree = "<group>"; };
+		807D0B1D2F3789C700F47767 /* 002_semantic_search.sql */ = {isa = PBXFileReference; lastKnownFileType = text; path = 002_semantic_search.sql; sourceTree = "<group>"; };
+		807D0B1F2F3789C700F47767 /* schema.sql */ = {isa = PBXFileReference; lastKnownFileType = text; path = schema.sql; sourceTree = "<group>"; };
+		807D0C412F378A6300F47767 /* ARCHITECTURE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITECTURE.md; sourceTree = "<group>"; };
+		807D0C432F378A6300F47767 /* QUICKSTART.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = QUICKSTART.md; sourceTree = "<group>"; };
+		807D0C442F378A6300F47767 /* README 2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "README 2.md"; sourceTree = "<group>"; };
+		807D0C462F378A6300F47767 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		807D0C482F378A6300F47767 /* StashApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StashApp.swift; sourceTree = "<group>"; };
+		807D0C4A2F378A6300F47767 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
+		807D0C4B2F378A6300F47767 /* Save.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Save.swift; sourceTree = "<group>"; };
+		807D0C4C2F378A6300F47767 /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
+		807D0C4E2F378A6300F47767 /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
+		807D0C4F2F378A6300F47767 /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
+		807D0C512F378A6300F47767 /* FoldersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersView.swift; sourceTree = "<group>"; };
+		807D0C522F378A6300F47767 /* SaveDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveDetailView.swift; sourceTree = "<group>"; };
+		807D0C532F378A6300F47767 /* SavesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavesListView.swift; sourceTree = "<group>"; };
+		807D0C542F378A6300F47767 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		807D0C552F378A6300F47767 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		807D0C952F378EE200F47767 /* Stash Share Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Stash Share Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		807D0D022F38F00000F47767 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		807D0C8F2F378E3300F47767 /* Exceptions for "Eden" folder in "EdenTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Config.example.swift,
+			);
+			target = 807D0A8E2F3730BD00F47767 /* EdenTests */;
+		};
+		807D0C902F378E3300F47767 /* Exceptions for "Eden" folder in "EdenUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Config.example.swift,
+			);
+			target = 807D0A982F3730BD00F47767 /* EdenUITests */;
+		};
+		807D0CA82F3791DF00F47767 /* Exceptions for "Stash Share Extension" folder in "Eden" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ShareViewController.swift,
+			);
+			target = 807D0A7F2F3730BB00F47767 /* Eden */;
+		};
+		807D0CA92F3791DF00F47767 /* Exceptions for "Stash Share Extension" folder in "EdenTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ShareViewController.swift,
+			);
+			target = 807D0A8E2F3730BD00F47767 /* EdenTests */;
+		};
+		807D0CAA2F3791DF00F47767 /* Exceptions for "Stash Share Extension" folder in "EdenUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ShareViewController.swift,
+			);
+			target = 807D0A982F3730BD00F47767 /* EdenUITests */;
+		};
+		807D0D012F38F00000F47767 /* Exceptions for "Eden" folder in "Eden" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Config.example.swift,
+				ContentView.swift,
+				EdenApp.swift,
+				Item.swift,
+			);
+			target = 807D0A7F2F3730BB00F47767 /* Eden */;
+		};
+		807D0D062F38F00000F47767 /* Exceptions for "Stash Share Extension" folder in "Stash Share Extension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 807D0C942F378EE200F47767 /* Stash Share Extension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		807D0A822F3730BB00F47767 /* Eden */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				807D0D012F38F00000F47767 /* Exceptions for "Eden" folder in "Eden" target */,
+				807D0C8F2F378E3300F47767 /* Exceptions for "Eden" folder in "EdenTests" target */,
+				807D0C902F378E3300F47767 /* Exceptions for "Eden" folder in "EdenUITests" target */,
+			);
+			path = Eden;
+			sourceTree = "<group>";
+		};
+		807D0A922F3730BD00F47767 /* EdenTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = EdenTests;
+			sourceTree = "<group>";
+		};
+		807D0A9C2F3730BD00F47767 /* EdenUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = EdenUITests;
+			sourceTree = "<group>";
+		};
+		807D0C962F378EE200F47767 /* Stash Share Extension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				807D0CA82F3791DF00F47767 /* Exceptions for "Stash Share Extension" folder in "Eden" target */,
+				807D0CA92F3791DF00F47767 /* Exceptions for "Stash Share Extension" folder in "EdenTests" target */,
+				807D0CAA2F3791DF00F47767 /* Exceptions for "Stash Share Extension" folder in "EdenUITests" target */,
+				807D0D062F38F00000F47767 /* Exceptions for "Stash Share Extension" folder in "Stash Share Extension" target */,
+			);
+			path = "Stash Share Extension";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		807D0A7D2F3730BB00F47767 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				807D0AB62F3786DC00F47767 /* Supabase in Frameworks */,
+				807D0AB42F3786DC00F47767 /* Storage in Frameworks */,
+				807D0AB22F3786DC00F47767 /* Realtime in Frameworks */,
+				807D0AB02F3786DC00F47767 /* PostgREST in Frameworks */,
+				807D0AAE2F3786DC00F47767 /* Auth in Frameworks */,
+				807D0AB92F37871A00F47767 /* SwiftSoup in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		807D0A8C2F3730BD00F47767 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		807D0A962F3730BD00F47767 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		807D0C922F378EE200F47767 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				807D0CB42F379A0100F47767 /* Supabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		807D0A772F3730BB00F47767 = {
+			isa = PBXGroup;
+			children = (
+				807D0ABA2F37896F00F47767 /* New Group */,
+				807D0A822F3730BB00F47767 /* Eden */,
+				807D0A922F3730BD00F47767 /* EdenTests */,
+				807D0A9C2F3730BD00F47767 /* EdenUITests */,
+				807D0C962F378EE200F47767 /* Stash Share Extension */,
+				807D0A812F3730BB00F47767 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		807D0A812F3730BB00F47767 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				807D0A802F3730BB00F47767 /* Eden.app */,
+				807D0A8F2F3730BD00F47767 /* EdenTests.xctest */,
+				807D0A992F3730BD00F47767 /* EdenUITests.xctest */,
+				807D0C952F378EE200F47767 /* Stash Share Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		807D0ABA2F37896F00F47767 /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+				807D0ABD2F3789C700F47767 /* bookmarklet */,
+				807D0B202F3789C700F47767 /* supabase */,
+				807D0C412F378A6300F47767 /* ARCHITECTURE.md */,
+				807D0C432F378A6300F47767 /* QUICKSTART.md */,
+				807D0C442F378A6300F47767 /* README 2.md */,
+				807D0C472F378A6300F47767 /* ShareExtension */,
+				807D0C572F378A6300F47767 /* Stash */,
+			);
+			path = "New Group";
+			sourceTree = "<group>";
+		};
+		807D0ABD2F3789C700F47767 /* bookmarklet */ = {
+			isa = PBXGroup;
+			children = (
+				807D0ABB2F3789C700F47767 /* install.html */,
+				807D0ABC2F3789C700F47767 /* save-page.js */,
+			);
+			path = bookmarklet;
+			sourceTree = "<group>";
+		};
+		807D0B0A2F3789C700F47767 /* .temp */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B022F3789C700F47767 /* cli-latest */,
+				807D0B032F3789C700F47767 /* gotrue-version */,
+				807D0B042F3789C700F47767 /* pooler-url */,
+				807D0B052F3789C700F47767 /* postgres-version */,
+				807D0B062F3789C700F47767 /* project-ref */,
+				807D0B072F3789C700F47767 /* rest-version */,
+				807D0B082F3789C700F47767 /* storage-migration */,
+				807D0B092F3789C700F47767 /* storage-version */,
+			);
+			path = .temp;
+			sourceTree = "<group>";
+		};
+		807D0B0C2F3789C700F47767 /* auto-tag */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B0B2F3789C700F47767 /* index.ts */,
+			);
+			path = "auto-tag";
+			sourceTree = "<group>";
+		};
+		807D0B0E2F3789C700F47767 /* auto-tag-image */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B0D2F3789C700F47767 /* index.ts */,
+			);
+			path = "auto-tag-image";
+			sourceTree = "<group>";
+		};
+		807D0B102F3789C700F47767 /* find-similar-images */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B0F2F3789C700F47767 /* index.ts */,
+			);
+			path = "find-similar-images";
+			sourceTree = "<group>";
+		};
+		807D0B122F3789C700F47767 /* generate-content-embedding */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B112F3789C700F47767 /* index.ts */,
+			);
+			path = "generate-content-embedding";
+			sourceTree = "<group>";
+		};
+		807D0B142F3789C700F47767 /* generate-image-embedding */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B132F3789C700F47767 /* index.ts */,
+			);
+			path = "generate-image-embedding";
+			sourceTree = "<group>";
+		};
+		807D0B162F3789C700F47767 /* save-kindle */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B152F3789C700F47767 /* index.ts */,
+			);
+			path = "save-kindle";
+			sourceTree = "<group>";
+		};
+		807D0B182F3789C700F47767 /* save-page */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B172F3789C700F47767 /* index.ts */,
+			);
+			path = "save-page";
+			sourceTree = "<group>";
+		};
+		807D0B1A2F3789C700F47767 /* send-digest */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B192F3789C700F47767 /* index.ts */,
+			);
+			path = "send-digest";
+			sourceTree = "<group>";
+		};
+		807D0B1B2F3789C700F47767 /* functions */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B0C2F3789C700F47767 /* auto-tag */,
+				807D0B0E2F3789C700F47767 /* auto-tag-image */,
+				807D0B102F3789C700F47767 /* find-similar-images */,
+				807D0B122F3789C700F47767 /* generate-content-embedding */,
+				807D0B142F3789C700F47767 /* generate-image-embedding */,
+				807D0B162F3789C700F47767 /* save-kindle */,
+				807D0B182F3789C700F47767 /* save-page */,
+				807D0B1A2F3789C700F47767 /* send-digest */,
+			);
+			path = functions;
+			sourceTree = "<group>";
+		};
+		807D0B1E2F3789C700F47767 /* migrations */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B1C2F3789C700F47767 /* 001_add_books_and_vectors.sql */,
+				807D0B1D2F3789C700F47767 /* 002_semantic_search.sql */,
+			);
+			path = migrations;
+			sourceTree = "<group>";
+		};
+		807D0B202F3789C700F47767 /* supabase */ = {
+			isa = PBXGroup;
+			children = (
+				807D0B0A2F3789C700F47767 /* .temp */,
+				807D0B1B2F3789C700F47767 /* functions */,
+				807D0B1E2F3789C700F47767 /* migrations */,
+				807D0B1F2F3789C700F47767 /* schema.sql */,
+			);
+			path = supabase;
+			sourceTree = "<group>";
+		};
+		807D0C472F378A6300F47767 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				807D0C462F378A6300F47767 /* ShareViewController.swift */,
+			);
+			path = ShareExtension;
+			sourceTree = "<group>";
+		};
+		807D0C492F378A6300F47767 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				807D0C482F378A6300F47767 /* StashApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		807D0C4D2F378A6300F47767 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				807D0C4A2F378A6300F47767 /* Folder.swift */,
+				807D0C4B2F378A6300F47767 /* Save.swift */,
+				807D0C4C2F378A6300F47767 /* Tag.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		807D0C502F378A6300F47767 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				807D0C4E2F378A6300F47767 /* SupabaseService.swift */,
+				807D0C4F2F378A6300F47767 /* SyncService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		807D0C562F378A6300F47767 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				807D0C512F378A6300F47767 /* FoldersView.swift */,
+				807D0C522F378A6300F47767 /* SaveDetailView.swift */,
+				807D0C532F378A6300F47767 /* SavesListView.swift */,
+				807D0C542F378A6300F47767 /* SearchView.swift */,
+				807D0C552F378A6300F47767 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		807D0C572F378A6300F47767 /* Stash */ = {
+			isa = PBXGroup;
+			children = (
+				807D0C492F378A6300F47767 /* App */,
+				807D0D022F38F00000F47767 /* Config.swift */,
+				807D0C4D2F378A6300F47767 /* Models */,
+				807D0C502F378A6300F47767 /* Services */,
+				807D0C562F378A6300F47767 /* Views */,
+			);
+			path = Stash;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		807D0A7F2F3730BB00F47767 /* Eden */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 807D0AA32F3730BD00F47767 /* Build configuration list for PBXNativeTarget "Eden" */;
+			buildPhases = (
+				807D0A7C2F3730BB00F47767 /* Sources */,
+				807D0A7D2F3730BB00F47767 /* Frameworks */,
+				807D0A7E2F3730BB00F47767 /* Resources */,
+				807D0CA42F378EE200F47767 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				807D0C9E2F378EE200F47767 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				807D0A822F3730BB00F47767 /* Eden */,
+			);
+			name = Eden;
+			packageProductDependencies = (
+				807D0AAD2F3786DC00F47767 /* Auth */,
+				807D0AAF2F3786DC00F47767 /* PostgREST */,
+				807D0AB12F3786DC00F47767 /* Realtime */,
+				807D0AB32F3786DC00F47767 /* Storage */,
+				807D0AB52F3786DC00F47767 /* Supabase */,
+				807D0AB82F37871A00F47767 /* SwiftSoup */,
+			);
+			productName = Eden;
+			productReference = 807D0A802F3730BB00F47767 /* Eden.app */;
+			productType = "com.apple.product-type.application";
+		};
+		807D0A8E2F3730BD00F47767 /* EdenTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 807D0AA62F3730BD00F47767 /* Build configuration list for PBXNativeTarget "EdenTests" */;
+			buildPhases = (
+				807D0A8B2F3730BD00F47767 /* Sources */,
+				807D0A8C2F3730BD00F47767 /* Frameworks */,
+				807D0A8D2F3730BD00F47767 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				807D0A912F3730BD00F47767 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				807D0A922F3730BD00F47767 /* EdenTests */,
+			);
+			name = EdenTests;
+			packageProductDependencies = (
+			);
+			productName = EdenTests;
+			productReference = 807D0A8F2F3730BD00F47767 /* EdenTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		807D0A982F3730BD00F47767 /* EdenUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 807D0AA92F3730BD00F47767 /* Build configuration list for PBXNativeTarget "EdenUITests" */;
+			buildPhases = (
+				807D0A952F3730BD00F47767 /* Sources */,
+				807D0A962F3730BD00F47767 /* Frameworks */,
+				807D0A972F3730BD00F47767 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				807D0A9B2F3730BD00F47767 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				807D0A9C2F3730BD00F47767 /* EdenUITests */,
+			);
+			name = EdenUITests;
+			packageProductDependencies = (
+			);
+			productName = EdenUITests;
+			productReference = 807D0A992F3730BD00F47767 /* EdenUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		807D0C942F378EE200F47767 /* Stash Share Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 807D0CA02F378EE200F47767 /* Build configuration list for PBXNativeTarget "Stash Share Extension" */;
+			buildPhases = (
+				807D0C912F378EE200F47767 /* Sources */,
+				807D0C922F378EE200F47767 /* Frameworks */,
+				807D0C932F378EE200F47767 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				807D0C962F378EE200F47767 /* Stash Share Extension */,
+			);
+			name = "Stash Share Extension";
+			packageProductDependencies = (
+				807D0CB52F379A0100F47767 /* Supabase */,
+			);
+			productName = "Stash Share Extension";
+			productReference = 807D0C952F378EE200F47767 /* Stash Share Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		807D0A782F3730BB00F47767 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					807D0A7F2F3730BB00F47767 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					807D0A8E2F3730BD00F47767 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 807D0A7F2F3730BB00F47767;
+					};
+					807D0A982F3730BD00F47767 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 807D0A7F2F3730BB00F47767;
+					};
+					807D0C942F378EE200F47767 = {
+						CreatedOnToolsVersion = 26.2;
+						LastSwiftMigration = 2620;
+					};
+				};
+			};
+			buildConfigurationList = 807D0A7B2F3730BB00F47767 /* Build configuration list for PBXProject "Eden" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 807D0A772F3730BB00F47767;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				807D0AAC2F3786DC00F47767 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				807D0AB72F37871A00F47767 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 807D0A812F3730BB00F47767 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				807D0A7F2F3730BB00F47767 /* Eden */,
+				807D0A8E2F3730BD00F47767 /* EdenTests */,
+				807D0A982F3730BD00F47767 /* EdenUITests */,
+				807D0C942F378EE200F47767 /* Stash Share Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		807D0A7E2F3730BB00F47767 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				807D0C762F378A6300F47767 /* ARCHITECTURE.md in Resources */,
+				807D0C772F378A6300F47767 /* README 2.md in Resources */,
+				807D0C782F378A6300F47767 /* QUICKSTART.md in Resources */,
+				807D0BE82F3789C700F47767 /* project-ref in Resources */,
+				807D0BEC2F3789C700F47767 /* cli-latest in Resources */,
+				807D0BF32F3789C700F47767 /* storage-version in Resources */,
+				807D0BFC2F3789C700F47767 /* schema.sql in Resources */,
+				807D0C012F3789C700F47767 /* install.html in Resources */,
+				807D0C022F3789C700F47767 /* save-page.js in Resources */,
+				807D0C052F3789C700F47767 /* postgres-version in Resources */,
+				807D0C0C2F3789C700F47767 /* 001_add_books_and_vectors.sql in Resources */,
+				807D0C0D2F3789C700F47767 /* rest-version in Resources */,
+				807D0C102F3789C700F47767 /* storage-migration in Resources */,
+				807D0C212F3789C700F47767 /* 002_semantic_search.sql in Resources */,
+				807D0C302F3789C700F47767 /* pooler-url in Resources */,
+				807D0C332F3789C700F47767 /* gotrue-version in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		807D0A8D2F3730BD00F47767 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				807D0B3D2F3789C700F47767 /* project-ref in Resources */,
+				807D0B412F3789C700F47767 /* cli-latest in Resources */,
+				807D0B482F3789C700F47767 /* storage-version in Resources */,
+				807D0B512F3789C700F47767 /* schema.sql in Resources */,
+				807D0B562F3789C700F47767 /* install.html in Resources */,
+				807D0B572F3789C700F47767 /* save-page.js in Resources */,
+				807D0B5A2F3789C700F47767 /* postgres-version in Resources */,
+				807D0B612F3789C700F47767 /* 001_add_books_and_vectors.sql in Resources */,
+				807D0B622F3789C700F47767 /* rest-version in Resources */,
+				807D0B652F3789C700F47767 /* storage-migration in Resources */,
+				807D0C7A2F378A6300F47767 /* ARCHITECTURE.md in Resources */,
+				807D0C7B2F378A6300F47767 /* README 2.md in Resources */,
+				807D0C7C2F378A6300F47767 /* QUICKSTART.md in Resources */,
+				807D0B762F3789C700F47767 /* 002_semantic_search.sql in Resources */,
+				807D0B852F3789C700F47767 /* pooler-url in Resources */,
+				807D0B882F3789C700F47767 /* gotrue-version in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		807D0A972F3730BD00F47767 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				807D0B902F3789C700F47767 /* project-ref in Resources */,
+				807D0B942F3789C700F47767 /* cli-latest in Resources */,
+				807D0B9B2F3789C700F47767 /* storage-version in Resources */,
+				807D0BA42F3789C700F47767 /* schema.sql in Resources */,
+				807D0BA92F3789C700F47767 /* install.html in Resources */,
+				807D0BAA2F3789C700F47767 /* save-page.js in Resources */,
+				807D0BAD2F3789C700F47767 /* postgres-version in Resources */,
+				807D0BB42F3789C700F47767 /* 001_add_books_and_vectors.sql in Resources */,
+				807D0BB52F3789C700F47767 /* rest-version in Resources */,
+				807D0BB82F3789C700F47767 /* storage-migration in Resources */,
+				807D0C582F378A6300F47767 /* ARCHITECTURE.md in Resources */,
+				807D0C592F378A6300F47767 /* README 2.md in Resources */,
+				807D0C5A2F378A6300F47767 /* QUICKSTART.md in Resources */,
+				807D0BC92F3789C700F47767 /* 002_semantic_search.sql in Resources */,
+				807D0BD82F3789C700F47767 /* pooler-url in Resources */,
+				807D0BDB2F3789C700F47767 /* gotrue-version in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		807D0C932F378EE200F47767 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		807D0A7C2F3730BB00F47767 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				807D0C6A2F378A6300F47767 /* SaveDetailView.swift in Sources */,
+				807D0C6B2F378A6300F47767 /* SettingsView.swift in Sources */,
+				807D0C6C2F378A6300F47767 /* SearchView.swift in Sources */,
+				807D0C6D2F378A6300F47767 /* StashApp.swift in Sources */,
+				807D0D032F38F00000F47767 /* Config.swift in Sources */,
+				807D0C6E2F378A6300F47767 /* Save.swift in Sources */,
+				807D0C6F2F378A6300F47767 /* Folder.swift in Sources */,
+				807D0C702F378A6300F47767 /* Tag.swift in Sources */,
+				807D0C712F378A6300F47767 /* SyncService.swift in Sources */,
+				807D0C722F378A6300F47767 /* SavesListView.swift in Sources */,
+				807D0C732F378A6300F47767 /* SupabaseService.swift in Sources */,
+				807D0C752F378A6300F47767 /* FoldersView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		807D0A8B2F3730BD00F47767 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				807D0C7F2F378A6300F47767 /* SaveDetailView.swift in Sources */,
+				807D0C802F378A6300F47767 /* SettingsView.swift in Sources */,
+				807D0C812F378A6300F47767 /* SearchView.swift in Sources */,
+				807D0C822F378A6300F47767 /* StashApp.swift in Sources */,
+				807D0C832F378A6300F47767 /* Save.swift in Sources */,
+				807D0C842F378A6300F47767 /* Folder.swift in Sources */,
+				807D0C852F378A6300F47767 /* Tag.swift in Sources */,
+				807D0C862F378A6300F47767 /* SyncService.swift in Sources */,
+				807D0C872F378A6300F47767 /* SavesListView.swift in Sources */,
+				807D0C882F378A6300F47767 /* SupabaseService.swift in Sources */,
+				807D0C8A2F378A6300F47767 /* FoldersView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		807D0A952F3730BD00F47767 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				807D0C5D2F378A6300F47767 /* SaveDetailView.swift in Sources */,
+				807D0C5E2F378A6300F47767 /* SettingsView.swift in Sources */,
+				807D0C5F2F378A6300F47767 /* SearchView.swift in Sources */,
+				807D0C602F378A6300F47767 /* StashApp.swift in Sources */,
+				807D0C612F378A6300F47767 /* Save.swift in Sources */,
+				807D0C622F378A6300F47767 /* Folder.swift in Sources */,
+				807D0C632F378A6300F47767 /* Tag.swift in Sources */,
+				807D0C642F378A6300F47767 /* SyncService.swift in Sources */,
+				807D0C652F378A6300F47767 /* SavesListView.swift in Sources */,
+				807D0C662F378A6300F47767 /* SupabaseService.swift in Sources */,
+				807D0C682F378A6300F47767 /* FoldersView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		807D0C912F378EE200F47767 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		807D0A912F3730BD00F47767 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 807D0A7F2F3730BB00F47767 /* Eden */;
+			targetProxy = 807D0A902F3730BD00F47767 /* PBXContainerItemProxy */;
+		};
+		807D0A9B2F3730BD00F47767 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 807D0A7F2F3730BB00F47767 /* Eden */;
+			targetProxy = 807D0A9A2F3730BD00F47767 /* PBXContainerItemProxy */;
+		};
+		807D0C9E2F378EE200F47767 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 807D0C942F378EE200F47767 /* Stash Share Extension */;
+			targetProxy = 807D0C9D2F378EE200F47767 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		807D0AA12F3730BD00F47767 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		807D0AA22F3730BD00F47767 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		807D0AA42F3730BD00F47767 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Eden/Eden.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Eden.stash;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		807D0AA52F3730BD00F47767 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Eden/Eden.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Eden.stash;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		807D0AA72F3730BD00F47767 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Eden.EdenTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Eden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Eden";
+			};
+			name = Debug;
+		};
+		807D0AA82F3730BD00F47767 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Eden.EdenTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Eden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Eden";
+			};
+			name = Release;
+		};
+		807D0AAA2F3730BD00F47767 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Eden.EdenUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Eden;
+			};
+			name = Debug;
+		};
+		807D0AAB2F3730BD00F47767 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Eden.EdenUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Eden;
+			};
+			name = Release;
+		};
+		807D0CA12F378EE200F47767 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Stash Share Extension/Stash Share Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Stash Share Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Stash Share Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Eden.stash.shareextension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Stash Share Extension/Stash Share Extension-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		807D0CA22F378EE200F47767 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Stash Share Extension/Stash Share Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XN96KGZ825;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Stash Share Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Stash Share Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Eden.stash.shareextension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Stash Share Extension/Stash Share Extension-Bridging-Header.h";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		807D0A7B2F3730BB00F47767 /* Build configuration list for PBXProject "Eden" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				807D0AA12F3730BD00F47767 /* Debug */,
+				807D0AA22F3730BD00F47767 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		807D0AA32F3730BD00F47767 /* Build configuration list for PBXNativeTarget "Eden" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				807D0AA42F3730BD00F47767 /* Debug */,
+				807D0AA52F3730BD00F47767 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		807D0AA62F3730BD00F47767 /* Build configuration list for PBXNativeTarget "EdenTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				807D0AA72F3730BD00F47767 /* Debug */,
+				807D0AA82F3730BD00F47767 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		807D0AA92F3730BD00F47767 /* Build configuration list for PBXNativeTarget "EdenUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				807D0AAA2F3730BD00F47767 /* Debug */,
+				807D0AAB2F3730BD00F47767 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		807D0CA02F378EE200F47767 /* Build configuration list for PBXNativeTarget "Stash Share Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				807D0CA12F378EE200F47767 /* Debug */,
+				807D0CA22F378EE200F47767 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		807D0AAC2F3786DC00F47767 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+		807D0AB72F37871A00F47767 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.11.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		807D0AAD2F3786DC00F47767 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 807D0AAC2F3786DC00F47767 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		807D0AAF2F3786DC00F47767 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 807D0AAC2F3786DC00F47767 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		807D0AB12F3786DC00F47767 /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 807D0AAC2F3786DC00F47767 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		807D0AB32F3786DC00F47767 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 807D0AAC2F3786DC00F47767 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		807D0AB52F3786DC00F47767 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 807D0AAC2F3786DC00F47767 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		807D0AB82F37871A00F47767 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 807D0AB72F37871A00F47767 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+		807D0CB52F379A0100F47767 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 807D0AAC2F3786DC00F47767 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 807D0A782F3730BB00F47767 /* Project object */;
+}

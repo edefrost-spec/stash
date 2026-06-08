@@ -33,11 +33,12 @@ supabase/.env
 
 # iOS
 ios/Config.swift
-ios/*.xcodeproj
-ios/*.xcworkspace
+ios/Eden/New Group/Stash/Config.swift
+ios/Eden/Stash Share Extension/Config.swift
+ios/Eden/Eden.xcodeproj/xcuserdata/
+ios/Eden/Eden.xcodeproj/project.xcworkspace/xcuserdata/
 ios/DerivedData/
 ios/build/
 ios/.swiftpm/
 ios/*.ipa
 ios/*.dSYM.zip
-ios/Eden/.git

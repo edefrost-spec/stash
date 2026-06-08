@@ -29,3 +29,9 @@ jobs:
           VERCEL_GIT_COMMIT_SHA="${{ github.sha }}" bash scripts/version-sw.sh
           grep -qE "stash-[a-f0-9]{7}" web/sw.js
           echo "✓ SW version script produces a correctly-formed cache key"
+
+      - name: Check bookmarklet files are in sync
+        run: |
+          diff bookmarklet/install.html "ios/Eden/New Group/bookmarklet/install.html"
+          diff bookmarklet/save-page.js "ios/Eden/New Group/bookmarklet/save-page.js"
+          echo "✓ Bookmarklet files are identical in both locations"
