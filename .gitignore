@@ -25,7 +25,11 @@ config.local.js
 
 # Build artifacts
 *.zip
+
+# Supabase local dev (config.toml is committed; these are not)
 supabase/.temp/
+supabase/.branches/
+supabase/.env
 
 # iOS
 ios/Config.swift
