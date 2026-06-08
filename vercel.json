@@ -1,0 +1,5 @@
+{
+  "buildCommand": "bash scripts/version-sw.sh",
+  "outputDirectory": "web",
+  "installCommand": ""
+}
